@@ -10,22 +10,20 @@ import 'package:meta/meta.dart';
 part 'authentication_state.dart';
 part 'authentication_event.dart';
 
-
 class AuthenticationCubit extends Cubit<AuthenticationState> {
-
-  AuthenticationCubit({
-    @required AuthenticationService authenticationService,
-    @required UserService userService
-  }) :  assert(authenticationService != null),
+  AuthenticationCubit(
+      {@required AuthenticationService authenticationService,
+      @required UserService userService})
+      : assert(authenticationService != null),
         assert(userService != null),
         _authenticationService = authenticationService,
         _userService = userService,
-        super(const AuthenticationState.unknown()){
-          _authenticationStatusSubscription = _authenticationService.status.listen(
-            (status) => _mapAuthenticationStatusChangedToState(AuthenticationStatusChanged(status))
-            ,);
-        }
-
+        super(const AuthenticationState.unknown()) {
+    _authenticationStatusSubscription = _authenticationService.status.listen(
+      (status) => _mapAuthenticationStatusChangedToState(
+          AuthenticationStatusChanged(status)),
+    );
+  }
 
   final AuthenticationService _authenticationService;
   final UserService _userService;
@@ -40,27 +38,25 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
     }
   }
 
-   @override
+  @override
   Future<void> close() {
     _authenticationStatusSubscription?.cancel();
     _authenticationService.dispose();
     return super.close();
   }
 
-
   void _mapAuthenticationStatusChangedToState(
-    AuthenticationStatusChanged event,
-  ) async {
+      AuthenticationStatusChanged event) async {
     switch (event.status) {
       case AuthenticationStatus.unauthenticated:
-          emit(AuthenticationState.unauthenticated());
-          break;
+        emit(AuthenticationState.unauthenticated());
+        break;
       case AuthenticationStatus.authenticated:
         final user = await _tryGetUser();
 
         if (user != null) {
           emit(AuthenticationState.authenticated(user));
-        } else { 
+        } else {
           emit(AuthenticationState.unauthenticated());
         }
         break;
@@ -69,6 +65,4 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
         break;
     }
   }
-
-
 }

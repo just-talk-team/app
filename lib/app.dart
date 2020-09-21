@@ -64,9 +64,8 @@ class _AppViewState extends State<AppView> {
         );
       },
       theme: ThemeData(
-          primaryColor: Colors.black,
-          accentColor: Colors.grey[900],
-          brightness: Brightness.dark,
+          primaryColor: Colors.white,
+          accentColor: Colors.black,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           buttonColor: Colors.black),
     );
