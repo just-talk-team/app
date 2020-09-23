@@ -1,68 +1,57 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
 import 'package:just_talk/services/authentication_service.dart';
-import 'package:just_talk/services/user_service.dart';
 import 'package:meta/meta.dart';
 
 part 'authentication_state.dart';
 part 'authentication_event.dart';
 
 class AuthenticationCubit extends Cubit<AuthenticationState> {
-  AuthenticationCubit(
-      {@required AuthenticationService authenticationService,
-      @required UserService userService})
+  AuthenticationCubit({@required AuthenticationService authenticationService})
       : assert(authenticationService != null),
-        assert(userService != null),
         _authenticationService = authenticationService,
-        _userService = userService,
         super(const AuthenticationState.unknown()) {
-    _authenticationStatusSubscription = _authenticationService.status.listen(
-      (status) => _mapAuthenticationStatusChangedToState(
-          AuthenticationStatusChanged(status)),
-    );
+    _userSubscription = _authenticationService.user.listen((user) =>
+        _mapAuthenticationUserChangedToState(AuthenticationUserChanged(user)));
   }
 
   final AuthenticationService _authenticationService;
-  final UserService _userService;
-  StreamSubscription<AuthenticationStatus> _authenticationStatusSubscription;
-
-  Future<User> _tryGetUser() async {
-    try {
-      final user = await _userService.getUser();
-      return user;
-    } on Exception {
-      return null;
-    }
-  }
+  StreamSubscription<User> _userSubscription;
 
   @override
   Future<void> close() {
-    _authenticationStatusSubscription?.cancel();
-    _authenticationService.dispose();
+    _userSubscription?.cancel();
     return super.close();
   }
 
-  void _mapAuthenticationStatusChangedToState(
-      AuthenticationStatusChanged event) async {
-    switch (event.status) {
-      case AuthenticationStatus.unauthenticated:
-        emit(AuthenticationState.unauthenticated());
-        break;
-      case AuthenticationStatus.authenticated:
-        final user = await _tryGetUser();
+  void logOut() {
+    _authenticationService.logOut().then((value) => log("Logout"));
+  }
 
-        if (user != null) {
-          emit(AuthenticationState.authenticated(user));
-        } else {
-          emit(AuthenticationState.unauthenticated());
-        }
-        break;
-      default:
-        emit(AuthenticationState.unknown());
-        break;
+  void logWithFacebook() async {
+    final facebookLogin = FacebookLogin();
+    final result = await facebookLogin.logIn(customPermissions: ['email']);
+    if (result.status != FacebookLoginStatus.Success) {
+      return;
+    }
+
+    final firebaseAuthPackage.AuthCredential credential =
+        firebaseAuthPackage.FacebookAuthProvider.credential(
+            result.accessToken.token);
+    await _authenticationService.logInWithFacebook(authCredential: credential);
+  }
+
+  void _mapAuthenticationUserChangedToState(AuthenticationUserChanged event) {
+    if (event.user != User.empty) {
+      emit(AuthenticationState.authenticated(event.user));
+    } else {
+      emit(AuthenticationState.unauthenticated());
     }
   }
 }

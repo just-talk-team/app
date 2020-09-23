@@ -1,34 +1,49 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
+import 'package:just_talk/models/user.dart';
 import 'package:meta/meta.dart';
 
-enum AuthenticationStatus { unknown, authenticated, unauthenticated }
+class LogInWithFacebookFailure implements Exception {}
+
+class LogOutFailure implements Exception {}
 
 class AuthenticationService {
-  final _controller = StreamController<AuthenticationStatus>();
+  AuthenticationService({firebaseAuthPackage.FirebaseAuth firebaseAuth})
+      : _firebaseAuth =
+            firebaseAuth ?? firebaseAuthPackage.FirebaseAuth.instance;
 
-  Stream<AuthenticationStatus> get status async* {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    yield AuthenticationStatus.unauthenticated;
-    yield* _controller.stream;
+  final firebaseAuthPackage.FirebaseAuth _firebaseAuth;
+
+  Stream<User> get user {
+    return _firebaseAuth.userChanges().map((firebaseUser) {
+      return firebaseUser == null ? User.empty : firebaseUser.toUser;
+    });
   }
 
-  Future<void> logIn({
-    @required String username,
-    @required String password,
-  }) async {
-    assert(username != null);
-    assert(password != null);
-
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-      () => _controller.add(AuthenticationStatus.authenticated),
-    );
+  Future<void> logInWithFacebook(
+      {@required firebaseAuthPackage.AuthCredential authCredential}) async {
+    assert(authCredential != null);
+    try {
+      final result = await _firebaseAuth.signInWithCredential(authCredential);
+      log(result.user.toString());
+    } on Exception {
+      throw LogInWithFacebookFailure();
+    }
   }
 
-  void logOut() {
-    _controller.add(AuthenticationStatus.unauthenticated);
+  Future<void> logOut() async {
+    try {
+      await Future.wait([_firebaseAuth.signOut()]);
+    } on Exception {
+      throw LogOutFailure();
+    }
   }
+}
 
-  void dispose() => _controller.close();
+extension on firebaseAuthPackage.User {
+  User get toUser {
+    return User(id: uid, email: email, name: displayName, photo: photoURL);
+  }
 }

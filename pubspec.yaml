@@ -29,6 +29,10 @@ dependencies:
   rxdart: ^0.24.1
   uuid: ^2.1.0
   formz: ^0.3.1
+  flutter_login_facebook: ^0.2.1
+  flutter_signin_button: ^1.1.0
+  firebase_auth: ^0.18.0+1
+  firebase_core : ^0.5.0
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -54,7 +58,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  #assets:
+  #    -asset
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
@@ -69,7 +74,18 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+  fonts:
+      - family: CustomIcons
+        fonts:
+          - asset: fonts/FacebookIcon.ttf
+
+      - family: ArialRounded
+        fonts:
+          - asset: fonts/ARIALROUNDEDMT.ttf
+            style: normal
+          - asset: fonts/ARLRDBD.ttf
+            weight: 700
+         
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

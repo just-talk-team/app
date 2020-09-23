@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "37944249948",
+    "firebase_url": "https://just-talk-2021.firebaseio.com",
+    "project_id": "just-talk-2021",
+    "storage_bucket": "just-talk-2021.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37944249948:android:c46dc6b9331d4334f6a099",
+        "android_client_info": {
+          "package_name": "com.adrenalina.just_talk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "37944249948-4unv48ft20qv32gcoh3vj9qjh9rlv2nc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDULRUhOU_Nytms2vQAnR2S1uIiIdsnIUU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "37944249948-4unv48ft20qv32gcoh3vj9qjh9rlv2nc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

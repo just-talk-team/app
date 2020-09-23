@@ -1,32 +1,27 @@
 import 'dart:developer';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/route_generator.dart';
 import 'package:just_talk/services/authentication_service.dart';
-import 'package:just_talk/services/user_service.dart';
 
 class App extends StatelessWidget {
-  const App(
-      {Key key,
-      @required this.authenticationService,
-      @required this.userService})
+  App({Key key, @required this.authenticationService})
       : assert(authenticationService != null),
-        assert(userService != null),
-        super(key: key);
+        super(key: key) {
+  }
 
   final AuthenticationService authenticationService;
-  final UserService userService;
 
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider.value(
       value: authenticationService,
       child: BlocProvider(
-          create: (_) => AuthenticationCubit(
-              authenticationService: authenticationService,
-              userService: userService),
+          create: (_) =>
+              AuthenticationCubit(authenticationService: authenticationService),
           child: AppView()),
     );
   }
@@ -53,7 +48,7 @@ class _AppViewState extends State<AppView> {
               case AuthenticationStatus.authenticated:
                 _navigator.pushReplacementNamed('/home');
                 break;
-              case AuthenticationStatus.unauthenticated:  
+              case AuthenticationStatus.unauthenticated:
                 _navigator.pushNamed('/login');
                 break;
               default:
