@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('Git Checkout'){
             steps{
-               
+                echo 'git checkout'
+                git credentialsId: 'GithubSSH', url: 'https://github.com/just-talk-team/app.git/'
                 sh 'bundle install'
               
             }
