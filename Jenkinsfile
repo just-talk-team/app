@@ -9,8 +9,7 @@ pipeline {
         }
         stage('Test Stage') {
             steps{
-                echo 'Runing Test stage'
-                sh 'bundle exec fastline test'
+               
             }
         }
     
