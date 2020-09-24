@@ -37,4 +37,7 @@ platform :android do
   end
 end
 
+lane :test do
+    gradle(task: "test")
+  end
 
