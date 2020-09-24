@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Test Stage') {
             steps{
-                echo 'Runing Test stage test'
+                echo 'Runing Test stage'
                 sh 'bundle install'
             }
         }
