@@ -36,7 +36,15 @@ platform :android do
     upload_to_play_store
   end
 end
+lane :beta do
+  # Adjust the `build_type` and `flavor` params as needed to build the right APK for your setup
+  gradle(
+    task: 'assemble',
+    build_type: 'Release'
+  )
 
+  # ...
+end
 lane :tests do
   gradle(task: "test")
 end
