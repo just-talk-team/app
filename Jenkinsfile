@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Test Stage') {
            steps {
-                echo 'Runing deployment stage'
+                echo 'Runing Test stage'
                 echo 'pwd'
                 sh ('cd /var/lib/jenkins/workspace/JustTalkPL_integracion_fastlane')
                 sh ('flutter pub get')
