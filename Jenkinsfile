@@ -4,7 +4,7 @@ pipeline {
         stage('Git Checkout'){
             steps{
                
-                sh 'bundle install'
+                sh 'sudo bundle exec bundle install'
               
             }
         }
