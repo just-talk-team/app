@@ -36,3 +36,7 @@ platform :android do
     upload_to_play_store
   end
 end
+
+lane :tests do
+  gradle(task: "test")
+end
