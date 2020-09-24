@@ -5,7 +5,7 @@ pipeline {
             steps{
                 echo 'git checkout'
                 git credentialsId: 'GithubSSH', url: 'https://github.com/just-talk-team/app.git/'
-                sh 'sudo bundle install'
+                sh 'bundle install'
                 sh 'bundle exec fastlane tests'
             }
         }
