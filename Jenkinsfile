@@ -5,12 +5,12 @@ pipeline {
             steps{
                 echo 'git checkout'
                 git credentialsId: 'GithubSSH', url: 'https://github.com/just-talk-team/app.git/'
-                sh 'fastlane tests'
             }
         }
         stage('Compile Stage') {
             steps{
                 echo 'Runing compile stage'
+                sh 'bundle exec fastlane tests'
             }
         }
     
