@@ -10,6 +10,10 @@ pipeline {
         stage('Test Stage') {
            steps {
                 echo 'Runing deployment stage'
+                sh 'pwd'
+                sh 'flutter pub get'
+                sh 'cd android'
+                sh 'bundle exec fastline test'
             }
         }
     
