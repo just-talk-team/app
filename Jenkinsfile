@@ -11,10 +11,12 @@ pipeline {
            steps {
                 echo 'Runing deployment stage'
                 echo 'pwd'
+                withEnv( ['PATH+EXTRA=/opt/flutter/bin']){
                 sh 'cd /var/lib/jenkins/workspace/JustTalkPL_integracion_fastlane'
                 sh 'flutter pub get'
                 sh 'cd android'
                 sh 'bundle exec fastline test'
+                }
             }
         }
     
