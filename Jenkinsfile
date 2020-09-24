@@ -10,7 +10,7 @@ pipeline {
         stage('Test Stage') {
             steps{
                 echo 'Runing Test stage'
-                sh 'bundle install'
+                bundle install
             }
         }
     
