@@ -7,9 +7,9 @@ pipeline {
                 git credentialsId: 'GithubSSH', url: 'https://github.com/just-talk-team/app.git/'
             }
         }
-        stage('Compile Stage') {
+        stage('Test Stage') {
             steps{
-                echo 'Runing compile stage'
+                echo 'Runing Test stage'
                 sh 'bundle exec fastlane tests'
             }
         }
