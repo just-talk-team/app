@@ -1,20 +1,21 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
-import 'package:meta/meta.dart';
 
 class LogInWithFacebookFailure implements Exception {}
 
 class LogOutFailure implements Exception {}
 
 class AuthenticationService {
-  AuthenticationService({firebaseAuthPackage.FirebaseAuth firebaseAuth})
-      : _firebaseAuth =
-            firebaseAuth ?? firebaseAuthPackage.FirebaseAuth.instance;
+  AuthenticationService({
+    firebaseAuthPackage.FirebaseAuth firebaseAuth,
+    FacebookLogin facebookLogin,
+  }): _firebaseAuth = firebaseAuth ?? firebaseAuthPackage.FirebaseAuth.instance,
+        _facebookLogin = facebookLogin ?? FacebookLogin();
 
   final firebaseAuthPackage.FirebaseAuth _firebaseAuth;
+  final FacebookLogin _facebookLogin;
 
   Stream<User> get user {
     return _firebaseAuth.userChanges().map((firebaseUser) {
@@ -22,12 +23,19 @@ class AuthenticationService {
     });
   }
 
-  Future<void> logInWithFacebook(
-      {@required firebaseAuthPackage.AuthCredential authCredential}) async {
-    assert(authCredential != null);
+  Future<firebaseAuthPackage.AuthCredential> logInWithFacebook() async {
+      final result = await _facebookLogin.logIn(customPermissions: ['email']);
+      if (result.status != FacebookLoginStatus.Success) {
+        return null;
+      }  
+      return firebaseAuthPackage.FacebookAuthProvider.credential(
+              result.accessToken.token);
+  }
+
+  Future<void> logInWithCredentials(firebaseAuthPackage.AuthCredential authCredential) async {
     try {
-      final result = await _firebaseAuth.signInWithCredential(authCredential);
-      log(result.user.toString());
+      await _firebaseAuth.signInWithCredential(authCredential);
+      //log(user_result.user.toString());
     } on Exception {
       throw LogInWithFacebookFailure();
     }

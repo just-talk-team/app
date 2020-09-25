@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
@@ -10,8 +9,7 @@ import 'package:just_talk/services/authentication_service.dart';
 class App extends StatelessWidget {
   App({Key key, @required this.authenticationService})
       : assert(authenticationService != null),
-        super(key: key) {
-  }
+        super(key: key);
 
   final AuthenticationService authenticationService;
 
