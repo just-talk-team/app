@@ -29,7 +29,7 @@ class Login extends StatelessWidget {
                 ClipPath(
                   clipper: CustomHalfCircleClipper(),
                   child: Container(
-                    height: MediaQuery.of(context).size.height / 2,
+                    height: MediaQuery.of(context).size.height / 2.5,
                     width: MediaQuery.of(context).size.width,
                     decoration: new BoxDecoration(
                       color: Colors.yellow,
