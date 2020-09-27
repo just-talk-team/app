@@ -3,11 +3,11 @@
     <string name="app_name">Just Talk</string>
 
     <!-- Replace "000000000000" with your Facebook App ID here. -->
-    <string name="facebook_app_id">325184672118136</string>
+    <string name="facebook_app_id">359508188751622</string>
 
     <!--
       Replace "000000000000" with your Facebook App ID here.
       **NOTE**: The scheme needs to start with `fb` and then your ID.
     -->
-    <string name="fb_login_protocol_scheme">fb325184672118136</string>
+    <string name="fb_login_protocol_scheme">fb359508188751622</string>
 </resources>

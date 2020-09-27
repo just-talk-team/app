@@ -8,6 +8,7 @@ import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
 import 'package:just_talk/services/authentication_service.dart';
 import 'package:meta/meta.dart';
+import 'package:pedantic/pedantic.dart';
 
 part 'authentication_state.dart';
 part 'authentication_event.dart';
@@ -18,7 +19,7 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
         _authenticationService = authenticationService,
         super(const AuthenticationState.unknown()) {
     _userSubscription = _authenticationService.user.listen((user) =>
-        _mapAuthenticationUserChangedToState(AuthenticationUserChanged(user)));
+        mapAuthenticationUserChangedToState(AuthenticationUserChanged(user)));
   }
 
   final AuthenticationService _authenticationService;
@@ -31,23 +32,14 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   }
 
   void logOut() {
-    _authenticationService.logOut().then((value) => log("Logout"));
+    unawaited(_authenticationService.logOut());
   }
 
   void logWithFacebook() async {
-    final facebookLogin = FacebookLogin();
-    final result = await facebookLogin.logIn(customPermissions: ['email']);
-    if (result.status != FacebookLoginStatus.Success) {
-      return;
-    }
-
-    final firebaseAuthPackage.AuthCredential credential =
-        firebaseAuthPackage.FacebookAuthProvider.credential(
-            result.accessToken.token);
-    await _authenticationService.logInWithFacebook(authCredential: credential);
+    await _authenticationService.logInWithCredentials(await _authenticationService.logInWithFacebook());
   }
 
-  void _mapAuthenticationUserChangedToState(AuthenticationUserChanged event) {
+  void mapAuthenticationUserChangedToState(AuthenticationUserChanged event) {
     if (event.user != User.empty) {
       emit(AuthenticationState.authenticated(event.user));
     } else {

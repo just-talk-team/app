@@ -12,73 +12,77 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Stack(
+        body: Column(
           //alignment: WrapAlignment.center,
           children: [
-            Positioned(
-              top: 450.0,
-              child: ClipPath(
-                clipper: CustomHalfCircleClipper(),
-                child: new Container(
-                  height: 400,
-                  width: 400,
-                  decoration: new BoxDecoration(
-                    color: Colors.yellow,
-                  ),
-                ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                  padding: EdgeInsets.fromLTRB(40.0, 100.0, 40.0, 0.0),
+                  alignment: Alignment.center,
+                  child: AppTitle()
               ),
             ),
-            Container(
-                padding: EdgeInsets.fromLTRB(40.0, 120.0, 40.0, 0.0),
-                alignment: Alignment.center,
-                child: LoginForm()),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipPath(
+                  clipper: CustomHalfCircleClipper(),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height / 2.5,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: new BoxDecoration(
+                      color: Colors.yellow,
+                    ),
+                  ),
+                ),
+                BlocBuilder<AuthenticationCubit, AuthenticationState>(
+                    builder: (context, state) {
+                  return SignInButtonBuilder(
+                    innerPadding:
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 30.0),
+                    icon: CustomIcons.facebook,
+                    onPressed: () =>
+                        context.bloc<AuthenticationCubit>().logWithFacebook(),
+                    backgroundColor: Colors.black,
+                    text: "Facebook",
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    fontSize: 20.0,
+                  );
+                }),
+              ],
+            )
           ],
         ));
   }
 }
 
-class LoginForm extends StatelessWidget {
+class AppTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthenticationCubit, AuthenticationState>(
-        builder: (context, state) {
-      return Column(
-        children: [
-          Text('Just Talk',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'ArialRounded',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 50.0)),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
-            child: Text(
-              'Forma amistades reales de forma segura',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'ArialRounded',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22.0),
-              textAlign: TextAlign.center,
-            ),
+    return Column(
+      children: [
+        Text('Just Talk',
+            style: TextStyle(
+                color: Colors.black,
+                fontFamily: 'ArialRounded',
+                fontWeight: FontWeight.bold,
+                fontSize: 50.0)),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
+          child: Text(
+            'Forma amistades reales de forma segura',
+            style: TextStyle(
+                color: Colors.black,
+                fontFamily: 'ArialRounded',
+                fontWeight: FontWeight.bold,
+                fontSize: 22.0),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(
-            height: 330.0,
-          ),
-          SignInButtonBuilder(
-            innerPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 30.0),
-            icon: CustomIcons.facebook,
-            onPressed: () => context.bloc<AuthenticationCubit>().logWithFacebook(),
-            backgroundColor: Colors.black,
-            text: "Facebook",
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
-            ),
-            fontSize: 20.0,
-          ),
-        ],
-      );
-    });
+        ),
+      ],
+    );
   }
 }
