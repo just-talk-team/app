@@ -48,7 +48,7 @@ class _AppViewState extends State<AppView> {
                 _navigator.pushReplacementNamed('/home');
                 break;
               case AuthenticationStatus.unauthenticated:
-                _navigator.pushNamed('/login');
+                _navigator.pushReplacementNamed('/login');
                 break;
               default:
                 break;
