@@ -25,6 +25,7 @@ class App extends StatelessWidget {
   }
 }
 
+
 class AppView extends StatefulWidget {
   @override
   _AppViewState createState() => _AppViewState();
@@ -57,10 +58,16 @@ class _AppViewState extends State<AppView> {
         );
       },
       theme: ThemeData(
-          primaryColor: Colors.white,
-          accentColor: Colors.black,
+          primaryColor: Colors.black,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          buttonColor: Colors.black),
+          fontFamily: 'ArialRounded',
+          appBarTheme: AppBarTheme(
+            elevation: 0,
+            color: Colors.white,
+            iconTheme: IconThemeData(
+              color: Colors.black)
+          )
+      ),
     );
   }
 }

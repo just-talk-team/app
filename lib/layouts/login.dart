@@ -66,17 +66,13 @@ class AppTitle extends StatelessWidget {
       children: [
         Text('Just Talk',
             style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'ArialRounded',
                 fontWeight: FontWeight.bold,
                 fontSize: 50.0)),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
           child: Text(
             'Forma amistades reales de forma segura',
-            style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'ArialRounded',
+            style: TextStyle(          
                 fontWeight: FontWeight.bold,
                 fontSize: 22.0),
             textAlign: TextAlign.center,
