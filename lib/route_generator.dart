@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/splash.dart';
+import 'package:just_talk/layouts/start.dart';
 
 class RouterGenerator {
 
@@ -13,7 +14,7 @@ class RouterGenerator {
       case '/':
         return MaterialPageRoute(builder: (context) => Splash());
       case '/home':
-        return MaterialPageRoute(builder: (context) => Home());
+        return MaterialPageRoute(builder: (context) => Start());
       case '/login':
         return MaterialPageRoute(builder: (context) => Login());
     }
