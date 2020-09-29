@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/home.dart';
+import 'package:just_talk/layouts/info_Page.dart';
 import 'package:just_talk/layouts/login.dart';
+import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
 import 'package:just_talk/layouts/start.dart';
 
 class RouterGenerator {
-
-
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final Map arg = settings.arguments;
 
@@ -17,6 +17,8 @@ class RouterGenerator {
         return MaterialPageRoute(builder: (context) => Start());
       case '/login':
         return MaterialPageRoute(builder: (context) => Login());
+      case '/register':
+        return MaterialPageRoute(builder: (context) => Register());
     }
 
     return _errorRoute();

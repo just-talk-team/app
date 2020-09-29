@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
@@ -25,6 +24,7 @@ class App extends StatelessWidget {
   }
 }
 
+
 class AppView extends StatefulWidget {
   @override
   _AppViewState createState() => _AppViewState();
@@ -44,10 +44,10 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) {
             switch (state.authenticationStatus) {
               case AuthenticationStatus.authenticated:
-                _navigator.pushReplacementNamed('/home');
+                _navigator.pushReplacementNamed('/register');
                 break;
               case AuthenticationStatus.unauthenticated:
-                _navigator.pushNamed('/login');
+                _navigator.pushReplacementNamed('/login');
                 break;
               default:
                 break;
@@ -57,10 +57,16 @@ class _AppViewState extends State<AppView> {
         );
       },
       theme: ThemeData(
-          primaryColor: Colors.white,
-          accentColor: Colors.black,
+          primaryColor: Colors.black,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          buttonColor: Colors.black),
+          fontFamily: 'ArialRounded',
+          appBarTheme: AppBarTheme(
+            elevation: 0,
+            color: Colors.white,
+            iconTheme: IconThemeData(
+              color: Colors.black)
+          )
+      ),
     );
   }
 }

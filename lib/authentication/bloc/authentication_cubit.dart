@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
 import 'package:just_talk/services/authentication_service.dart';
 import 'package:meta/meta.dart';
