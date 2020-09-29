@@ -44,7 +44,7 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) {
             switch (state.authenticationStatus) {
               case AuthenticationStatus.authenticated:
-                _navigator.pushReplacementNamed('/home');
+                _navigator.pushReplacementNamed('/register');
                 break;
               case AuthenticationStatus.unauthenticated:
                 _navigator.pushReplacementNamed('/login');
