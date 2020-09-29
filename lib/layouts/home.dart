@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/widgets/home_page.dart';
 
 class Home extends StatefulWidget {
-  static List<String> _titles = <String>['Just Talk'];
-
   @override
   _HomeState createState() => _HomeState();
 }

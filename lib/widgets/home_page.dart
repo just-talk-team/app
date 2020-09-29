@@ -6,8 +6,8 @@ import 'package:just_talk/bloc/navbar_cubit.dart';
 
 class HomePage extends StatelessWidget {
   HomePage(this._index, this._navbarCubit);
-  int _index;
-  NavbarCubit _navbarCubit;
+  final int _index;
+  final NavbarCubit _navbarCubit;
 
   @override
   Widget build(BuildContext context) {
