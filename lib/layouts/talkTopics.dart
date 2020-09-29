@@ -27,8 +27,10 @@ class TalkTopics extends StatelessWidget {
       body: Column(
         children: [
           ListBody(),
+          
           TextField(decoration: InputDecoration(
-    hintText: 'Puedo hablar de...'
+    hintText: 'Puedo hablar de...',
+    
   ),
   ),
         ],
