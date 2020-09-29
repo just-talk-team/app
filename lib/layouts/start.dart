@@ -18,13 +18,13 @@ class Start extends StatelessWidget {
         ],
 
       ),
-     
+     backgroundColor: Colors.white,
       body:Column(
           //alignment: WrapAlignment.center,
           children: [
             Center(
               child: Container(
-                  padding: EdgeInsets.fromLTRB(40.0, 100.0, 40.0, 0.0),
+                  padding: EdgeInsets.fromLTRB(40.0, 100.0, 40.0, 0.0), 
                   alignment: Alignment.center,
                   child: AppTitle()
               ),
