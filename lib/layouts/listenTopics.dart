@@ -8,6 +8,7 @@ class ListenTopics extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("¿Sobre qué puedo escuchar?"),
+<<<<<<< Updated upstream
         centerTitle: true,
         backgroundColor: Colors.white,
         actions: [
@@ -15,6 +16,18 @@ class ListenTopics extends StatelessWidget {
           
         ],
       ),
+=======
+       centerTitle: true,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            hoverColor: Color.fromRGBO(179, 16, 72, 1),
+            disabledColor: Colors.black,
+            onPressed: null),
+        actions: [],
+      ),
+      body: null,
+>>>>>>> Stashed changes
     );
   }
 }
