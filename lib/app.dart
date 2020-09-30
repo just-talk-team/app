@@ -55,12 +55,12 @@ class _AppViewState extends State<AppView> {
       onGenerateRoute: RouterGenerator.generateRoute,
       builder: (context, child) {
         return BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) async{
+          listener: (context, state) async {
             switch (state.authenticationStatus) {
-              case AuthenticationStatus.authenticated:     
+              case AuthenticationStatus.authenticated:
                 bool result = await register(state.user.id);
                 if (result) {
-                  _navigator.pushNamed('/home');
+                  _navigator.pushReplacementNamed('/home');
                   break;
                 }
                 _navigator.pushReplacementNamed('/register');

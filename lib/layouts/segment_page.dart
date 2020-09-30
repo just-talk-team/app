@@ -143,7 +143,7 @@ class _SegmentPage extends State<SegmentPage> {
         'topics_hear': FieldValue.arrayUnion(userI.topics),
         'user_type': 'premiun'
       });
-      Navigator.of(context).pushNamed('/home');
+      Navigator.of(context).pushReplacementNamed('/home');
     } else {
       debugPrint("Error");
     }
