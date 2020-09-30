@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
@@ -24,7 +25,6 @@ class App extends StatelessWidget {
   }
 }
 
-
 class AppView extends StatefulWidget {
   @override
   _AppViewState createState() => _AppViewState();
@@ -34,6 +34,20 @@ class _AppViewState extends State<AppView> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   NavigatorState get _navigator => _navigatorKey.currentState;
 
+  Future<bool> register(String user_id) async {
+    bool result = false;
+    var doc = FirebaseFirestore.instance.collection('users');
+
+    var querySnapshot =
+        await doc.limit(1).where('uid', isEqualTo: user_id).get();
+
+    querySnapshot.docs.forEach((element) {
+      result = element.exists;
+    });
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -41,9 +55,14 @@ class _AppViewState extends State<AppView> {
       onGenerateRoute: RouterGenerator.generateRoute,
       builder: (context, child) {
         return BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) {
+          listener: (context, state) async{
             switch (state.authenticationStatus) {
-              case AuthenticationStatus.authenticated:
+              case AuthenticationStatus.authenticated:     
+                bool result = await register(state.user.id);
+                if (result) {
+                  _navigator.pushNamed('/home');
+                  break;
+                }
                 _navigator.pushReplacementNamed('/register');
                 break;
               case AuthenticationStatus.unauthenticated:
@@ -61,12 +80,9 @@ class _AppViewState extends State<AppView> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
           fontFamily: 'ArialRounded',
           appBarTheme: AppBarTheme(
-            elevation: 0,
-            color: Colors.white,
-            iconTheme: IconThemeData(
-              color: Colors.black)
-          )
-      ),
+              elevation: 0,
+              color: Colors.white,
+              iconTheme: IconThemeData(color: Colors.black))),
     );
   }
 }

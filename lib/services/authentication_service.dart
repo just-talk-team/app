@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
@@ -24,7 +25,7 @@ class AuthenticationService {
   }
 
   Future<firebaseAuthPackage.AuthCredential> logInWithFacebook() async {
-      final result = await _facebookLogin.logIn(customPermissions: ['email']);
+      final result =    await _facebookLogin.logIn(customPermissions: ['email']);
       if (result.status != FacebookLoginStatus.Success) {
         return null;
       }  
