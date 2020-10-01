@@ -124,6 +124,19 @@ class _InfoPage extends State<InfoPage> {
       ),
     );
   }
+
+  void _showSnackbar(BuildContext context, String message) {
+    final scaff = Scaffold.of(context);
+    scaff.showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: Color.fromARGB(255, 255, 0, 0),
+      duration: Duration(seconds: 5),
+      action: SnackBarAction(
+        label: "X",
+        onPressed: scaff.hideCurrentSnackBar,
+      ),
+    ));
+  }
 }
 
 class MyTextFieldDatePicker extends StatefulWidget {
