@@ -21,7 +21,8 @@ class _AvatarPage extends State<AvatarPage> {
   void validate() {
     debugPrint("PASSED TO");
     if (widget.userI.imgProfile != null) {
-      widget.pageController.jumpToPage(3);
+       widget.pageController
+          .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
 

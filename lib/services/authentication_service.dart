@@ -25,7 +25,7 @@ class AuthenticationService {
   }
 
   Future<firebaseAuthPackage.AuthCredential> logInWithFacebook() async {
-      final result =    await _facebookLogin.logIn(customPermissions: ['email']);
+      final result = await _facebookLogin.logIn(customPermissions: ['email']);
       if (result.status != FacebookLoginStatus.Success) {
         return null;
       }  

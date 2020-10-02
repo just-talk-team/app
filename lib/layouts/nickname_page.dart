@@ -12,11 +12,14 @@ class NicknamePage extends StatefulWidget {
 
 class _NicknamePage extends State<NicknamePage> {
   TextEditingController nickController = TextEditingController();
+  final textFieldFocusNode = FocusNode();
 
   void validate() {
     debugPrint("PASSED TO");
+    debugPrint(widget.userI.toString());
     if (widget.userI.nickname != null) {
-      widget.pageController.jumpToPage(2);
+      widget.pageController
+          .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
 
@@ -32,7 +35,8 @@ class _NicknamePage extends State<NicknamePage> {
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             )),
         Padding(
-          padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width/5),
+          padding: EdgeInsets.symmetric(
+              vertical: MediaQuery.of(context).size.width / 5),
           child: Text(
             'Elige un nombre de pila! :)',
             textAlign: TextAlign.center,
@@ -44,23 +48,28 @@ class _NicknamePage extends State<NicknamePage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: TextFormField(
-            controller: nickController,
-            decoration: InputDecoration(
+          child: Stack(alignment: Alignment.centerRight, children: <Widget>[
+            TextFormField(
+              controller: nickController,
+              focusNode: textFieldFocusNode,
+              decoration: InputDecoration(
                 hintText: 'Nickname',
                 border: OutlineInputBorder(
                   borderSide: const BorderSide(color: Colors.grey, width: 0.0),
                 ),
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.userI.nickname = nickController.text;
-                      validate();
-                    });
-                  },
-                  icon: Icon(Icons.send),
-                )),
-          ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.send),
+              onPressed: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+                setState(() {
+                  widget.userI.nickname = nickController.text;
+                  validate();
+                });
+              },
+            )
+          ]),
         )
       ]),
     );

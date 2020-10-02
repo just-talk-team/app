@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tuple/tuple.dart';
 
 class UserInput {
   UserInput({
@@ -10,7 +11,7 @@ class UserInput {
     this.imgProfile,
     this.genre,
     this.nickname,
-    this.topics,
+    this.segments,
   });
 
   String email;
@@ -19,5 +20,10 @@ class UserInput {
   File imgProfile;
   String genre;
   String nickname;
-  List<String> topics;
+  List<Tuple2<String, String>> segments;
+
+  @override
+  String toString() {
+    return "$email - $nickname - $dateTime - $genre";
+  }
 }
