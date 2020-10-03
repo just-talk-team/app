@@ -9,6 +9,7 @@ void main() {
     expect(navbarCubit.state, HomeState());
     navbarCubit.close();
   });
+  
   group('NavbarCubit state', () {
     blocTest<NavbarCubit, NavBarState>(
       'NavbarCubit navigation to home',

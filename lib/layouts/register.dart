@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:just_talk/layouts/avatar_Page.dart';
-import 'package:just_talk/layouts/info_Page.dart';
-import 'package:just_talk/layouts/nickname_Page.dart';
-import 'package:just_talk/layouts/segment_Page.dart';
+import 'package:just_talk/layouts/avatar_page.dart';
+import 'package:just_talk/layouts/info_page.dart';
+import 'package:just_talk/layouts/nickname_page.dart';
+import 'package:just_talk/layouts/segment_page.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -43,7 +43,7 @@ class _Register extends State<Register> {
       dateTime: null,
       genre: null,
       nickname: null,
-      topics: [],
+      segments: [],
       imgProfile: null);
 
   //===================================================================

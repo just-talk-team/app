@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/home.dart';
-import 'package:just_talk/layouts/info_page.dart';
 import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';

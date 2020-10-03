@@ -34,12 +34,12 @@ class _AppViewState extends State<AppView> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   NavigatorState get _navigator => _navigatorKey.currentState;
 
-  Future<bool> register(String user_id) async {
+  Future<bool> register(String userId) async {
     bool result = false;
     var doc = FirebaseFirestore.instance.collection('users');
 
     var querySnapshot =
-        await doc.limit(1).where('uid', isEqualTo: user_id).get();
+        await doc.limit(1).where('uid', isEqualTo: userId).get();
 
     querySnapshot.docs.forEach((element) {
       result = element.exists;
@@ -55,12 +55,12 @@ class _AppViewState extends State<AppView> {
       onGenerateRoute: RouterGenerator.generateRoute,
       builder: (context, child) {
         return BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) async{
+          listener: (context, state) async {
             switch (state.authenticationStatus) {
-              case AuthenticationStatus.authenticated:     
+              case AuthenticationStatus.authenticated:
                 bool result = await register(state.user.id);
                 if (result) {
-                  _navigator.pushNamed('/home');
+                  _navigator.pushReplacementNamed('/register');
                   break;
                 }
                 _navigator.pushReplacementNamed('/register');

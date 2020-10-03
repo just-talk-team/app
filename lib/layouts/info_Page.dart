@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:just_talk/models/user_input.dart';
 
+// ignore: must_be_immutable
 class InfoPage extends StatefulWidget {
   PageController pageController;
   UserInput userI;
@@ -20,7 +21,7 @@ class _InfoPage extends State<InfoPage> {
   void validate() {
     debugPrint("PASSED TO");
     if (widget.userI.dateTime != null && widget.userI.genre != null) {
-      widget.pageController.jumpToPage(1);
+      widget.pageController.nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
 
@@ -56,9 +57,6 @@ class _InfoPage extends State<InfoPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    double width = MediaQuery.of(context).size.width;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(30, 110, 30, 0),
       child: Column(

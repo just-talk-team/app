@@ -1,33 +1,35 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/services/user_service.dart';
+import 'package:tuple/tuple.dart';
 
 class SegmentPage extends StatefulWidget {
-  PageController pageController;
+  final PageController pageController;
   UserInput userI;
+
   SegmentPage(this.userI, this.pageController);
+
   @override
   _SegmentPage createState() => _SegmentPage();
 }
 
 class _SegmentPage extends State<SegmentPage> {
-  TextEditingController etUsername = new TextEditingController();
+  TextEditingController etUsername = TextEditingController();
+  UserService userService = UserService();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0, 110, 0,0),
+      padding: EdgeInsets.fromLTRB(0, 110, 0, 0),
       child: Column(children: <Widget>[
         FittedBox(
             fit: BoxFit.contain,
             child: Text(
               'Segmento',
-              style:
-                  TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             )),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
@@ -51,10 +53,10 @@ class _SegmentPage extends State<SegmentPage> {
                 ),
                 suffixIcon: IconButton(
                   onPressed: () {
+                    final domain = etUsername.text.split('@')[1];
+
                     setState(() {
-                      //////////////////////////////////////////////////////////////////////////////////
-                      widget.userI.topics.add(etUsername.text);
-                      /////////////////////////////////////////////////////////////////////////////////
+                      widget.userI.segments.add(Tuple2(etUsername.text, domain));
                       etUsername.clear();
                     });
                   },
@@ -71,16 +73,14 @@ class _SegmentPage extends State<SegmentPage> {
               child: Wrap(
                 spacing: 6.0,
                 runSpacing: 6.0,
-                children: List<Widget>.generate(
-                    widget.userI.topics.length, (int index) {
+                children: List<Widget>.generate(widget.userI.segments.length,
+                    (int index) {
                   return Chip(
-                    label: Text(widget.userI.topics[index]),
+                    label: Text(widget.userI.segments[index].item1),
                     onDeleted: () {
                       setState(() {
-                        widget.userI.topics.removeAt(index);
+                        widget.userI.segments.removeAt(index);
                       });
-                      
-                    
                     },
                   );
                 }),
@@ -95,9 +95,12 @@ class _SegmentPage extends State<SegmentPage> {
             color: Color(0xFFb31020),
             padding: EdgeInsets.all(18.0),
             textColor: Colors.white,
-            onPressed: () {
+            onPressed: () async {
               debugPrint("PASSED TO");
-              registrateUser(widget.userI);
+              if (widget.userI.segments.length != 0) {
+                await userService.registrateUser(widget.userI, BlocProvider.of<AuthenticationCubit>(context).state.user.id);
+                Navigator.of(context).pushReplacementNamed('/home');
+              }
             },
             icon: Icon(Icons.sentiment_satisfied, size: 18),
             label: Text(
@@ -108,44 +111,5 @@ class _SegmentPage extends State<SegmentPage> {
         )
       ]),
     );
-  }
-
-  void registrateUser(UserInput userI) async {
-    if (widget.userI.topics.length != 0) {
-      //Storage
-      final StorageReference postImageRef =
-          FirebaseStorage.instance.ref().child("UserProfile");
-      var timeKey = DateTime.now();
-      final StorageUploadTask uploadTask = postImageRef
-          .child(timeKey.toString() + ".jpg")
-          .putFile(userI.imgProfile);
-      var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
-      String url = imageUrl.toString();
-
-      debugPrint(userI.topics.length.toString());
-
-      await FirebaseFirestore.instance.collection("users").add({
-        'uid': BlocProvider.of<AuthenticationCubit>(context).state.user.id,
-        'avatar': url,
-        'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
-        'birthday': userI.dateTime,
-        'friends': {},
-        'gender': userI.genre,
-        'nickname': userI.nickname,
-        'preferences': {
-          'ages': {
-            'minimun': 18,
-            'maximun': 99,
-          },
-          'segments': {},
-          'genders': {},
-        },
-        'topics_hear': FieldValue.arrayUnion(userI.topics),
-        'user_type': 'premiun'
-      });
-      Navigator.of(context).pushNamed('/home');
-    } else {
-      debugPrint("Error");
-    }
   }
 }
