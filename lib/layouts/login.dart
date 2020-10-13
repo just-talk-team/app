@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:just_talk/authentication/authentication.dart';
+import 'package:just_talk/layouts/preferences_page.dart';
+import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/utils/custom_icons_icons.dart';
 import 'package:just_talk/widgets/half_circle_clipper.dart';
 
@@ -20,8 +22,7 @@ class Login extends StatelessWidget {
               child: Container(
                   padding: EdgeInsets.fromLTRB(40.0, 100.0, 40.0, 0.0),
                   alignment: Alignment.center,
-                  child: AppTitle()
-              ),
+                  child: AppTitle()),
             ),
             Stack(
               alignment: Alignment.center,
@@ -65,16 +66,12 @@ class AppTitle extends StatelessWidget {
     return Column(
       children: [
         Text('Just Talk',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 50.0)),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50.0)),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 30.0),
           child: Text(
             'Forma amistades reales de forma segura',
-            style: TextStyle(          
-                fontWeight: FontWeight.bold,
-                fontSize: 22.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.0),
             textAlign: TextAlign.center,
           ),
         ),
