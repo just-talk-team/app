@@ -1,4 +1,5 @@
 //INFO PAGE ======================================================================
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +22,8 @@ class _InfoPage extends State<InfoPage> {
   void validate() {
     debugPrint("PASSED TO");
     if (widget.userI.dateTime != null && widget.userI.genre != null) {
-      widget.pageController.nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
+      widget.pageController
+          .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
 
@@ -33,7 +35,7 @@ class _InfoPage extends State<InfoPage> {
             itemCount: _choices.length,
             itemBuilder: (BuildContext context, index) {
               return Padding(
-                padding: const EdgeInsets.fromLTRB(0,0,10,0),
+                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                 child: ChoiceChip(
                     label: Text(_choices[index]),
                     selected: _defaultChoiceIndex == index,
@@ -57,60 +59,92 @@ class _InfoPage extends State<InfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 110, 30, 0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          FittedBox(
-              fit: BoxFit.contain,
-              child: Text(
-                'Mis Datos',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              )),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(
-                  vertical: 80.0, 
-                  horizontal: 30.0),
-            child: Text(
-              'Brindanos tus datos, para encontrar personas como tu!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+    return Container(
+        child: Stack(
+      children: <Widget>[
+        //Title
+        Container(
+            child: Column(
+          children: <Widget>[
+            SizedBox(height: 110),
+            Container(
+              child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    'Mis Datos',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  )),
+            ),
+            SizedBox(height: 50),
+            Padding(
+              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+              child: AutoSizeText(
+                'Brindanos tus datos, para encontrar personas como tu!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
               ),
             ),
-          ),
-          Center(
-            child: MyTextFieldDatePicker(
-              labelText: "Date",
-              prefixIcon: Icon(Icons.date_range),
-              suffixIcon: Icon(Icons.arrow_drop_down),
-              lastDate: DateTime.now().add(Duration(days: 366)),
-              firstDate: DateTime(1970),
-              initialDate: DateTime.now().add(Duration(days: 1)),
-              onDateChanged: (selectedDate) {
-                widget.userI.dateTime = Timestamp.fromDate(selectedDate);
-                validate();
-              },
+          ],
+        )),
+        //Content
+
+        Container(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Center(
+                    child: MyTextFieldDatePicker(
+                      labelText: "Date",
+                      prefixIcon: Icon(Icons.date_range),
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      lastDate: DateTime.now().add(Duration(days: 366)),
+                      firstDate: DateTime(1970),
+                      initialDate: DateTime.now().add(Duration(days: 1)),
+                      onDateChanged: (selectedDate) {
+                        widget.userI.dateTime =
+                            Timestamp.fromDate(selectedDate);
+                        validate();
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Sexo',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      Padding(
+                          padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                          child: Center(child: choiceChips())),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 40),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Sexo',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          choiceChips(),
-        ],
-      ),
-    );
+        ),
+      ],
+    ));
   }
 }
 

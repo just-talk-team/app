@@ -42,9 +42,10 @@ class UserService {
     });
 
     userI.segments.forEach((element) async {
-      await newUser.collection('segments').doc(element.item2).set({
-        'email': element.item1
-      });
+      await newUser
+          .collection('segments')
+          .doc(element.item2)
+          .set({'email': element.item1});
     });
     //Insert segments
   }

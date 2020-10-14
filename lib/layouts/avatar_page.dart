@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,54 +22,77 @@ class _AvatarPage extends State<AvatarPage> {
   void validate() {
     debugPrint("PASSED TO");
     if (widget.userI.imgProfile != null) {
-       widget.pageController
+      widget.pageController
           .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 110, 0, 0),
-      child: Column(children: <Widget>[
-        FittedBox(
-            fit: BoxFit.contain,
-            child: Text(
-              'Avatar',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            )),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
-          child: Text(
-            'No elijas una foto tuya! elige algo que te represente a ti :)',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Center(
-          child: widget.userI.imgProfile == null
-              ? SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: FloatingActionButton(
-                    backgroundColor: Color(0xFFb31020),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    ),
-                    onPressed: getImage,
-                    tooltip: 'Pick Image',
+    return Container(
+      child: Stack(
+        children: <Widget>[
+          //Title
+          Container(
+              child: Column(
+            children: <Widget>[
+              SizedBox(height: 110),
+              Container(
+                child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      'Avatar',
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    )),
+              ),
+              SizedBox(height: 70),
+              Padding(
+                padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                child: AutoSizeText(
+                  'No elijas una foto tuya! elige algo que te represente a ti :)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                )
-              : Image.file(
-                  widget.userI.imgProfile,
-                  height: 150.0,
-                  width: 150.0,
+                  maxLines: 2,
                 ),
-        ),
-      ]),
+              ),
+            ],
+          )),
+
+          //Content
+          Container(
+            child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Center(
+                        child: widget.userI.imgProfile == null
+                            ? SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: FloatingActionButton(
+                                  backgroundColor: Color(0xFFb31020),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
+                                  onPressed: getImage,
+                                  tooltip: 'Pick Image',
+                                ),
+                              )
+                            : Image.file(
+                                widget.userI.imgProfile,
+                                height: 150.0,
+                                width: 150.0,
+                              ),
+                      ),
+                    ])),
+          )
+        ],
+      ),
     );
   }
 

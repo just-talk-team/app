@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/login.dart';
+import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
 
@@ -17,6 +18,8 @@ class RouterGenerator {
         return MaterialPageRoute(builder: (context) => Login());
       case '/register':
         return MaterialPageRoute(builder: (context) => Register());
+      case '/preference':
+        return MaterialPageRoute(builder: (context) => Preference());
     }
 
     return _errorRoute();
