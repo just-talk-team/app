@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:just_talk/authentication/authentication.dart';
+import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/utils/custom_icons_icons.dart';
@@ -75,6 +76,15 @@ class AppTitle extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
+        RaisedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Home()),
+            );
+          },
+          child: Text("HomePage"),
+        )
       ],
     );
   }

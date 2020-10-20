@@ -21,7 +21,9 @@ class UserService {
     });
 
     DocumentReference newUser =
-        await FirebaseFirestore.instance.collection("users").add({
+        FirebaseFirestore.instance.collection("users").doc(userId);
+
+    await newUser.set({
       'uid': userId,
       'avatar': url,
       'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
@@ -47,6 +49,5 @@ class UserService {
           .doc(element.item2)
           .set({'email': element.item1});
     });
-    //Insert segments
   }
 }

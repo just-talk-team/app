@@ -12,7 +12,8 @@ class AuthenticationService {
   AuthenticationService({
     firebaseAuthPackage.FirebaseAuth firebaseAuth,
     FacebookLogin facebookLogin,
-  }): _firebaseAuth = firebaseAuth ?? firebaseAuthPackage.FirebaseAuth.instance,
+  })  : _firebaseAuth =
+            firebaseAuth ?? firebaseAuthPackage.FirebaseAuth.instance,
         _facebookLogin = facebookLogin ?? FacebookLogin();
 
   final firebaseAuthPackage.FirebaseAuth _firebaseAuth;
@@ -25,15 +26,16 @@ class AuthenticationService {
   }
 
   Future<firebaseAuthPackage.AuthCredential> logInWithFacebook() async {
-      final result = await _facebookLogin.logIn(customPermissions: ['email']);
-      if (result.status != FacebookLoginStatus.Success) {
-        return null;
-      }  
-      return firebaseAuthPackage.FacebookAuthProvider.credential(
-              result.accessToken.token);
+    final result = await _facebookLogin.logIn(customPermissions: ['email']);
+    if (result.status != FacebookLoginStatus.Success) {
+      return null;
+    }
+    return firebaseAuthPackage.FacebookAuthProvider.credential(
+        result.accessToken.token);
   }
 
-  Future<void> logInWithCredentials(firebaseAuthPackage.AuthCredential authCredential) async {
+  Future<void> logInWithCredentials(
+      firebaseAuthPackage.AuthCredential authCredential) async {
     try {
       await _firebaseAuth.signInWithCredential(authCredential);
       //log(user_result.user.toString());
