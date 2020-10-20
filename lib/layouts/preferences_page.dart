@@ -1,5 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/services/authentication_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 // ignore: must_be_immutable
 class Preference extends StatefulWidget {
@@ -11,23 +16,128 @@ class Preference extends StatefulWidget {
 
 class _Preference extends State<Preference> {
   int _defaultSegment;
-  List<String> _choices = [
-    'Sin segmentación',
-    '@upc.edu.pe',
-    '@cibertec.com.pe',
-    '@gmail.com.pe'
-  ];
-  List<String> _multipleChoices = ['Masculino', 'Femenino'];
-  List<String> _multipleSelected = [];
-  static double _lowerValue = 20.0;
-  static double _upperValue = 30.0;
+  auth.User _currentUser;
+
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
+  AuthenticationService authService;
   RangeValues _currentRangeValues = RangeValues(_lowerValue, _upperValue);
+
+  //Ages
+  static double _lowerValue = 20;
+  static double _upperValue = 30;
+  //Insignias
+  List<int> insignias = [0, 0, 0];
+  //Genders
+  List<String> _multipleSelected = [];
+  //Segments
+  List<String> _choices = [];
+
+  List<String> _multipleChoices = ['Masculino', 'Femenino'];
+
   String interval = "";
 
-  void load_info() {
-    //widget.userI.segments.forEach((element) {
-    //  _choices.add(element.item2);
-    //});
+  @override
+  void initState() {
+    super.initState();
+    _currentUser = _auth.currentUser;
+    var uid = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+
+    DocumentReference checkUser =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+    checkUser.get().then((data) => {
+          if (data.exists) {loadData()}
+        });
+  }
+
+  loadData() async {
+    var uid = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+
+    //Obtain Segments from another collection
+    QuerySnapshot fUser = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('segments')
+        .get();
+
+    fUser.docs.forEach((element) {
+      debugPrint(element.id);
+      _choices.add(element.id);
+    });
+
+    QuerySnapshot q = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: uid)
+        .get();
+    //Genders, ages, segments
+
+    q.docs.forEach((data) {
+      if (data.exists) {
+        debugPrint("UID : " + data.data()['uid']);
+
+        // var genders = data.data()['preferences']['genders'];
+        //debugPrint("aux" + aux);
+
+        //Ages
+        _lowerValue = data.data()['preferences']['ages']['minimun'].toDouble();
+        _upperValue = data.data()['preferences']['ages']['maximun'].toDouble();
+        _currentRangeValues = RangeValues(_lowerValue, _upperValue);
+
+        //Genders
+        var _womenValue = data.data()['preferences']['genders']['women'];
+        var _menValue = data.data()['preferences']['genders']['men'];
+        if (_womenValue == 1) _multipleSelected.add('Femenino');
+        if (_menValue == 1) _multipleSelected.add('Masculino');
+
+        //insignias
+        var _funny = data.data()['badgets']['funny'];
+        var _good_listener = data.data()['badgets']['good_listener'];
+        var _good_talker = data.data()['badgets']['good_talker'];
+
+        if (_funny == 1) insignias[0] = 1;
+        if (_good_listener == 1) insignias[1] = 1;
+        if (_good_talker == 1) insignias[2] = 1;
+      }
+    });
+
+    /*
+    DocumentSnapshot refUser =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    var ages = refUser.data()['preferences']['ages'];
+
+    _lowerValue = ages['minimun'];
+    _upperValue = ages['maximun'];
+
+    debugPrint("_lowevalues" + ages['minimun']);
+    debugPrint("_upper : " + ages['maximun']);
+
+    var selectedSegments = refUser.data()['preferences']['segments'];
+
+    var insigias = refUser.data()['badgets'];
+    */
+    callState();
+  }
+
+  callState() {
+    setState(() {});
+  }
+
+  insertData() async {
+    var uid = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    var getUser = FirebaseFirestore.instance.collection("users").doc(uid);
+
+    await getUser.update({
+      'preferences': {
+        'segments': {_choices},
+        'ages': {"minimum": _lowerValue, "maximum": _upperValue},
+        'genders': _multipleSelected,
+      },
+      'badget': {
+        'funny': insignias[0],
+        'good_listener': insignias[1],
+        'good_talker': insignias[2]
+      }
+    });
   }
 
   Iterable<Widget> get companyWidgets sync* {
@@ -56,28 +166,41 @@ class _Preference extends State<Preference> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-            child: Stack(
-      children: <Widget>[
-        //Title
-        Container(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
-            child: Column(
-              children: <Widget>[
-                Center(
-                  child: AutoSizeText(
-                    'Preferencias',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          title: Stack(
+            children: [
+              Container(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  child: Container(
+                    child: Icon(Icons.keyboard_arrow_left,
+                        size: 40, color: Color(0xff666666)),
                   ),
-                )
-              ],
-            ),
+                ),
+              ),
+              Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 10),
+                      Text(
+                        'Preferencias',
+                        style: TextStyle(
+                            color: Color(0xff666666),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )),
+            ],
           ),
         ),
-        //Content
-        Container(
+        body:
+            //Content
+            Container(
           child: Padding(
             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
             child: Column(
@@ -242,69 +365,120 @@ class _Preference extends State<Preference> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.all(2),
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(
-                                        width: 2, color: Color(0xff8a8a8a))),
-                                child: Icon(
-                                  Icons.hearing,
-                                  size: 40,
-                                  color: Color(0xff8a8a8a),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                insignias[0] == 0
+                                    ? insignias[0] = 1
+                                    : insignias[0] = 0;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.all(2),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                          width: 2,
+                                          color: insignias[0] == 1
+                                              ? Color(0xffb3a407)
+                                              : Color(0xff8a8a8a))),
+                                  child: Icon(
+                                    Icons.hearing,
+                                    size: 40,
+                                    color: insignias[0] == 1
+                                        ? Color(0xffb3a407)
+                                        : Color(0xff8a8a8a),
+                                  ),
                                 ),
-                              ),
-                              AutoSizeText(
-                                'Buen oyente',
-                                maxLines: 2,
-                                style: TextStyle(color: Color(0xff8a8a8a)),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.all(2),
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(
-                                        width: 2, color: Color(0xff8a8a8a))),
-                                child: Icon(
-                                  Icons.mood,
-                                  size: 40,
-                                  color: Color(0xff8a8a8a),
-                                ),
-                              ),
-                              AutoSizeText(
-                                'Buen conversador',
-                                maxLines: 2,
-                                style: TextStyle(color: Color(0xff8a8a8a)),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.all(2),
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    border: Border.all(
-                                        width: 2, color: Color(0xff8a8a8a))),
-                                child: Icon(
-                                  Icons.sentiment_very_satisfied,
-                                  size: 40,
-                                  color: Color(0xff8a8a8a),
-                                ),
-                              ),
-                              AutoSizeText('Divertido',
+                                AutoSizeText(
+                                  'Buen oyente',
                                   maxLines: 2,
-                                  style: TextStyle(color: Color(0xff8a8a8a)))
-                            ],
+                                  style: TextStyle(
+                                      color: insignias[0] == 1
+                                          ? Color(0xffb3a407)
+                                          : Color(0xff8a8a8a)),
+                                )
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                insignias[1] == 0
+                                    ? insignias[1] = 1
+                                    : insignias[1] = 0;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.all(2),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                          width: 2,
+                                          color: insignias[1] == 1
+                                              ? Color(0xffb3a407)
+                                              : Color(0xff8a8a8a))),
+                                  child: Icon(
+                                    Icons.mood,
+                                    size: 40,
+                                    color: insignias[1] == 1
+                                        ? Color(0xffb3a407)
+                                        : Color(0xff8a8a8a),
+                                  ),
+                                ),
+                                AutoSizeText(
+                                  'Buen conversador',
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                      color: insignias[1] == 1
+                                          ? Color(0xffb3a407)
+                                          : Color(0xff8a8a8a)),
+                                )
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                insignias[2] == 0
+                                    ? insignias[2] = 1
+                                    : insignias[2] = 0;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.all(2),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                          width: 2,
+                                          color: insignias[2] == 1
+                                              ? Color(0xffb3a407)
+                                              : Color(0xff8a8a8a))),
+                                  child: Icon(
+                                    Icons.sentiment_very_satisfied,
+                                    size: 40,
+                                    color: insignias[2] == 1
+                                        ? Color(0xffb3a407)
+                                        : Color(0xff8a8a8a),
+                                  ),
+                                ),
+                                AutoSizeText('Divertido',
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                        color: insignias[2] == 1
+                                            ? Color(0xffb3a407)
+                                            : Color(0xff8a8a8a)))
+                              ],
+                            ),
                           )
                         ],
                       ),
@@ -315,8 +489,6 @@ class _Preference extends State<Preference> {
               ],
             ),
           ),
-        )
-      ],
-    )));
+        ));
   }
 }

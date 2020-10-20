@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
+import 'package:just_talk/layouts/preferences_page.dart';
 
 class HomePage extends StatelessWidget {
   HomePage(this._index, this._navbarCubit);
@@ -25,7 +26,12 @@ class HomePage extends StatelessWidget {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.build),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => Preference()),
+                    (Route<dynamic> route) => false);
+              },
             ),
             IconButton(
               icon: const Icon(Icons.exit_to_app),

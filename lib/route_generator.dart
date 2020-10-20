@@ -4,6 +4,7 @@ import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
+import 'package:just_talk/widgets/home_page.dart';
 
 class RouterGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
