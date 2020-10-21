@@ -173,8 +173,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       ),
       body: Container(
         margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-
-        //color: Colors.blueAccent,
         child: Padding(
             padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
             child: SingleChildScrollView(

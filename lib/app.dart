@@ -53,6 +53,7 @@ class _AppViewState extends State<AppView> {
     return MaterialApp(
       navigatorKey: _navigatorKey,
       onGenerateRoute: RouterGenerator.generateRoute,
+      debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return BlocListener<AuthenticationCubit, AuthenticationState>(
           listener: (context, state) async {
