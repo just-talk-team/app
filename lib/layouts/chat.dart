@@ -38,6 +38,66 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     });
   }
 
+  leaveChat() {
+    return showGeneralDialog(
+        barrierDismissible: false,
+        barrierColor: Colors.black45,
+        transitionDuration: const Duration(milliseconds: 200),
+        context: context,
+        pageBuilder: (BuildContext context, Animation animation,
+            Animation secondAnimation) {
+          return Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width - 100,
+              height: MediaQuery.of(context).size.height / 3,
+              child: Material(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Text(
+                        'Esta seguro que quiere abandonar el chat?',
+                        style:
+                            TextStyle(color: Color(0xff959595), fontSize: 15),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, '/login');
+                          },
+                          child: Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        GestureDetector(
+                          child: Text(
+                            'CANCELAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -125,7 +185,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               children: [
                 Expanded(
                     child: Container(
-                        child: Stack(
+                        child: Column(
                   children: [
                     Container(
                       margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
@@ -135,14 +195,15 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           Container(
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/login');
+                                leaveChat();
+                                //Navigator.pushReplacementNamed(
+                                //    context, '/login');
                               },
                               child: Icon(Icons.clear,
                                   size: 30, color: Color(0xffb31049)),
                             ),
                           ),
-                          /*Container(
+                          Container(
                             padding: EdgeInsets.fromLTRB(15, 3, 15, 3),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25),
@@ -154,7 +215,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                                 end: 0,
                               ).animate(_controller),
                             ),
-                          )*/
+                          )
                         ],
                       ),
                     ),
