@@ -20,6 +20,8 @@ class UserService {
       domains.add(element.item2);
     });
 
+    List<String> segmentsStated = [];
+
     DocumentReference newUser =
         FirebaseFirestore.instance.collection("users").doc(userId);
 
@@ -36,8 +38,9 @@ class UserService {
           'minimun': 18,
           'maximun': 99,
         },
-        'segments': FieldValue.arrayUnion(domains),
-        'genders': {},
+        'segments': FieldValue.arrayUnion(segmentsStated),
+        //'genders': {'women': 0, 'men': 0},
+        'genders': FieldValue.arrayUnion(segmentsStated)
       },
       'topics_hear': {},
       'user_type': 'premiun',

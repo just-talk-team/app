@@ -15,7 +15,6 @@ class Preference extends StatefulWidget {
 }
 
 class _Preference extends State<Preference> {
-  int _defaultSegment;
   auth.User _currentUser;
 
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
@@ -28,11 +27,13 @@ class _Preference extends State<Preference> {
   //Insignias
   List<int> insignias = [0, 0, 0];
   //Genders
-  List<String> _multipleSelected = [];
-  //Segments
-  List<String> _choices = [];
-
   List<String> _multipleChoices = ['Masculino', 'Femenino'];
+  List<String> _multipleSelected = [];
+  //Segments Multiple
+  List<String> _loadedRegisteredSegments = [];
+  List<String> _loadedSelectedSegments = [];
+  List<String> _segmentsSelected = [];
+  //Segments
 
   String interval = "";
 
@@ -50,71 +51,6 @@ class _Preference extends State<Preference> {
   }
 
   loadData() async {
-    var uid = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
-
-    //Obtain Segments from another collection
-    QuerySnapshot fUser = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('segments')
-        .get();
-
-    fUser.docs.forEach((element) {
-      debugPrint(element.id);
-      _choices.add(element.id);
-    });
-
-    QuerySnapshot q = await FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', isEqualTo: uid)
-        .get();
-    //Genders, ages, segments
-
-    q.docs.forEach((data) {
-      if (data.exists) {
-        debugPrint("UID : " + data.data()['uid']);
-
-        // var genders = data.data()['preferences']['genders'];
-        //debugPrint("aux" + aux);
-
-        //Ages
-        _lowerValue = data.data()['preferences']['ages']['minimun'].toDouble();
-        _upperValue = data.data()['preferences']['ages']['maximun'].toDouble();
-        _currentRangeValues = RangeValues(_lowerValue, _upperValue);
-
-        //Genders
-        var _womenValue = data.data()['preferences']['genders']['women'];
-        var _menValue = data.data()['preferences']['genders']['men'];
-        if (_womenValue == 1) _multipleSelected.add('Femenino');
-        if (_menValue == 1) _multipleSelected.add('Masculino');
-
-        //insignias
-        var _funny = data.data()['badgets']['funny'];
-        var _good_listener = data.data()['badgets']['good_listener'];
-        var _good_talker = data.data()['badgets']['good_talker'];
-
-        if (_funny == 1) insignias[0] = 1;
-        if (_good_listener == 1) insignias[1] = 1;
-        if (_good_talker == 1) insignias[2] = 1;
-      }
-    });
-
-    /*
-    DocumentSnapshot refUser =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-
-    var ages = refUser.data()['preferences']['ages'];
-
-    _lowerValue = ages['minimun'];
-    _upperValue = ages['maximun'];
-
-    debugPrint("_lowevalues" + ages['minimun']);
-    debugPrint("_upper : " + ages['maximun']);
-
-    var selectedSegments = refUser.data()['preferences']['segments'];
-
-    var insigias = refUser.data()['badgets'];
-    */
     callState();
   }
 
@@ -122,22 +58,29 @@ class _Preference extends State<Preference> {
     setState(() {});
   }
 
-  insertData() async {
-    var uid = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
-    var getUser = FirebaseFirestore.instance.collection("users").doc(uid);
+  insertData() async {}
 
-    await getUser.update({
-      'preferences': {
-        'segments': {_choices},
-        'ages': {"minimum": _lowerValue, "maximum": _upperValue},
-        'genders': _multipleSelected,
-      },
-      'badget': {
-        'funny': insignias[0],
-        'good_listener': insignias[1],
-        'good_talker': insignias[2]
-      }
-    });
+  Iterable<Widget> get segmentsMultipleChip sync* {
+    for (String segment in _loadedSelectedSegments) {
+      yield Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: FilterChip(
+            label: Text(segment),
+            selectedColor: Color(0xffb3a407),
+            selected: _segmentsSelected.contains(segment),
+            onSelected: (bool selected) {
+              setState(() {
+                if (selected) {
+                  _segmentsSelected.add(segment);
+                } else {
+                  _segmentsSelected.removeWhere((String name) {
+                    return name == segment;
+                  });
+                }
+              });
+            }),
+      );
+    }
   }
 
   Iterable<Widget> get companyWidgets sync* {
@@ -172,6 +115,7 @@ class _Preference extends State<Preference> {
               Container(
                 child: GestureDetector(
                   onTap: () {
+                    insertData();
                     Navigator.pushReplacementNamed(context, '/home');
                   },
                   child: Container(
@@ -232,24 +176,7 @@ class _Preference extends State<Preference> {
                             child: Wrap(
                               spacing: 6.0,
                               runSpacing: 6.0,
-                              children: List<Widget>.generate(_choices.length,
-                                  (index) {
-                                return FilterChip(
-                                  label: Text(_choices[index]),
-                                  shadowColor: Colors.yellowAccent,
-                                  selected: _defaultSegment == index,
-                                  selectedColor: Color(0xffb3a407),
-                                  onSelected: (bool selected) {
-                                    Text(
-                                      _choices[index],
-                                      style: TextStyle(color: Colors.white),
-                                    );
-                                    setState(() {
-                                      _defaultSegment = selected ? index : null;
-                                    });
-                                  },
-                                );
-                              }),
+                              children: segmentsMultipleChip.toList(),
                             ),
                           ),
                         ),
