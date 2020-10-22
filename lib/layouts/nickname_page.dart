@@ -12,8 +12,8 @@ class NicknamePage extends StatefulWidget {
 }
 
 class _NicknamePage extends State<NicknamePage> {
-  TextEditingController nickController = TextEditingController();
-  final textFieldFocusNode = FocusNode();
+  TextEditingController nickController;
+  FocusNode textFieldFocusNode;
 
   void validate() {
     debugPrint("PASSED TO");
@@ -22,6 +22,17 @@ class _NicknamePage extends State<NicknamePage> {
       widget.pageController
           .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    nickController = TextEditingController();
+    textFieldFocusNode = FocusNode();
+
+    if (widget.userI.nickname != null)
+      nickController.text = widget.userI.nickname;
   }
 
   @override
@@ -68,6 +79,7 @@ class _NicknamePage extends State<NicknamePage> {
                         alignment: Alignment.centerRight,
                         children: <Widget>[
                           TextFormField(
+                            key: Key("Nickname input"),
                             controller: nickController,
                             focusNode: textFieldFocusNode,
                             decoration: InputDecoration(
@@ -79,10 +91,14 @@ class _NicknamePage extends State<NicknamePage> {
                             ),
                           ),
                           IconButton(
+                            key: Key("Accept nickname"),
                             icon: Icon(Icons.send),
                             onPressed: () {
                               FocusScope.of(context).requestFocus(FocusNode());
                               setState(() {
+                                if (nickController.text.isEmpty) {
+                                  return;
+                                }
                                 widget.userI.nickname = nickController.text;
                                 validate();
                               });

@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:just_talk/models/user_input.dart';
 
 class UserService {
-  UserService();
 
   Future<void> registrateUser(UserInput userI, String userId) async {
     final StorageReference postImageRef =
@@ -20,14 +19,15 @@ class UserService {
       domains.add(element.item2);
     });
 
-    DocumentReference newUser =
-        await FirebaseFirestore.instance.collection("users").add({
+    DocumentReference newUser = FirebaseFirestore.instance.collection("users").doc(userId);
+
+    await newUser.set({
       'uid': userId,
       'avatar': url,
       'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
       'birthday': userI.dateTime,
       'friends': {},
-      'gender': userI.genre,
+      'gender': userI.genre.toString(),
       'nickname': userI.nickname,
       'preferences': {
         'ages': {
@@ -47,6 +47,5 @@ class UserService {
           .doc(element.item2)
           .set({'email': element.item1});
     });
-    //Insert segments
-  }
+   }
 }

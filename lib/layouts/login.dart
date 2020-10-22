@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/layouts/register.dart';
@@ -39,18 +38,29 @@ class Login extends StatelessWidget {
                 ),
                 BlocBuilder<AuthenticationCubit, AuthenticationState>(
                     builder: (context, state) {
-                  return SignInButtonBuilder(
-                    innerPadding:
-                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 30.0),
-                    icon: CustomIcons.facebook,
+                  return RaisedButton.icon(
+                    key: Key("Facebook Button"),
+                    label: Text(
+                      "Facebook",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    icon: Icon(
+                      CustomIcons.facebook,
+                      color: Colors.white,
+                    ),
                     onPressed: () =>
                         context.bloc<AuthenticationCubit>().logWithFacebook(),
-                    backgroundColor: Colors.black,
-                    text: "Facebook",
+                    color: Colors.black,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
                     ),
-                    fontSize: 20.0,
                   );
                 }),
               ],

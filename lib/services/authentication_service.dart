@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
 
 class LogInWithFacebookFailure implements Exception {}
-
 class LogOutFailure implements Exception {}
+
 
 class AuthenticationService {
   AuthenticationService({
@@ -37,7 +36,7 @@ class AuthenticationService {
     try {
       await _firebaseAuth.signInWithCredential(authCredential);
       //log(user_result.user.toString());
-    } on Exception {
+    } on AssertionError {
       throw LogInWithFacebookFailure();
     }
   }

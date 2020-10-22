@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,9 +10,10 @@ import 'package:tuple/tuple.dart';
 
 class SegmentPage extends StatefulWidget {
   final PageController pageController;
-  UserInput userI;
 
-  SegmentPage(this.userI, this.pageController);
+  UserService userService;
+  UserInput userI;
+  SegmentPage(this.userI, this.pageController, this.userService);
 
   @override
   _SegmentPage createState() => _SegmentPage();
@@ -19,7 +21,18 @@ class SegmentPage extends StatefulWidget {
 
 class _SegmentPage extends State<SegmentPage> {
   TextEditingController etUsername = TextEditingController();
-  UserService userService = UserService();
+
+  bool validateUser(UserInput userInput) {
+    for (Tuple2<String, String> segments in userInput.segments) {
+      if (!EmailValidator.validate(segments.item1)) {
+        return false;
+      }
+    }
+
+    return ((userInput.nickname != null || userInput.nickname.length > 0) &&
+        userInput.genre != null &&
+        userInput.imgProfile != null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,26 +78,37 @@ class _SegmentPage extends State<SegmentPage> {
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                    child: TextFormField(
-                      controller: etUsername,
-                      decoration: InputDecoration(
-                          hintText: 'Correo de tu organización',
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                                color: Colors.grey, width: 0.0),
+                    child: Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        TextFormField(
+                          key: Key("Segment input"),
+                          controller: etUsername,
+                          decoration: InputDecoration(
+                            hintText: 'Correo de tu organización',
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.grey, width: 0.0),
+                            ),
                           ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              final domain = etUsername.text.split('@')[1];
-
-                              setState(() {
-                                widget.userI.segments
-                                    .add(Tuple2(etUsername.text, domain));
-                                etUsername.clear();
-                              });
-                            },
-                            icon: Icon(Icons.send),
-                          )),
+                        ),
+                        IconButton(
+                          key: Key("Add segment"),
+                          icon: Icon(Icons.send),
+                          onPressed: () {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            String email = etUsername.text;
+                            if (!EmailValidator.validate(email)) {
+                              return;
+                            }
+                            String domain = email.split('@')[1];
+                            setState(() {
+                              widget.userI.segments.add(Tuple2(email, domain));
+                              etUsername.clear();
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -118,6 +142,7 @@ class _SegmentPage extends State<SegmentPage> {
                         MediaQuery.of(context).size.width / 25,
                         0),
                     child: Align(
+                      key: Key("Finish register"),
                       alignment: Alignment.bottomCenter,
                       child: RaisedButton.icon(
                         shape: RoundedRectangleBorder(
@@ -127,9 +152,9 @@ class _SegmentPage extends State<SegmentPage> {
                         padding: EdgeInsets.all(18.0),
                         textColor: Colors.white,
                         onPressed: () async {
-                          debugPrint("PASSED TO");
-                          if (widget.userI.segments.length != 0) {
-                            await userService.registrateUser(
+                          if (validateUser(widget.userI)) {
+                            debugPrint("PASSED TO");
+                            await widget.userService.registrateUser(
                                 widget.userI,
                                 BlocProvider.of<AuthenticationCubit>(context)
                                     .state

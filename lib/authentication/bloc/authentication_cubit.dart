@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,12 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   }
 
   void logWithFacebook() async {
-    await _authenticationService.logInWithCredentials(await _authenticationService.logInWithFacebook());
+    try {
+      await _authenticationService.logInWithCredentials(
+          await _authenticationService.logInWithFacebook());
+    } catch (e) {
+      log("Authentication error");
+    }
   }
 
   void mapAuthenticationUserChangedToState(AuthenticationUserChanged event) {
