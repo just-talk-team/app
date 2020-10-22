@@ -160,8 +160,7 @@ class _SegmentPage extends State<SegmentPage> {
                                     .state
                                     .user
                                     .id);
-                            Navigator.of(context)
-                                .pushReplacementNamed('/preference');
+                            Navigator.of(context).pushReplacementNamed('/home');
                           }
                         },
                         icon: Icon(Icons.sentiment_satisfied, size: 18),

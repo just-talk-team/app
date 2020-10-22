@@ -88,8 +88,8 @@ class _Preference extends State<Preference> {
                       child: Wrap(
                         spacing: 6.0,
                         runSpacing: 6.0,
-                        children: List<Widget>.generate(_choices.length,
-                            (index) {
+                        children:
+                            List<Widget>.generate(_choices.length, (index) {
                           return FilterChip(
                             label: Text(_choices[index]),
                             shadowColor: Colors.yellowAccent,

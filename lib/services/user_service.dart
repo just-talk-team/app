@@ -19,7 +19,10 @@ class UserService {
       domains.add(element.item2);
     });
 
-    DocumentReference newUser = FirebaseFirestore.instance.collection("users").doc(userId);
+    List<String> segmentsStated = [];
+
+    DocumentReference newUser =
+        FirebaseFirestore.instance.collection("users").doc(userId);
 
     await newUser.set({
       'uid': userId,
@@ -34,8 +37,9 @@ class UserService {
           'minimun': 18,
           'maximun': 99,
         },
-        'segments': FieldValue.arrayUnion(domains),
-        'genders': {},
+        'segments': FieldValue.arrayUnion(segmentsStated),
+        //'genders': {'women': 0, 'men': 0},
+        'genders': FieldValue.arrayUnion(segmentsStated)
       },
       'topics_hear': {},
       'user_type': 'premiun',
@@ -47,5 +51,5 @@ class UserService {
           .doc(element.item2)
           .set({'email': element.item1});
     });
-   }
+  }
 }

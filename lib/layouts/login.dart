@@ -3,8 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
-import 'package:just_talk/layouts/preferences_page.dart';
-import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/utils/custom_icons_icons.dart';
 import 'package:just_talk/widgets/half_circle_clipper.dart';
 
@@ -84,7 +82,7 @@ class AppTitle extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.0),
             textAlign: TextAlign.center,
           ),
-        ),
+        )
       ],
     );
   }
