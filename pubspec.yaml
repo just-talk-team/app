@@ -96,9 +96,9 @@ flutter:
 
       - family: ArialRounded
         fonts:
-          - asset: fonts/ARIALROUNDEDMT.ttf
+          - asset: fonts/ARIALROUNDEDMT.TTF
             style: normal
-          - asset: fonts/ARLRDBD.ttf
+          - asset: fonts/ARLRDBD.TTF
             weight: 700
          
   #   - family: Schyler
