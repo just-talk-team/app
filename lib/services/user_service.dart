@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:just_talk/models/user_input.dart';
 
 class UserService {
-  UserService();
 
   Future<void> registrateUser(UserInput userI, String userId) async {
     final StorageReference postImageRef =
@@ -31,7 +30,7 @@ class UserService {
       'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
       'birthday': userI.dateTime,
       'friends': {},
-      'gender': userI.genre,
+      'gender': userI.genre.toString(),
       'nickname': userI.nickname,
       'preferences': {
         'ages': {

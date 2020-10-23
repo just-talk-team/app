@@ -1,12 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:just_talk/utils/enums.dart';
 import 'package:tuple/tuple.dart';
 
 class UserInput {
   UserInput({
-    this.email,
-    this.password,
     this.dateTime,
     this.imgProfile,
     this.genre,
@@ -14,16 +13,14 @@ class UserInput {
     this.segments,
   });
 
-  String email;
-  String password;
   Timestamp dateTime;
   File imgProfile;
-  String genre;
+  Gender genre;
   String nickname;
   List<Tuple2<String, String>> segments;
 
   @override
   String toString() {
-    return "$email - $nickname - $dateTime - $genre";
+    return "$nickname - $dateTime - $genre";
   }
 }

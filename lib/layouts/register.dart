@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/avatar_page.dart';
@@ -6,15 +7,30 @@ import 'package:just_talk/layouts/info_page.dart';
 import 'package:just_talk/layouts/nickname_page.dart';
 import 'package:just_talk/layouts/segment_page.dart';
 import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/services/user_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Register extends StatefulWidget {
+  Register({initialPage, user, userService})
+      : _initialPage = initialPage ?? 0,
+        _user = user ??
+            UserInput(
+                dateTime: Timestamp.fromDate(DateTime.now()),
+                genre: null,
+                nickname: null,
+                segments: [],
+                imgProfile: null),
+        _userService = userService ?? UserService();
+
+  final int _initialPage;
+  final UserService _userService;
+  UserInput _user;
+
   @override
   _Register createState() => _Register();
 }
 
 class _Register extends State<Register> {
-  final controller = PageController(viewportFraction: 1);
   DateTime _date = DateTime.now();
   Future<Null> selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -31,6 +47,12 @@ class _Register extends State<Register> {
     }
   }
 
+  @override
+  initState() {
+    super.initState();
+    controller =
+        PageController(viewportFraction: 1, initialPage: widget._initialPage);
+  }
   //==============================================
 
   DateTime bornTime;
@@ -38,13 +60,7 @@ class _Register extends State<Register> {
   String nickName;
   File imageProfile;
   var topics;
-
-  var userI = UserInput(
-      dateTime: null,
-      genre: null,
-      nickname: null,
-      segments: [],
-      imgProfile: null);
+  PageController controller;
 
   //===================================================================
 
@@ -54,15 +70,15 @@ class _Register extends State<Register> {
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
         child: Stack(children: <Widget>[
-          PageView(controller: controller,
+          PageView(key: Key("pageview"), controller: controller,
               //physics: new NeverScrollableScrollPhysics(),
               children: <Widget>[
                 //MyInfo(context, controller),
                 //Nickname(context),
-                InfoPage(userI, controller),
-                NicknamePage(userI, controller),
-                AvatarPage(userI, controller),
-                SegmentPage(userI, controller),
+                InfoPage(widget._user, controller),
+                NicknamePage(widget._user, controller),
+                AvatarPage(widget._user, controller),
+                SegmentPage(widget._user, controller, widget._userService),
               ]),
           Container(
             alignment: Alignment.topCenter,

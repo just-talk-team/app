@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_input.dart';
@@ -11,8 +12,8 @@ class NicknamePage extends StatefulWidget {
 }
 
 class _NicknamePage extends State<NicknamePage> {
-  TextEditingController nickController = TextEditingController();
-  final textFieldFocusNode = FocusNode();
+  TextEditingController nickController;
+  FocusNode textFieldFocusNode;
 
   void validate() {
     debugPrint("PASSED TO");
@@ -24,54 +25,94 @@ class _NicknamePage extends State<NicknamePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    nickController = TextEditingController();
+    textFieldFocusNode = FocusNode();
+
+    if (widget.userI.nickname != null)
+      nickController.text = widget.userI.nickname;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 110, 0, 0),
-      child: Column(children: <Widget>[
-        FittedBox(
-            fit: BoxFit.contain,
-            child: Text(
-              'Nickname',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            )),
-        Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: MediaQuery.of(context).size.width / 5),
-          child: Text(
-            'Elige un nombre de pila! :)',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Stack(alignment: Alignment.centerRight, children: <Widget>[
-            TextFormField(
-              controller: nickController,
-              focusNode: textFieldFocusNode,
-              decoration: InputDecoration(
-                hintText: 'Nickname',
-                border: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.grey, width: 0.0),
-                ),
+    return Container(
+      child: Stack(
+        children: <Widget>[
+          //Title
+          Container(
+              child: Column(
+            children: <Widget>[
+              SizedBox(height: 110),
+              Container(
+                child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      'Nickname',
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    )),
+              ),
+              SizedBox(height: 50),
+              Center(
+                child: Padding(
+                    padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                    child: Text(
+                      'Elige tu nombre de pila! :)',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    )),
+              ),
+            ],
+          )),
+          //Content
+          Container(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Stack(
+                        alignment: Alignment.centerRight,
+                        children: <Widget>[
+                          TextFormField(
+                            key: Key("Nickname input"),
+                            controller: nickController,
+                            focusNode: textFieldFocusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Nickname',
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 0.0),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            key: Key("Accept nickname"),
+                            icon: Icon(Icons.send),
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              setState(() {
+                                if (nickController.text.isEmpty) {
+                                  return;
+                                }
+                                widget.userI.nickname = nickController.text;
+                                validate();
+                              });
+                            },
+                          )
+                        ]),
+                  ),
+                  SizedBox(height: 50)
+                ],
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.send),
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                setState(() {
-                  widget.userI.nickname = nickController.text;
-                  validate();
-                });
-              },
-            )
-          ]),
-        )
-      ]),
+          )
+        ],
+      ),
     );
   }
 }

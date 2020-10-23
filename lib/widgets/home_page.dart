@@ -16,21 +16,12 @@ class HomePage extends StatelessWidget {
       onWillPop: () => SystemNavigator.pop(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            'JustTalk',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22.0,
-                color: Colors.black),
-          ),
+          title: Text('JustTalk',),
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.build),
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => Preference()),
-                    (Route<dynamic> route) => false);
+                Navigator.of(context).pushNamed('/preference');
               },
             ),
             IconButton(

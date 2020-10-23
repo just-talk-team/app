@@ -83,12 +83,17 @@ class _AvatarPage extends State<AvatarPage> {
                                   tooltip: 'Pick Image',
                                 ),
                               )
-                            : Image.file(
-                                widget.userI.imgProfile,
-                                height: 150.0,
-                                width: 150.0,
+                            : GestureDetector(
+                                onTap: getImage,
+                                child: ClipOval(
+                                  child: Image.file(
+                                    widget.userI.imgProfile,
+                                    height: 200.0,
+                                    width: 200.0,
+                                  ),
+                                ),
                               ),
-                      ),
+                      )
                     ])),
           )
         ],

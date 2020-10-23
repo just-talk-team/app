@@ -51,39 +51,43 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: _navigatorKey,
-      onGenerateRoute: RouterGenerator.generateRoute,
-      debugShowCheckedModeBanner: false,
-      builder: (context, child) {
-        return BlocListener<AuthenticationCubit, AuthenticationState>(
-          listener: (context, state) async {
-            switch (state.authenticationStatus) {
-              case AuthenticationStatus.authenticated:
-                bool result = await register(state.user.id);
-                if (result) {
-                  _navigator.pushReplacementNamed('/home');
+        navigatorKey: _navigatorKey,
+        onGenerateRoute: RouterGenerator.generateRoute,
+        builder: (context, child) {
+          return BlocListener<AuthenticationCubit, AuthenticationState>(
+            listener: (context, state) async {
+              switch (state.authenticationStatus) {
+                case AuthenticationStatus.authenticated:
+                  bool result = await register(state.user.id);
+                  if (result) {
+                    _navigator.pushReplacementNamed('/home');
+                    break;
+                  }
+                  _navigator.pushReplacementNamed('/register');
                   break;
-                }
-                _navigator.pushReplacementNamed('/register');
-                break;
-              case AuthenticationStatus.unauthenticated:
-                _navigator.pushReplacementNamed('/login');
-                break;
-              default:
-                break;
-            }
-          },
-          child: child,
-        );
-      },
-      theme: ThemeData(
+                case AuthenticationStatus.unauthenticated:
+                  _navigator.pushReplacementNamed('/login');
+                  break;
+                default:
+                  break;
+              }
+            },
+            child: child,
+          );
+        },
+        theme: ThemeData(
           primaryColor: Colors.black,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           fontFamily: 'ArialRounded',
           appBarTheme: AppBarTheme(
               elevation: 0,
               color: Colors.white,
-              iconTheme: IconThemeData(color: Colors.black))),
-    );
+              iconTheme: IconThemeData(color: Colors.black),
+              textTheme: TextTheme(
+                  headline6: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: Colors.black))),
+        ));
   }
 }
