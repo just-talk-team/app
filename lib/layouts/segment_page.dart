@@ -2,8 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:tuple/tuple.dart';
@@ -135,42 +133,7 @@ class _SegmentPage extends State<SegmentPage> {
                           ),
                         )),
                   ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        MediaQuery.of(context).size.width / 25,
-                        0,
-                        MediaQuery.of(context).size.width / 25,
-                        0),
-                    child: Align(
-                      key: Key("Finish register"),
-                      alignment: Alignment.bottomCenter,
-                      child: RaisedButton.icon(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                            side: BorderSide(color: Colors.red)),
-                        color: Color(0xFFb31020),
-                        padding: EdgeInsets.all(18.0),
-                        textColor: Colors.white,
-                        onPressed: () async {
-                          if (validateUser(widget.userI)) {
-                            debugPrint("PASSED TO");
-                            await widget.userService.registrateUser(
-                                widget.userI,
-                                BlocProvider.of<AuthenticationCubit>(context)
-                                    .state
-                                    .user
-                                    .id);
-                            Navigator.of(context).pushReplacementNamed('/home');
-                          }
-                        },
-                        icon: Icon(Icons.sentiment_satisfied, size: 18),
-                        label: Text(
-                          "Finalizar",
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ),
-                    ),
-                  ),
+                
                   Padding(
                       padding: EdgeInsets.fromLTRB(
                           MediaQuery.of(context).size.width / 25,

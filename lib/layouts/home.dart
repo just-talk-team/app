@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
+import 'package:just_talk/widgets/contact_page.dart';
 import 'package:just_talk/widgets/home_page.dart';
+import 'package:just_talk/widgets/profile_page.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -25,6 +27,10 @@ class _HomeState extends State<Home> {
         switch (state.runtimeType) {
           case HomeState:
             return HomePage(0, _navbarCubit);
+          case ContactState:
+            return ContactPage(1, _navbarCubit);
+          case ProfileState:
+            return ProfilePage(2, _navbarCubit);
           default:
             return HomePage(0, _navbarCubit);
         }

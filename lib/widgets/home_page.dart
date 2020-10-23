@@ -16,7 +16,9 @@ class HomePage extends StatelessWidget {
       onWillPop: () => SystemNavigator.pop(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('JustTalk',),
+          title: Text(
+            'JustTalk',
+          ),
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.build),
@@ -90,6 +92,12 @@ class HomePage extends StatelessWidget {
             switch (index) {
               case 0:
                 _navbarCubit.toHome();
+                break;
+              case 1:
+                _navbarCubit.toContacts();
+                break;
+              case 2:
+                _navbarCubit.toProfile();
                 break;
             }
           },

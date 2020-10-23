@@ -24,7 +24,7 @@ class _Preference extends State<Preference> {
   RangeValues _currentRangeValues = RangeValues(_lowerValue, _upperValue);
   String interval = "";
 
-  void load_info() {
+  void loadInfo() {
     //widget.userI.segments.forEach((element) {
     //  _choices.add(element.item2);
     //});
