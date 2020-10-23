@@ -8,4 +8,12 @@ class NavbarCubit extends Cubit<NavBarState> {
   void toHome() {
     emit(HomeState());
   }
+
+  void toContacts() {
+    emit(ContactState());
+  }
+
+  void toProfile() {
+    emit(ProfileState());
+  }
 }

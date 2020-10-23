@@ -11,3 +11,19 @@ class HomeState extends NavBarState {
   @override
   List<Object> get props => [index];
 }
+
+class ContactState extends NavBarState {
+  final int index = 1;
+
+  @override
+  List<Object> get props => [index];
+}
+
+class ProfileState extends NavBarState {
+  final int index = 2;
+
+  @override
+  List<Object> get props => [index];
+}
+
+

@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,15 +8,15 @@ class Chat extends StatefulWidget {
 
 class _Chat extends State<Chat> with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
-  List<customText> messages = [
-    customText("Hola como estás?", 1),
-    customText(
+  List<CustomText> messages = [
+    CustomText("Hola como estás?", 1),
+    CustomText(
         "An immutable description of how to paint a boxThe BoxDecoration class provides a variety of ways to draw a boxThe box has a border, a body, and may cast a boxShadowThe shape of the box can be a circle or a rectangle. If it is a rectangle, then the borderRadius property controls the roundness of the cornersThe body of the box is painted in layers. The bottom-most layer is the color, which fills the box. Above that is the gradient, which also fills the box. Finally there is the image, the precise alignment of which is controlled by the DecorationImage classhe border paints over the body; the boxShadow, naturally, paints below it.",
         1),
-    customText("Hola como estás?", 1),
-    customText("Hola como estás?", 2),
-    customText("Hola como estás?", 1),
-    customText("Hola como estás?", 2),
+    CustomText("Hola como estás?", 1),
+    CustomText("Hola como estás?", 2),
+    CustomText("Hola como estás?", 1),
+    CustomText("Hola como estás?", 2),
   ];
   AnimationController _controller;
   int levelClock = 301;
@@ -35,7 +34,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   sendMessage(text, type) {
     setState(() {
-      messages.add(customText(text, type));
+      messages.add(CustomText(text, type));
     });
   }
 
@@ -454,10 +453,10 @@ class Countdown extends AnimatedWidget {
   }
 }
 
-class customText extends StatelessWidget {
+class CustomText extends StatelessWidget {
   String text;
   int type;
-  customText(this.text, this.type);
+  CustomText(this.text, this.type);
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,18 +75,25 @@ class _AppViewState extends State<AppView> {
           );
         },
         theme: ThemeData(
-          primaryColor: Colors.black,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          fontFamily: 'ArialRounded',
-          appBarTheme: AppBarTheme(
-              elevation: 0,
-              color: Colors.white,
-              iconTheme: IconThemeData(color: Colors.black),
-              textTheme: TextTheme(
-                  headline6: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                      color: Colors.black))),
-        ));
+            primaryColor: Colors.black,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            fontFamily: 'ArialRounded',
+            appBarTheme: AppBarTheme(
+                elevation: 0,
+                color: Colors.white,
+                iconTheme: IconThemeData(color: Colors.black),
+                textTheme: TextTheme(
+                    headline6: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: Colors.black))),
+            textTheme: TextTheme(
+              headline6:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              bodyText1:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              caption: 
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black)
+            )));
   }
 }
