@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/user.dart';
@@ -35,7 +36,7 @@ class UserService {
       'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
       'birthday': userI.dateTime,
       'friends': {},
-      'gender': userI.genre.toString(),
+      'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
       'preferences': {
         'ages': {
