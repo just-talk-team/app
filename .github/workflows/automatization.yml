@@ -28,7 +28,7 @@ jobs:
       - name: Test
         run: flutter test
 
-  Continuos-Deployment:
+  Continuos-Delivery:
     needs: Continuos-Integration
     runs-on: ubuntu-latest
     steps:
@@ -55,9 +55,9 @@ jobs:
           groups: testers
           file: build/app/outputs/apk/release/app-release.apk
           debug: true
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'pull_request' }}
 
-  Continuos-Delivery:
+  Continuos-Deployment:
     needs: Continuos-Integration
     runs-on: ubuntu-latest
     steps:
@@ -69,4 +69,4 @@ jobs:
           summary: It's time for a beta deployment of the Just Talk app
           text: It's time for a beta deployment of the Just Talk app
           theme_color: 0078D7
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'push' }}
