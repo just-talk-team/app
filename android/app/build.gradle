@@ -61,7 +61,10 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    buildTypes {
+    buildTypes {        
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             signingConfig signingConfigs.release
         }
