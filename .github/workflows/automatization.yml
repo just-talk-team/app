@@ -47,9 +47,9 @@ jobs:
         run: flutter pub get
       - name: Build App
         run: flutter build apk --debug
-      - name: Upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
+      - name: Upload artifact to Firebase App Distribution      
         run: echo ${{secrets.FIREBASE_ALIAS_PRODUCTION}}
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{secrets.FIREBASE_ALIAS_PRODUCTION}}
           token: ${{secrets.FIREBASE_TOKEN_PRODUCTION}}
