@@ -25,3 +25,11 @@ gradle-app.setting
 
 ### Gradle Patch ###
 **/build/
+
+# Fastlane
+metadata
+fastlane/report.xml
+fastlane/README.md
+
+# Play Store
+key.jks
