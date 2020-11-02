@@ -46,14 +46,14 @@ jobs:
       - name: Update local.properties
         run: flutter pub get
       - name: Build App
-        run: flutter build apk --debug
+        run: flutter build apk --release
       - name: Upload artifact to Firebase App Distribution 
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_ID_APP }}
           token: ${{ secrets.FIREBASE_TOKEN_APP }}
           groups: testers
-          file: build/app/outputs/apk/debug/app-debug.apk
+          file: build/app/outputs/apk/release/app-release.apk
           debug: true
     if: ${{ github.event_name == 'pull_request' }}
 
@@ -61,5 +61,12 @@ jobs:
     needs: Continuos-Integration
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Continuos-Deployment'
+      - name: Notification to Operations Team
+        uses: aliencube/microsoft-teams-actions@v0.8.0
+        with:
+          webhook_uri: ${{ secrets.MICROSOFT_TEAMS_WEB_HOOK_OPERATIONS_CHANNEL }}
+          title: Deploy Beta Play Store
+          summary: It's time for a beta deployment of the Just Talk app
+          text: It's time for a beta deployment of the Just Talk app
+          theme_color: 0078D7
     if: ${{ github.event_name == 'push' }}
