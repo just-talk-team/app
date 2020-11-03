@@ -82,15 +82,6 @@ class AppTitle extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Chat()),
-            );
-          },
-          child: Text("chat"),
-        )
       ],
     );
   }
