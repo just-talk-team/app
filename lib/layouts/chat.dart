@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,18 +9,22 @@ class Chat extends StatefulWidget {
 
 class _Chat extends State<Chat> with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
+  String userId1 = "ruuGzjupvRdVakpRblsyTP0yC0n1", //youId
+      userId2 = "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"; //anotherUserId
+  String chatId;
   List<CustomText> messages = [
-    CustomText("Hola como estás?", 1),
+    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
     CustomText(
         "An immutable description of how to paint a boxThe BoxDecoration class provides a variety of ways to draw a boxThe box has a border, a body, and may cast a boxShadowThe shape of the box can be a circle or a rectangle. If it is a rectangle, then the borderRadius property controls the roundness of the cornersThe body of the box is painted in layers. The bottom-most layer is the color, which fills the box. Above that is the gradient, which also fills the box. Finally there is the image, the precise alignment of which is controlled by the DecorationImage classhe border paints over the body; the boxShadow, naturally, paints below it.",
-        1),
-    CustomText("Hola como estás?", 1),
-    CustomText("Hola como estás?", 2),
-    CustomText("Hola como estás?", 1),
-    CustomText("Hola como estás?", 2),
+        "ruuGzjupvRdVakpRblsyTP0yC0n1"),
+    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
+    CustomText("Hola como estás?", "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"),
+    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
+    CustomText("Hola como estás?", "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"),
   ];
   AnimationController _controller;
   int levelClock = 301;
+  Stream chatMessages;
 
   void _startClock() {
     _controller = AnimationController(
@@ -32,10 +37,54 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _controller.forward();
   }
 
+  getMessages() {
+    chatMessages =
+        FirebaseFirestore.instance.collection('chats').doc(chatId).snapshots();
+    setState(() {});
+  }
+
   sendMessage(text, type) {
-    setState(() {
-      messages.add(CustomText(text, type));
-    });
+    Map<String, dynamic> message = {
+      'user': userId1,
+      'message': text.toString(),
+      'time': DateTime.now().millisecondsSinceEpoch
+    };
+    FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('chat')
+        .add(message);
+    messages.add(CustomText(text, type));
+
+    setState(() {});
+  }
+
+  Widget chatMessagesList() {
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('chats')
+            .doc(chatId)
+            .collection('chat')
+            .orderBy("time", descending: false)
+            .snapshots(),
+        builder: (context, snapshot) {
+          //if (snapshot.data == null) return CircularProgressIndicator();
+          /*return ListView(
+            children: snapshot.data.docs.map((document) {
+              return CustomText(
+                  document.data()["message"], document.data()["user"]);
+            }),
+          );*/
+          if (snapshot.data == null) return CircularProgressIndicator();
+          return ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                return CustomText(snapshot.data.docs[index].data()["message"],
+                    snapshot.data.docs[index].data()["user"]);
+              });
+        });
   }
 
   leaveChat() {
@@ -255,9 +304,38 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         });
   }
 
+  void consultChatRoom() async {
+    if (userId1[0].codeUnitAt(0) > userId2[0].codeUnitAt(0)) {
+      chatId = "$userId1\_$userId2";
+    } else {
+      chatId = "$userId2\_$userId1";
+    }
+    DocumentReference currentChat =
+        FirebaseFirestore.instance.collection('chats').doc(chatId);
+
+    var users = [userId1, userId2];
+    currentChat.get().then((data) => {
+          if (data.exists)
+            {
+              //Chat ya existe
+            }
+          else
+            {
+              currentChat.set({
+                'chatRoomId': chatId,
+                'users': FieldValue.arrayUnion(users),
+                'chat': Map()
+              })
+              //Nuevo chat
+            }
+        });
+  }
+
   @override
   void initState() {
     super.initState();
+    consultChatRoom();
+    getMessages();
     _startClock();
   }
 
@@ -382,10 +460,13 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Column(
+                        children: [chatMessagesList()],
+                        /*
                         children:
                             List<Widget>.generate(messages.length, (int index) {
                           return messages[index];
                         }),
+                        */
                       ),
                     )))
                   ],
@@ -410,8 +491,8 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       width: 70,
                       child: GestureDetector(
                         onTap: () {
-                          if (_messageController.text != null) {
-                            sendMessage(_messageController.text, 1);
+                          if (_messageController.text.length > 0) {
+                            sendMessage(_messageController.text, userId1);
                             _messageController.clear();
                           }
                         },
@@ -437,12 +518,6 @@ class Countdown extends AnimatedWidget {
     String timerText =
         '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
 
-    print('animation.value  ${animation.value} ');
-    print('inMinutes ${clockTimer.inMinutes.toString()}');
-    print('inSeconds ${clockTimer.inSeconds.toString()}');
-    print(
-        'inSeconds.remainder ${clockTimer.inSeconds.remainder(60).toString()}');
-
     return Container(
       child: Text(
         "$timerText",
@@ -453,9 +528,12 @@ class Countdown extends AnimatedWidget {
   }
 }
 
+// ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   String text;
-  int type;
+  String type;
+  //Loaded by sharedPreferences
+  String userId = "ruuGzjupvRdVakpRblsyTP0yC0n1";
   CustomText(this.text, this.type);
 
   @override
@@ -463,8 +541,9 @@ class CustomText extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width:
-              this.type == 1 ? MediaQuery.of(context).size.width / 2 - 50 : 20,
+          width: this.type == userId
+              ? MediaQuery.of(context).size.width / 2 - 50
+              : 20,
         ),
         Container(
             width: MediaQuery.of(context).size.width / 2,
@@ -474,14 +553,15 @@ class CustomText extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(
                     width: 2,
-                    color: this.type == 1
+                    color: this.type == userId
                         ? Color(0xff959595)
                         : Color(0xffb3a407))),
             child: Text(
               text,
               style: TextStyle(
-                  color:
-                      this.type == 1 ? Color(0xff959595) : Color(0xffb3a407)),
+                  color: this.type == userId
+                      ? Color(0xff959595)
+                      : Color(0xffb3a407)),
             ))
       ],
     );
