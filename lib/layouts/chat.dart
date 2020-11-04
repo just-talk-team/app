@@ -507,6 +507,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 }
 
+// ignore: must_be_immutable
 class Countdown extends AnimatedWidget {
   Countdown({Key key, this.animation}) : super(key: key, listenable: animation);
   Animation<int> animation;

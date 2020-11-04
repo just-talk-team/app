@@ -5,7 +5,7 @@ import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
-
+import 'package:just_talk/layouts/topics_hear.dart';
 
 class RouterGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -23,8 +23,12 @@ class RouterGenerator {
       case '/preference':
         return MaterialPageRoute(builder: (context) => Preference());
       case '/configuration':
-        return MaterialPageRoute(builder: (context) => ConfigurationPage(
-          arg['userId'], arg['userInfo']
+        return MaterialPageRoute(
+            builder: (context) =>
+                ConfigurationPage(arg['userId'], arg['userInfo']));
+      case '/topics_to_hear':
+        return MaterialPageRoute(builder: (context) => TopicsHear(
+            arg['segments']
         ));
     }
 

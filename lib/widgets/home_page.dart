@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
+import 'package:just_talk/services/user_service.dart';
 
 class HomePage extends StatelessWidget {
   HomePage(this._index, this._navbarCubit);
+  
   final int _index;
   final NavbarCubit _navbarCubit;
 
@@ -67,7 +69,17 @@ class HomePage extends StatelessWidget {
                 Icons.sentiment_satisfied,
                 color: Colors.white,
               ),
-              onPressed: () {},
+              onPressed: () async {
+                String id =
+                    BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+                List<String> segments =
+                    await RepositoryProvider.of<UserService>(context)
+                        .getSegments(id);
+                        
+                Navigator.of(context).pushNamed(
+                    '/topics_to_hear',
+                    arguments: {'segments': segments});
+              },
             )
           ],
         )),

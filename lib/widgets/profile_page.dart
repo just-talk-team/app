@@ -85,7 +85,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return await userService.getUser(user.id, user.email);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,18 +93,21 @@ class _ProfilePageState extends State<ProfilePage> {
           'Mi perfil',
         ),
         actions: <Widget>[
-          IconButton(icon: const Icon(Icons.settings), 
-          onPressed: () {
-              if(userInfo != null){
-               Navigator.pushNamed(context,'/configuration', arguments: {
-                  'userId':  BlocProvider.of<AuthenticationCubit>(context).state.user.id,
-                  'userInfo': userInfo
-                }).then((value) {
-                  setState(() {});
-                });
-              }
-  
-          }),
+          IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                if (userInfo != null) {
+                  Navigator.pushNamed(context, '/configuration', arguments: {
+                    'userId': BlocProvider.of<AuthenticationCubit>(context)
+                        .state
+                        .user
+                        .id,
+                    'userInfo': userInfo
+                  }).then((value) {
+                    setState(() {});
+                  });
+                }
+              }),
         ],
       ),
       body: FutureBuilder(
@@ -127,6 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             margin: EdgeInsets.symmetric(horizontal: 30),
                             child: CircleAvatar(
                               radius: 30,
+                              backgroundColor: Colors.grey,
                               backgroundImage: NetworkImage(
                                 user.data.photo,
                               ),
