@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_input.dart';
 
+// ignore: must_be_immutable
 class NicknamePage extends StatefulWidget {
   PageController pageController;
   UserInput userI;

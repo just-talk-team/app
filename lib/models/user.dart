@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:just_talk/models/preferences.dart';
-import 'package:just_talk/utils/enums.dart';
 
 class User extends Equatable {
   const User({

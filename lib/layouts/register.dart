@@ -10,6 +10,7 @@ import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+// ignore: must_be_immutable
 class Register extends StatefulWidget {
   Register({initialPage, user, userService})
       : _initialPage = initialPage ?? 0,

@@ -1,55 +1,76 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/authentication.dart';
+import 'package:just_talk/bloc/discovery_cubit.dart';
+import 'package:just_talk/bloc/discovery_state.dart';
+import 'package:just_talk/models/topic.dart';
+import 'package:just_talk/services/discovery_service.dart';
+import 'package:just_talk/services/topics_service.dart';
+import 'package:just_talk/services/user_service.dart';
 
 class TopicsHear extends StatefulWidget {
+  TopicsHear(this.segments);
+  final List<String> segments;
+
   @override
   _TopicsHear createState() => _TopicsHear();
 }
 
 class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   AnimationController _controller;
-  int levelClock = 6;
-  List<String> arrayTest = [
-    'Clásicas de cachimbos',
-    'Tips para examentes',
-    'Mejor restaurante SM',
-    'Fijas Calculo II',
-    'Dragon Ball',
-    'COVID',
-    'Viajes',
-    'Teorias de conspiracion',
-    'Among US',
-    'Clásicas de cachimbos',
-    'Tips para examentes',
-    'Mejor restaurante SM',
-    'Fijas Calculo II',
-    'Dragon Ball',
-    'COVID',
-    'Viajes',
-    'Teorias de conspiracion',
-    'Among US',
-    'Clásicas de cachimbos',
-    'Tips para examentes',
-    'Mejor restaurante SM',
-    'Fijas Calculo II',
-    'Dragon Ball',
-    'COVID',
-    'Viajes',
-    'Teorias de conspiracion',
-    'Among US',
-    'Clásicas de cachimbos',
-    'Tips para examentes',
-    'Mejor restaurante SM',
-    'Fijas Calculo II',
-    'Dragon Ball',
-    'COVID',
-    'Viajes',
-    'Teorias de conspiracion',
-    'Among US'
-  ];
+  UserService userService;
+  TopicsService topicsService;
+  DiscoveryService discoveryService;
+  DiscoveryCubit discoveryCubit;
 
-  chatReady() {
-    return showGeneralDialog(
+  int levelClock = 6;
+
+  List<Topic> topicsToHear;
+  List<Topic> checkList;
+  Timer _timer;
+  String id;
+
+  @override
+  void initState() {
+    super.initState();
+    topicsToHear = [];
+    checkList = [];
+    id = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    userService = RepositoryProvider.of<UserService>(context);
+    topicsService = TopicsService();
+    discoveryService = DiscoveryService();
+
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      userService.setTopicsToHear(checkList, id);
+      checkList.clear();
+    });
+
+    discoveryCubit = DiscoveryCubit(
+        discoveryService: discoveryService,
+        userId: id,
+        userService: userService);
+
+    discoveryCubit.listen((DiscoveryState discoveryState) {
+      switch (discoveryState.runtimeType) {
+        case DiscoveryFound:
+          chatReady();
+          _startClock();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  void chatReady() {
+    showGeneralDialog(
         barrierDismissible: false,
         transitionDuration: const Duration(milliseconds: 200),
         context: context,
@@ -92,15 +113,21 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                             TextStyle(color: Color(0xff959595), fontSize: 15),
                       ),
                     ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'ACEPTAR',
-                        style: TextStyle(
-                            letterSpacing: 2,
-                            color: Color(0xffff3f82),
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        _controller.reset();
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'ACEPTAR',
+                          style: TextStyle(
+                              letterSpacing: 2,
+                              color: Color(0xffff3f82),
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     )
                   ],
@@ -120,11 +147,11 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         );
 
     _controller.forward();
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Navigator.of(context).pop();
+      }
+    });
   }
 
   @override
@@ -132,69 +159,53 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Stack(
-          children: [
-            Container(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-                child: Container(
-                  child: Icon(Icons.keyboard_arrow_left,
-                      size: 40, color: Color(0xff666666)),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  /*RaisedButton(onPressed: () {
-                    chatReady();
-                    _startClock();
-                  }),*/
-                  SizedBox(height: 10),
-                  Text(
-                    '¿Sobre que puedo escuchar?',
-                    style: TextStyle(
-                        color: Color(0xff666666),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ],
+        centerTitle: true,
+        title: Text(
+          '¿Sobre que puedo escuchar?',
+          style: TextStyle(
+              color: Color(0xff666666),
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
       ),
-      body: Container(
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Padding(
-            padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Wrap(
-                spacing: 6.0,
-                runSpacing: 6.0,
-                children: List<Widget>.generate(arrayTest.length, (int index) {
-                  return Chip(
-                    label: Text(arrayTest[index]),
-                    onDeleted: () {
-                      setState(() {
-                        arrayTest.removeAt(index);
-                      });
-                    },
-                  );
-                }),
-              ),
-            )),
-      ),
+      body: FutureBuilder(
+          future: topicsService.getTopicsToHear(widget.segments),
+          builder: (context, AsyncSnapshot<List<Topic>> topics) {
+            topicsToHear = topics.data;
+
+            if (topics.hasData) {
+              return Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: List<Widget>.generate(topicsToHear.length,
+                            (int index) {
+                          return ActionChip(
+                            label: Text(topicsToHear[index].topic),
+                            onPressed: () {
+                              setState(() {
+                                checkList.add(topicsToHear[index]);
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    )),
+              );
+            }
+            return Container();
+          }),
     );
   }
 }
 
+// ignore: must_be_immutable
 class Countdown extends AnimatedWidget {
   Countdown({Key key, this.animation}) : super(key: key, listenable: animation);
   Animation<int> animation;

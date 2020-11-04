@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/route_generator.dart';
 import 'package:just_talk/services/authentication_service.dart';
+import 'package:just_talk/services/user_service.dart';
 
 class App extends StatelessWidget {
   App({Key key, @required this.authenticationService})
@@ -19,7 +20,10 @@ class App extends StatelessWidget {
       child: BlocProvider(
           create: (_) =>
               AuthenticationCubit(authenticationService: authenticationService),
-          child: AppView()),
+          child: RepositoryProvider(
+            create: (context) => UserService(),
+            child: AppView(),
+          )),
     );
   }
 }
@@ -88,12 +92,11 @@ class _AppViewState extends State<AppView> {
                         fontSize: 22,
                         color: Colors.black))),
             textTheme: TextTheme(
-              headline6:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              bodyText1:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              caption: 
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black)
-            )));
+                headline6:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                bodyText1:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                caption: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black))));
   }
 }
