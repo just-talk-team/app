@@ -26,8 +26,7 @@ class TopicsService {
           .get()
           .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.where((QueryDocumentSnapshot queryDocumentSnapshot) {
-          return true;
-          DateTime lastUpdate = queryDocumentSnapshot.data()['last_update'];
+          DateTime lastUpdate = queryDocumentSnapshot.data()['last_update'].toDate();
           return DateTime.now().difference(lastUpdate).inMinutes <= 5;
         }).forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
           topicsToHear.add(Topic(queryDocumentSnapshot.id,

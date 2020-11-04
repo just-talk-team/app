@@ -19,7 +19,6 @@ void main() {
   });
 
   test('Set topics to hear', () async {
-    
     //arrange
     Topic topic = Topic('example', DateTime.now());
     await firebaseFirestore.collection('users').doc('test user').set({
@@ -49,4 +48,7 @@ void main() {
 
     expect(results.length, 1);
   });
+
+
+  
 }

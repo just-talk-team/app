@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -160,6 +159,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.keyboard_arrow_left),
+          color: Color(0xff666666),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(
           '¿Sobre que puedo escuchar?',
           style: TextStyle(
