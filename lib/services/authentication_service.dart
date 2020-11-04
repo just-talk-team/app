@@ -4,8 +4,8 @@ import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
 
 class LogInWithFacebookFailure implements Exception {}
-class LogOutFailure implements Exception {}
 
+class LogOutFailure implements Exception {}
 
 class AuthenticationService {
   AuthenticationService({
