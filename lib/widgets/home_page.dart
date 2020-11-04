@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
-import 'package:just_talk/layouts/preferences_page.dart';
 
 class HomePage extends StatelessWidget {
   HomePage(this._index, this._navbarCubit);

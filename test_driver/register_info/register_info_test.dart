@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_driver/driver_extension.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:glob/glob.dart';
@@ -9,8 +10,8 @@ import 'steps/then_register_nickname.dart';
 import 'steps/when_not_register_valid_info.dart';
 import 'steps/when_register_valid_info.dart';
 
-
 Future<void> main() {
+  enableFlutterDriverExtension();
   final config = FlutterTestConfiguration()
     ..features = [Glob(r"test_driver/features/register_info.feature")]
     ..reporters = [
@@ -19,12 +20,13 @@ Future<void> main() {
       JsonReporter(path: './report.json'),
       StdoutReporter()
     ] // you can include the "StdoutReporter()" without the message level parameter for verbose log information
-     ..stepDefinitions = [
-       givenUserInRegisterInfo(),
-        whenRegisterValidInfo(),
-        thenRegisterNickname(),
-        whenNotRegisterValidInfo(), 
-        thenNotRegisterNickname()]
+    ..stepDefinitions = [
+      givenUserInRegisterInfo(),
+      whenRegisterValidInfo(),
+      thenRegisterNickname(),
+      whenNotRegisterValidInfo(),
+      thenNotRegisterNickname()
+    ]
     ..restartAppBetweenScenarios = true
     ..targetAppPath = "test_driver/register_info.dart"
     // ..tagExpression = "@smoke" // uncomment to see an example of running scenarios based on tag expressions

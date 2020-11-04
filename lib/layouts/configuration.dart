@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/widgets/date_picker.dart';
 
+// ignore: must_be_immutable
 class ConfigurationPage extends StatefulWidget {
   ConfigurationPage(this.userId, this.userInfo);
   final String userId;

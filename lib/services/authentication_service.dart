@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebaseAuthPackage;
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:just_talk/models/user.dart';
-import 'package:just_talk/models/user_info.dart';
 
 class LogInWithFacebookFailure implements Exception {}
-class LogOutFailure implements Exception {}
 
+class LogOutFailure implements Exception {}
 
 class AuthenticationService {
   AuthenticationService({
