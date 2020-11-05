@@ -4,7 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:just_talk/models/preferences.dart';
-import 'package:just_talk/models/topic.dart';
+import 'package:just_talk/models/user.dart';
+import 'package:just_talk/models/topics.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/enums.dart';
@@ -152,4 +153,46 @@ class UserService {
         .collection('discoveries')
         .snapshots();
   }
+
+  Future<List<Topic>> setTopicsTalk(String id, List<Topic> topics ) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    for (Topic topic in topics){
+      await topicTalkCollection.doc(topic.topic).set({
+          'time': topic.time
+     });
+    }
+
+  }
+
+  Future<List<Topic>> getTopicsTalk(String id) async {
+    List<Topic> topics = [ ];
+
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    await topicTalkCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        topics.add(Topic(element.id, element.data()['time'].toDate()));
+      });
+    });
+    return topics;
+  }
+
+  Future<List<Topic>> deleteTopicsTalk(String id, List<Topic> topics ) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    for (Topic topic in topics){
+      await topicTalkCollection.doc(topic.topic).delete();
+    }
+  }
+
 }
