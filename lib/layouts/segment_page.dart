@@ -9,6 +9,7 @@ import 'package:tuple/tuple.dart';
 
 import '../authentication/bloc/authentication_cubit.dart';
 
+// ignore: must_be_immutable
 class SegmentPage extends StatefulWidget {
   final PageController pageController;
 
@@ -145,6 +146,7 @@ class _SegmentPage extends State<SegmentPage> {
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: RaisedButton.icon(
+                        key: Key('Finalizar'),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                             side: BorderSide(color: Colors.red)),

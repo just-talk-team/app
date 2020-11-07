@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_talk/models/user_input.dart';
 
+// ignore: must_be_immutable
 class AvatarPage extends StatefulWidget {
   PageController pageController;
   UserInput userI;

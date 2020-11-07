@@ -2,18 +2,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:just_talk/layouts/preferences_page.dart';
+
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/user.dart';
+import 'package:just_talk/models/topics.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/models/user_profile.dart';
 import 'package:just_talk/utils/enums.dart';
 
 class UserService {
+  UserService(
+      {FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage})
+      : _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance,
+        _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance;
+
+  FirebaseFirestore _firebaseFirestore;
+  FirebaseStorage _firebaseStorage;
+
   Future<void> registrateUser(UserInput userI, String userId) async {
     final StorageReference postImageRef =
-        FirebaseStorage.instance.ref().child("UserProfile");
+        _firebaseStorage.ref().child("UserProfile");
     var timeKey = DateTime.now();
     final StorageUploadTask uploadTask = postImageRef
         .child(timeKey.toString() + ".jpg")
@@ -61,8 +70,7 @@ class UserService {
   }
 
   Future<UserInfo> getUser(String id, String email) async {
-    DocumentReference userDoc =
-        FirebaseFirestore.instance.collection("users").doc(id);
+    DocumentReference userDoc = _firebaseFirestore.collection("users").doc(id);
 
     Preferences preference;
     UserInfo user;
@@ -177,4 +185,80 @@ class UserService {
         topicsHear: topicsHear,
         topicsTalk: topicsTalk);
   }
+  Future<List<String>> getSegments(String id) async {
+    List<String> segments = [];
+
+    CollectionReference segmentCollection =
+        _firebaseFirestore.collection("users").doc(id).collection('segments');
+
+    await segmentCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        segments.add(element.id);
+      });
+    });
+    return segments;
+  }
+
+  Future setTopicsToHear(List<Topic> topics, String id) async {
+    DocumentReference user = _firebaseFirestore.collection("users").doc(id);
+
+    Map<String, dynamic> topicsMap = Map();
+    for (Topic topic in topics) {
+      topicsMap[topic.topic] = {'time': DateTime.now()};
+    }
+
+    if (topicsMap.length > 0) {
+      await user.update({'topics_hear': topicsMap});
+    }
+  }
+
+  Stream<QuerySnapshot> getDiscoveries(String id) {
+    return _firebaseFirestore
+        .collection('users')
+        .doc(id)
+        .collection('discoveries')
+        .snapshots();
+  }
+
+  Future<List<Topic>> setTopicsTalk(String id, List<Topic> topics ) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    for (Topic topic in topics){
+      await topicTalkCollection.doc(topic.topic).set({
+          'time': topic.time
+     });
+    }
+
+  }
+
+  Future<List<Topic>> getTopicsTalk(String id) async {
+    List<Topic> topics = [ ];
+
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    await topicTalkCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        topics.add(Topic(element.id, element.data()['time'].toDate()));
+      });
+    });
+    return topics;
+  }
+
+  Future<List<Topic>> deleteTopicsTalk(String id, List<Topic> topics ) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    for (Topic topic in topics){
+      await topicTalkCollection.doc(topic.topic).delete();
+    }
+  }
+
 }

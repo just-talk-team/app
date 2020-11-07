@@ -4,7 +4,6 @@ import 'package:gherkin/gherkin.dart';
 import 'package:glob/glob.dart';
 
 
-import '../register_info/steps/then_not_register_nickname.dart';
 import 'steps/given_register_nickname.dart';
 import 'steps/then_not_register_avatar.dart';
 import 'steps/then_register_avatar.dart';
