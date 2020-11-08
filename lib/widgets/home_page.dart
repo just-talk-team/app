@@ -7,7 +7,7 @@ import 'package:just_talk/services/user_service.dart';
 
 class HomePage extends StatelessWidget {
   HomePage(this._index, this._navbarCubit);
-  
+
   final int _index;
   final NavbarCubit _navbarCubit;
 
@@ -36,53 +36,53 @@ class HomePage extends StatelessWidget {
         ),
         body: SafeArea(
             child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 60.0),
-              child: Text(
-                'Conversa al instante con personas que quieren escucharte! \n :)',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22.0,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 60.0),
+                  child: Text(
+                    'Conversa al instante con personas que quieren escucharte! \n :)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22.0,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            RaisedButton.icon(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              color: Colors.red[900],
-              label: Text(
-                'Just Talk',
-                style: TextStyle(
+                SizedBox(
+                  height: 20,
+                ),
+                RaisedButton.icon(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  color: Colors.red[900],
+                  label: Text(
+                    'Just Talk',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                  icon: Icon(
+                    Icons.sentiment_satisfied,
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-              icon: Icon(
-                Icons.sentiment_satisfied,
-                color: Colors.white,
-              ),
-              onPressed: () async {
-                String id =
-                    BlocProvider.of<AuthenticationCubit>(context).state.user.id;
-                List<String> segments =
+                  ),
+                  onPressed: () async {
+                    String id =
+                        BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+                    List<String> segments =
                     await RepositoryProvider.of<UserService>(context)
                         .getSegments(id);
-                        
-                Navigator.of(context).pushNamed(
-                    '/topics_to_hear',
-                    arguments: {'segments': segments});
-              },
-            )
-          ],
-        )),
+
+                    Navigator.of(context).pushNamed(
+                        '/topics_talk',
+                        arguments: {'segments': segments});
+                  },
+                )
+              ],
+            )),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
