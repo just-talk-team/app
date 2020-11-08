@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:just_talk/models/topics.dart';
+import 'package:just_talk/models/topic.dart';
 
 class TopicsService {
   FirebaseFirestore _firebaseFirestore;

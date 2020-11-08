@@ -7,7 +7,7 @@ import 'package:just_talk/models/message.dart';
 
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/user.dart';
-import 'package:just_talk/models/topics.dart';
+import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/enums.dart';
