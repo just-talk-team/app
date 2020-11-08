@@ -14,6 +14,12 @@ class Preferences extends Equatable {
   final List<Gender> genders;
   final List<String> segments;
 
+  Preferences.empty()
+      : minimunAge = 0,
+        maximumAge = 0,
+        genders = [],
+        segments = [];
+
   @override
-  List<Object> get props => [ maximumAge, minimunAge, genders, segments];
+  List<Object> get props => [maximumAge, minimunAge, genders, segments];
 }

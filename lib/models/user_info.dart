@@ -19,9 +19,15 @@ class UserInfo extends Equatable {
   final int age;
   final DateTime birthday;
 
-  static const empty = UserInfo(
-      gender: null, nickname: null, preferences: null, photo: null, age: null, birthday: null);
+  UserInfo.empty()
+      : nickname = '',
+        photo = '',
+        preferences = Preferences.empty(),
+        gender = Gender.None,
+        age = 0,
+        birthday = null;
 
   @override
-  List<Object> get props => [nickname, photo, preferences, gender, age, birthday];
+  List<Object> get props =>
+      [nickname, photo, preferences, gender, age, birthday];
 }

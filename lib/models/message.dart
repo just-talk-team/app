@@ -9,7 +9,7 @@ class Message extends Equatable {
   const Message.test(DateTime dateTime)
       : id = '0',
         message = 'Hola',
-        contact = const Contact.test(),
+        contact = const Contact.empty(),
         this.dateTime = dateTime;
 
   final String id;
