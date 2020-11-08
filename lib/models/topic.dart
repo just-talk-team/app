@@ -7,6 +7,5 @@ class Topic extends Equatable {
   final DateTime time;
 
   @override
-
   List<Object> get props => [topic, time];
 }
