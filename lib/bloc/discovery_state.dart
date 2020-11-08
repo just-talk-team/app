@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:just_talk/models/room.dart';
 
 class DiscoveryState extends Equatable {
   @override

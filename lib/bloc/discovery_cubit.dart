@@ -19,13 +19,15 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   void _validateRoom(String roomId) {
     discoveries.cancel();
-    rooms = discoveryService
-        .getRoom(roomId, userId)
-        .listen((QuerySnapshot querySnapshot) async {
-      if (querySnapshot.docs.length == 0) {
-        emit(DiscoveryReady(room: roomId));
-        _done();
-      }
+    rooms =
+        discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        if (!element.data()['activated']) {
+          return;
+        }
+      });
+      emit(DiscoveryReady(room: roomId));
+      _done();
     });
   }
 

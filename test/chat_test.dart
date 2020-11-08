@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/animation.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -7,7 +6,6 @@ import 'package:google_sign_in_mocks/google_sign_in_mocks.dart';
 import 'package:just_talk/services/authentication_service.dart';
 import 'package:mockito/mockito.dart';
 
-import 'authentication/authentication_service_test.dart';
 import 'preferences_test.dart';
 
 class MockFirebaseAuth extends Mock implements auth.FirebaseAuth {}

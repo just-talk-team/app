@@ -6,12 +6,11 @@ class DiscoveryService {
 
   final FirebaseFirestore _firebaseFirestore;
 
-  Stream<QuerySnapshot> getRoom(String roomId, String userId) {
+  Stream<QuerySnapshot> getRoom(String roomId) {
     return _firebaseFirestore
         .collection('discoveries')
         .doc(roomId)
         .collection('users')
-        .where('activate', isEqualTo: false)
         .snapshots();
   }
 

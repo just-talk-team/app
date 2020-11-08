@@ -2,13 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:just_talk/models/contact.dart';
+import 'package:just_talk/models/message.dart';
 
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/user.dart';
-import 'package:just_talk/models/topics.dart';
+import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/enums.dart';
+import 'package:tuple/tuple.dart';
 
 class UserService {
   UserService(
@@ -68,39 +71,40 @@ class UserService {
     });
   }
 
-  Future<UserInfo> getUser(String id, String email) async {
+  Future<UserInfo> getUser(String id, bool preferences) async {
     DocumentReference userDoc = _firebaseFirestore.collection("users").doc(id);
-
-    Preferences preference;
+    Preferences preference = Preferences.empty();
     UserInfo user;
 
     return await userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
 
-        List<String> segmentsDomain =
-            data['preferences']['segments'].cast<String>();
-        List<String> segments = [];
+        if (preferences) {
+          List<String> segmentsDomain =
+              data['preferences']['segments'].cast<String>();
+          List<String> segments = [];
 
-        segmentsDomain.forEach((element) async {
-          await userDoc
-              .collection('segments')
-              .get()
-              .then((QuerySnapshot querySnapshot) {
-            querySnapshot.docs
-                .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
-              var data = queryDocumentSnapshot.data();
-              segments.add(data['email']);
+          segmentsDomain.forEach((element) async {
+            await userDoc
+                .collection('segments')
+                .get()
+                .then((QuerySnapshot querySnapshot) {
+              querySnapshot.docs
+                  .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
+                var data = queryDocumentSnapshot.data();
+                segments.add(data['email']);
+              });
             });
           });
-        });
 
-        preference = Preferences(
-            maximumAge: data['preferences']['ages']['maximun'],
-            minimunAge: data['preferences']['ages']['minimun'],
-            genders: EnumToString.fromList(
-                Gender.values, data['preferences']['genders']),
-            segments: segments);
+          preference = Preferences(
+              maximumAge: data['preferences']['ages']['maximun'],
+              minimunAge: data['preferences']['ages']['minimun'],
+              genders: EnumToString.fromList(
+                  Gender.values, data['preferences']['genders']),
+              segments: segments);
+        }
 
         DateTime birthday = data['birthday'].toDate();
         int age = (birthday.difference(DateTime.now()).inDays / 365).truncate();
@@ -115,7 +119,7 @@ class UserService {
 
         return user;
       }
-      return UserInfo.empty;
+      return UserInfo.empty();
     });
   }
 
@@ -145,6 +149,29 @@ class UserService {
       await user.update({'topics_hear': topicsMap});
     }
   }
+
+  /*Future<List<Message>> getLastMessages(String id) async {
+    List<Tuple2<String, String>> friendInfo = [];
+    List<Message> lastMessages = [];
+
+    await _firebaseFirestore
+        .collection('users')
+        .doc(id)
+        .collection('friends')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((QueryDocumentSnapshot element) {
+        friendInfo.add(element.id);
+      });
+    });
+
+    for (Tuple2<String,String> info in friendInfo) {
+      UserInfo userInfo = await getUser(id, false);
+      Contact contact = Contact(id: info.item1, photo: userInfo.photo, name: userInfo.nickname);    
+    }
+
+    return lastMessages;
+  }*/
 
   Stream<QuerySnapshot> getDiscoveries(String id) {
     return _firebaseFirestore

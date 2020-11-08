@@ -3,7 +3,7 @@ import 'package:cloud_firestore_mocks/cloud_firestore_mocks.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:just_talk/models/topics.dart';
+import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/user_service.dart';
 
 void main() {
@@ -19,7 +19,6 @@ void main() {
   });
 
   test('Set topics to hear', () async {
-    
     //arrange
     Topic topic = Topic('example', DateTime.now());
     await firebaseFirestore.collection('users').doc('test user').set({
@@ -49,4 +48,7 @@ void main() {
 
     expect(results.length, 1);
   });
+
+
+  
 }
