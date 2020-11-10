@@ -76,6 +76,14 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         appBar: AppBar(
           title: Text('Configurar'),
           centerTitle: true,
+          leading: IconButton(
+              iconSize: 30,
+              icon: Icon(Icons.keyboard_arrow_left),
+              color: Colors.black,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+          ),
         ),
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),

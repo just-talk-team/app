@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +12,6 @@ class TopicsTalk extends StatefulWidget {
 }
 
 class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
-  AnimationController _controller;
   TextEditingController topicsTalkController;
 
   FocusNode textFieldFocusNode;
@@ -23,16 +21,6 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
   List<Topic> topicsTalkRemoved;
   String userId;
   UserService userService;
-
-  void _startClock() {
-    _controller = AnimationController(
-        vsync: this,
-        duration: Duration(
-            seconds:
-            levelClock) // gameData.levelClock is a user entered number elsewhere in the application
-    );
-    _controller.forward();
-  }
 
   void joinList(List<Topic> topicsTalk, List<Topic> topicsTalk2, List<Topic> topicsTalkRemoved){
     for (Topic topic in topicsTalk2){
@@ -65,15 +53,17 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          iconSize: 30,
           icon: Icon(Icons.keyboard_arrow_left),
-          color: Color(0xff666666),
+          color: Colors.black,
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         actions: [IconButton(
+          iconSize: 30,
           icon: Icon(Icons.keyboard_arrow_right),
-          color: topicsTalk.length > 0 ? Color(0xff666666): Colors.grey[400],
+          color: topicsTalk.length > 0 ? Colors.black: Colors.grey[400],
           onPressed: () async {
             await userService.setTopicsTalk(userId, topicsTalk);
             await userService.deleteTopicsTalk(userId, topicsTalkRemoved);
@@ -87,15 +77,7 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
         ),
         ],
         centerTitle: true,
-        title:
-            Text(
-              '¿De qué puedo hablar?',
-              style: TextStyle(
-                  color: Color(0xff666666),
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
+        title: Text('¿De qué puedo hablar?',),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),

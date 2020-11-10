@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/bloc/contact_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
-import 'package:just_talk/widgets/contact_page.dart';
-import 'package:just_talk/widgets/home_page.dart';
-import 'package:just_talk/widgets/profile_page.dart';
+import 'package:just_talk/layouts/contact_page.dart';
+import 'package:just_talk/layouts/home_page.dart';
+import 'package:just_talk/layouts/profile_page.dart';
+import 'package:just_talk/services/user_service.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,6 +15,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   NavbarCubit _navbarCubit;
+  
 
   @override
   void initState() {
@@ -28,7 +32,13 @@ class _HomeState extends State<Home> {
           case HomeState:
             return HomePage(0, _navbarCubit);
           case ContactState:
-            return ContactPage(1, _navbarCubit);
+            return BlocProvider(
+              create: (context) => ContactCubit(
+                userId: BlocProvider.of<AuthenticationCubit>(context).state.user.id,
+                userService: RepositoryProvider.of<UserService>(context)
+              ),
+              child: ContactPage(1, _navbarCubit),
+            );
           case ProfileState:
             return ProfilePage(2, _navbarCubit);
           default:

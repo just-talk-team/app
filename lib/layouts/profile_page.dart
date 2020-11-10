@@ -82,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<UserInfo> getUser(BuildContext context) async {
     UserService userService = UserService();
     User user = BlocProvider.of<AuthenticationCubit>(context).state.user;
-    return await userService.getUser(user.id, true);
+    return await userService.getUser(user.id, true, false);
   }
 
   @override

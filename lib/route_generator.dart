@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/configuration.dart';
+import 'package:just_talk/layouts/friend_filter.dart';
 import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
@@ -22,7 +23,7 @@ class RouterGenerator {
         return MaterialPageRoute(builder: (context) => Login());
       case '/register':
         return MaterialPageRoute(builder: (context) => Register());
-      case '/preference':
+      case '/preferences':
         return MaterialPageRoute(builder: (context) => Preference());
       case '/topics_talk':
         return MaterialPageRoute(builder: (context) => TopicsTalk());
@@ -34,6 +35,9 @@ class RouterGenerator {
         return MaterialPageRoute(builder: (context) => TopicsHear(
             arg['segments']
         ));
+      case '/filters':
+        return MaterialPageRoute(builder: (context) => FriendFilter());
+
     }
 
     return _errorRoute();
