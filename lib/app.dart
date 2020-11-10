@@ -82,6 +82,7 @@ class _AppViewState extends State<AppView> {
             primaryColor: Colors.black,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'ArialRounded',
+            accentColor: Colors.amber,
             appBarTheme: AppBarTheme(
                 elevation: 0,
                 color: Colors.white,
@@ -89,7 +90,7 @@ class _AppViewState extends State<AppView> {
                 textTheme: TextTheme(
                     headline6: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 22,
+                        fontSize: 20,
                         color: Colors.black))),
             textTheme: TextTheme(
                 headline6:

@@ -11,12 +11,12 @@ import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:just_talk/widgets/badget.dart';
 
-class Preference extends StatefulWidget {
+class FriendFilter extends StatefulWidget {
   @override
-  _PreferenceState createState() => _PreferenceState();
+  _FriendFilterState createState() => _FriendFilterState();
 }
 
-class _PreferenceState extends State<Preference> {
+class _FriendFilterState extends State<FriendFilter> {
   String userId;
   UserService userService;
   UserInfo userInfo;
@@ -24,7 +24,7 @@ class _PreferenceState extends State<Preference> {
   PreferencesChange preferencesChange;
 
   Future<bool> getData() async {
-    userInfo = await userService.getUser(userId, true, false);
+    userInfo = await userService.getUser(userId, false, true);
     segments = await userService.getSegments(userId);
     return true;
   }
@@ -55,21 +55,21 @@ class _PreferenceState extends State<Preference> {
               icon: Icon(Icons.keyboard_arrow_left),
               color: Colors.black,
               onPressed: () async {
-                if (!preferencesChange.compare(userInfo.preferences)) {
+                if (!preferencesChange.compare(userInfo.filters)) {
                   await userService.updatePreferences(
                       userId, preferencesChange.toPreference());
                 }
                 Navigator.of(context).pop();
               },
             ),
-            title: Text('Preferencias'),
+            title: Text('Filtros'),
           ),
           body: FutureBuilder(
               future: getData(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   preferencesChange =
-                      PreferencesChange.fromPreference(userInfo.preferences);
+                      PreferencesChange.fromPreference(userInfo.filters);
                   return PreferenceData(segments, preferencesChange);
                 }
                 return Container();
@@ -242,7 +242,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                                   currentRangeValues.start.toInt();
                               widget.preferences.maximumAge =
                                   currentRangeValues.end.toInt();
-                                  
+
                               interval = values.start.round().toString() +
                                   " - " +
                                   values.end.round().toString();
@@ -287,7 +287,8 @@ class _PreferenceDataState extends State<PreferenceData> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(badgets.length, (index) {
                       return Badget(
-                          selected:  widget.preferences.badgets.contains(badgets[index].item1),
+                          selected: widget.preferences.badgets
+                              .contains(badgets[index].item1),
                           icon: badgets[index].item2,
                           text: badgets[index].item1,
                           valueChanged: (bool selected) {

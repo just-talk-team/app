@@ -6,12 +6,11 @@ import 'package:just_talk/models/contact.dart';
 import 'package:just_talk/models/message.dart';
 
 import 'package:just_talk/models/preferences.dart';
-import 'package:just_talk/models/user.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:tuple/tuple.dart';
 
 class UserService {
   UserService(
@@ -32,20 +31,12 @@ class UserService {
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     String url = imageUrl.toString();
 
-    List<String> domains = [];
-    userI.segments.forEach((element) {
-      domains.add(element.item2);
-    });
-
-    List<String> segmentsStated = [];
-
     DocumentReference newUser =
         FirebaseFirestore.instance.collection("users").doc(userId);
 
     await newUser.set({
       'uid': userId,
       'avatar': url,
-      'badgets': {'good_talker': 0, 'good_listener': 0, 'funny': 0},
       'birthday': userI.dateTime,
       'friends': {},
       'gender': describeEnum(userI.genre),
@@ -55,9 +46,20 @@ class UserService {
           'minimun': 18,
           'maximun': 99,
         },
-        'segments': FieldValue.arrayUnion(segmentsStated),
+        'segments': FieldValue.arrayUnion([]),
         //'genders': {'women': 0, 'men': 0},
-        'genders': FieldValue.arrayUnion([])
+        'genders': FieldValue.arrayUnion([]),
+        'badgets': FieldValue.arrayUnion([]),
+      },
+      'filters': {
+        'ages': {
+          'minimun': 18,
+          'maximun': 99,
+        },
+        'segments': FieldValue.arrayUnion([]),
+        //'genders': {'women': 0, 'men': 0},
+        'genders': FieldValue.arrayUnion([]),
+        'badgets': FieldValue.arrayUnion([]),
       },
       'topics_hear': {},
       'user_type': 'premiun',
@@ -69,41 +71,41 @@ class UserService {
           .doc(element.item2)
           .set({'email': element.item1});
     });
+
+    badgets.forEach((element) async {
+      await newUser.collection('badgets').doc(element.item1).set({'count': 0});
+    });
   }
 
-  Future<UserInfo> getUser(String id, bool preferences) async {
+  Future<UserInfo> getUser(
+      String id, bool preferencesFlag, bool filtersFlag) async {
     DocumentReference userDoc = _firebaseFirestore.collection("users").doc(id);
-    Preferences preference = Preferences.empty();
+    Preferences preferences = Preferences.empty();
+    Preferences filters = Preferences.empty();
     UserInfo user;
 
     return await userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
 
-        if (preferences) {
-          List<String> segmentsDomain =
-              data['preferences']['segments'].cast<String>();
-          List<String> segments = [];
-
-          segmentsDomain.forEach((element) async {
-            await userDoc
-                .collection('segments')
-                .get()
-                .then((QuerySnapshot querySnapshot) {
-              querySnapshot.docs
-                  .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
-                var data = queryDocumentSnapshot.data();
-                segments.add(data['email']);
-              });
-            });
-          });
-
-          preference = Preferences(
+        if (preferencesFlag) {
+          preferences = Preferences(
               maximumAge: data['preferences']['ages']['maximun'],
               minimunAge: data['preferences']['ages']['minimun'],
               genders: EnumToString.fromList(
                   Gender.values, data['preferences']['genders']),
-              segments: segments);
+              segments: data['preferences']['segments'].cast<String>(),
+              badgets: data['preferences']['badgets'].cast<String>());
+        }
+
+        if (filtersFlag) {
+          filters = Preferences(
+              maximumAge: data['filters']['ages']['maximun'],
+              minimunAge: data['filters']['ages']['minimun'],
+              genders: EnumToString.fromList(
+                  Gender.values, data['filters']['genders']),
+              segments: data['filters']['segments'].cast<String>(),
+              badgets: data['filters']['badgets'].cast<String>());
         }
 
         DateTime birthday = data['birthday'].toDate();
@@ -112,10 +114,11 @@ class UserService {
         user = UserInfo(
             nickname: data['nickname'],
             photo: data['avatar'],
-            preferences: preference,
+            preferences: preferences,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthday: birthday);
+            birthday: birthday,
+            filters: filters);
 
         return user;
       }
@@ -137,6 +140,20 @@ class UserService {
     return segments;
   }
 
+  Future<Map<String, int>> getBadgets(String id) async {
+    Map<String, int> badgets = {};
+
+    CollectionReference segmentCollection =
+        _firebaseFirestore.collection("users").doc(id).collection('badges');
+
+    await segmentCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        badgets[element.id] = element.data()['count'];
+      });
+    });
+    return badgets;
+  }
+
   Future setTopicsToHear(List<Topic> topics, String id) async {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
 
@@ -150,28 +167,105 @@ class UserService {
     }
   }
 
-  /*Future<List<Message>> getLastMessages(String id) async {
-    List<Tuple2<String, String>> friendInfo = [];
-    List<Message> lastMessages = [];
+  bool _validateSegment(List<String> preferenceSegment, List<String> segments) {
+    if (preferenceSegment.length == 0) {
+      return true;
+    }
+    for (String preference in preferenceSegment) {
+      if (!segments.contains(preference)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-    await _firebaseFirestore
+  bool _validateBadgets(
+      List<String> preferenceBadgets, Map<String, int> badgets) {
+    if (preferenceBadgets.length == 0) {
+      return true;
+    }
+
+    for (String preference in preferenceBadgets) {
+      if (badgets[preference] == 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<Contact> getContact(String id, Preferences filter) async {
+    var userInfo = await getUser(id, true, true);
+    var segments = await getSegments(id);
+    var badgets = await getBadgets(id);
+
+    if (userInfo.age >= filter.minimunAge &&
+        userInfo.age <= filter.maximumAge &&
+        _validateSegment(filter.segments, segments) &&
+        _validateBadgets(filter.badgets, badgets)) {
+      return Contact(id: id, name: userInfo.nickname, photo: userInfo.photo);
+    }
+
+    return null;
+  }
+
+  Future<List<Message>> getLastMessages(String id) async {
+    List<Message> messages = [];
+
+    var roomsQuery = await _firebaseFirestore
         .collection('users')
         .doc(id)
         .collection('friends')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((QueryDocumentSnapshot element) {
-        friendInfo.add(element.id);
+        .get();
+
+    var data = await _firebaseFirestore.collection('users').doc(id).get();
+
+    Preferences filters = Preferences(
+        maximumAge: data.data()['filters']['ages']['maximun'],
+        minimunAge: data.data()['filters']['ages']['minimun'],
+        genders: EnumToString.fromList(
+            Gender.values, data.data()['filters']['genders']),
+        segments: data.data()['filters']['segments'].cast<String>(),
+        badgets: data.data()['filters']['badgets'].cast<String>());
+
+    for (QueryDocumentSnapshot room in roomsQuery.docs) {
+      String contactId = '';
+
+      room.id.split('_').forEach((element) {
+        if (element != id) {
+          contactId = element;
+          return;
+        }
       });
-    });
 
-    for (Tuple2<String,String> info in friendInfo) {
-      UserInfo userInfo = await getUser(id, false);
-      Contact contact = Contact(id: info.item1, photo: userInfo.photo, name: userInfo.nickname);    
+      var doc = await _firebaseFirestore
+          .collection('friends')
+          .doc(room.id)
+          .collection('users')
+          .where((element) => element.id == contactId)
+          .get();
+
+      if (doc != null && doc.docs.length > 0) {
+        Contact contact = await getContact(contactId, filters);
+
+        if (contact != null) {
+          var messageData = await _firebaseFirestore
+              .collection('friends')
+              .doc(room.id)
+              .collection('messages')
+              .orderBy('time')
+              .limit(1)
+              .get();
+
+          messages.add(Message(
+              id: messageData.docs[0].id,
+              contact: contact,
+              message: messageData.docs[0].data()['message'],
+              dateTime: messageData.docs[0].data()['time'].toDate()));
+        }
+      }
     }
-
-    return lastMessages;
-  }*/
+    return messages;
+  }
 
   Stream<QuerySnapshot> getDiscoveries(String id) {
     return _firebaseFirestore
@@ -181,22 +275,19 @@ class UserService {
         .snapshots();
   }
 
-  Future<List<Topic>> setTopicsTalk(String id, List<Topic> topics ) async {
+  Future<void> setTopicsTalk(String id, List<Topic> topics) async {
     CollectionReference topicTalkCollection = FirebaseFirestore.instance
         .collection("users")
         .doc(id)
         .collection('topics_talk');
 
-    for (Topic topic in topics){
-      await topicTalkCollection.doc(topic.topic).set({
-          'time': topic.time
-     });
+    for (Topic topic in topics) {
+      await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
     }
-
   }
 
   Future<List<Topic>> getTopicsTalk(String id) async {
-    List<Topic> topics = [ ];
+    List<Topic> topics = [];
 
     CollectionReference topicTalkCollection = FirebaseFirestore.instance
         .collection("users")
@@ -211,15 +302,46 @@ class UserService {
     return topics;
   }
 
-  Future<List<Topic>> deleteTopicsTalk(String id, List<Topic> topics ) async {
+  Future<void> deleteTopicsTalk(String id, List<Topic> topics) async {
     CollectionReference topicTalkCollection = FirebaseFirestore.instance
         .collection("users")
         .doc(id)
         .collection('topics_talk');
 
-    for (Topic topic in topics){
+    for (Topic topic in topics) {
       await topicTalkCollection.doc(topic.topic).delete();
     }
   }
 
+  Future<void> updatePreferences(String id, Preferences preferences) async {
+    DocumentReference user = _firebaseFirestore.collection("users").doc(id);
+    await user.update({
+      'preferences': {
+        'ages': {
+          'maximun': preferences.maximumAge,
+          'minimun': preferences.minimunAge
+        },
+        'genders': FieldValue.arrayUnion(
+            EnumToString.toList<Gender>(preferences.genders)),
+        'segments': FieldValue.arrayUnion(preferences.segments),
+        'badgets': FieldValue.arrayUnion(preferences.badgets)
+      }
+    });
+  }
+
+  Future<void> updateFriendFilters(String id, Preferences preferences) async {
+    DocumentReference user = _firebaseFirestore.collection("users").doc(id);
+    await user.update({
+      'filters': {
+        'ages': {
+          'maximun': preferences.maximumAge,
+          'minimun': preferences.minimunAge
+        },
+        'genders': FieldValue.arrayUnion(
+            EnumToString.toList<Gender>(preferences.genders)),
+        'segments': FieldValue.arrayUnion(preferences.segments),
+        'badgets': FieldValue.arrayUnion(preferences.badgets)
+      }
+    });
+  }
 }

@@ -114,7 +114,7 @@ packages:
     source: hosted
     version: "0.14.0+2"
   cloud_firestore_mocks:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: cloud_firestore_mocks
       url: "https://pub.dartlang.org"
@@ -135,7 +135,7 @@ packages:
     source: hosted
     version: "0.2.0+1"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       url: "https://pub.dartlang.org"
@@ -310,7 +310,7 @@ packages:
     source: hosted
     version: "4.0.0"
   firebase_storage_mocks:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: firebase_storage_mocks
       url: "https://pub.dartlang.org"
@@ -355,7 +355,7 @@ packages:
     source: hosted
     version: "3.13.6"
   flutter_gherkin:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: flutter_gherkin
       url: "https://pub.dartlang.org"
@@ -761,13 +761,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
-  rxdart:
-    dependency: "direct main"
-    description:
-      name: rxdart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.24.1"
   shelf:
     dependency: transitive
     description:

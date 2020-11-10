@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
-import 'package:just_talk/widgets/contact_page.dart';
-import 'package:just_talk/widgets/home_page.dart';
-import 'package:just_talk/widgets/profile_page.dart';
+import 'package:just_talk/layouts/contact_page.dart';
+import 'package:just_talk/layouts/home_page.dart';
+import 'package:just_talk/layouts/profile_page.dart';
 
 class Home extends StatefulWidget {
   @override

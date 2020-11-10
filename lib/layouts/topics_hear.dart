@@ -160,8 +160,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       appBar: AppBar(
         centerTitle: true,
         leading: IconButton(
+          iconSize: 30,
           icon: Icon(Icons.keyboard_arrow_left),
-          color: Color(0xff666666),
+          color: Colors.black,
           onPressed: () {
             Navigator.of(context).pop();
           },

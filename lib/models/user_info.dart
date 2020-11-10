@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/utils/enums.dart';
 
+
 class UserInfo extends Equatable {
-  const UserInfo(
+  UserInfo(
       {@required this.nickname,
       @required this.photo,
       @required this.preferences,
+      @required this.filters,
       @required this.gender,
       @required this.age,
       @required this.birthday});
@@ -15,6 +17,7 @@ class UserInfo extends Equatable {
   final String nickname;
   final String photo;
   final Preferences preferences;
+  final Preferences filters;
   final Gender gender;
   final int age;
   final DateTime birthday;
@@ -23,11 +26,12 @@ class UserInfo extends Equatable {
       : nickname = '',
         photo = '',
         preferences = Preferences.empty(),
+        filters = Preferences.empty(),
         gender = Gender.None,
         age = 0,
         birthday = null;
 
   @override
   List<Object> get props =>
-      [nickname, photo, preferences, gender, age, birthday];
+      [nickname, photo, preferences, gender, age, birthday, filters];
 }
