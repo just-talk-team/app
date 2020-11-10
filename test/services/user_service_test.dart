@@ -35,7 +35,7 @@ void main() {
     //verify
     await firebaseFirestore
         .collection('users')
-        .doc('test user')
+        .doc('test_user')
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       var data = documentSnapshot.data();
