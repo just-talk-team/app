@@ -41,7 +41,7 @@ class _FriendFilterState extends State<FriendFilter> {
     return WillPopScope(
       onWillPop: () async {
         if (!preferencesChange.compare(userInfo.preferences)) {
-          await userService.updatePreferences(
+          await userService.updateFriendFilters(
               userId, preferencesChange.toPreference());
         }
         Navigator.of(context).pop();
@@ -56,7 +56,7 @@ class _FriendFilterState extends State<FriendFilter> {
               color: Colors.black,
               onPressed: () async {
                 if (!preferencesChange.compare(userInfo.filters)) {
-                  await userService.updatePreferences(
+                  await userService.updateFriendFilters(
                       userId, preferencesChange.toPreference());
                 }
                 Navigator.of(context).pop();

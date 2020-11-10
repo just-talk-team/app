@@ -6,11 +6,13 @@ import 'package:just_talk/models/contact.dart';
 import 'package:just_talk/models/message.dart';
 
 import 'package:just_talk/models/preferences.dart';
+import 'package:just_talk/models/room.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
+import 'package:tuple/tuple.dart';
 
 class UserService {
   UserService(
@@ -118,7 +120,8 @@ class UserService {
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
             birthday: birthday,
-            filters: filters);
+            filters: filters,
+            id: id);
 
         return user;
       }
@@ -184,7 +187,6 @@ class UserService {
     if (preferenceBadgets.length == 0) {
       return true;
     }
-
     for (String preference in preferenceBadgets) {
       if (badgets[preference] == 0) {
         return false;
@@ -193,78 +195,79 @@ class UserService {
     return true;
   }
 
-  Future<Contact> getContact(String id, Preferences filter) async {
-    var userInfo = await getUser(id, true, true);
-    var segments = await getSegments(id);
-    var badgets = await getBadgets(id);
-
-    if (userInfo.age >= filter.minimunAge &&
-        userInfo.age <= filter.maximumAge &&
-        _validateSegment(filter.segments, segments) &&
-        _validateBadgets(filter.badgets, badgets)) {
-      return Contact(id: id, name: userInfo.nickname, photo: userInfo.photo);
+  bool _validateGender(List<Gender> preferenceGenre, Gender gender) {
+    if (preferenceGenre.length == 0) {
+      return true;
     }
-
-    return null;
+    if (preferenceGenre.contains(gender)) {
+      return true;
+    }
+    return false;
   }
 
-  Future<List<Message>> getLastMessages(String id) async {
-    List<Message> messages = [];
-
-    var roomsQuery = await _firebaseFirestore
-        .collection('users')
-        .doc(id)
-        .collection('friends')
-        .get();
-
+  Future<Preferences> getFilters(String id) async {
     var data = await _firebaseFirestore.collection('users').doc(id).get();
-
-    Preferences filters = Preferences(
+    return Preferences(
         maximumAge: data.data()['filters']['ages']['maximun'],
         minimunAge: data.data()['filters']['ages']['minimun'],
         genders: EnumToString.fromList(
             Gender.values, data.data()['filters']['genders']),
         segments: data.data()['filters']['segments'].cast<String>(),
         badgets: data.data()['filters']['badgets'].cast<String>());
+  }
 
-    for (QueryDocumentSnapshot room in roomsQuery.docs) {
-      String contactId = '';
+  Future<List<Tuple2<UserInfo, String>>> getFilteredValidatedContacts(
+      String id) async {
+    List<String> usersRoom = [];
+    List<Tuple2<UserInfo, String>> contacts = [];
+    Preferences filter = await getFilters(id);
 
-      room.id.split('_').forEach((element) {
-        if (element != id) {
-          contactId = element;
-          return;
-        }
+    await _firebaseFirestore
+        .collection('users')
+        .doc(id)
+        .collection('friends')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        usersRoom.add(element.id);
       });
+    });
 
+    for (String userRoom in usersRoom) {
       var doc = await _firebaseFirestore
           .collection('friends')
-          .doc(room.id)
+          .doc(userRoom)
           .collection('users')
-          .where((element) => element.id == contactId)
+          .where((element) => element.id != id)
           .get();
 
       if (doc != null && doc.docs.length > 0) {
-        Contact contact = await getContact(contactId, filters);
+        String contactId = doc.docs[0].id;
 
-        if (contact != null) {
-          var messageData = await _firebaseFirestore
-              .collection('friends')
-              .doc(room.id)
-              .collection('messages')
-              .orderBy('time')
-              .limit(1)
-              .get();
+        var userInfo = await getUser(contactId, true, true);
+        var segments = await getSegments(contactId);
+        var badgets = await getBadgets(contactId);
 
-          messages.add(Message(
-              id: messageData.docs[0].id,
-              contact: contact,
-              message: messageData.docs[0].data()['message'],
-              dateTime: messageData.docs[0].data()['time'].toDate()));
+        if (userInfo.age >= filter.minimunAge &&
+            userInfo.age <= filter.maximumAge &&
+            _validateSegment(filter.segments, segments) &&
+            _validateBadgets(filter.badgets, badgets) &&
+            _validateGender(filter.genders, userInfo.gender)) {
+          contacts.add(Tuple2(userInfo, userRoom));
         }
       }
     }
-    return messages;
+    return contacts;
+  }
+
+  Stream<QuerySnapshot> getLastMessage(String roomId) {
+    return _firebaseFirestore
+        .collection('friends')
+        .doc(roomId)
+        .collection('messages')
+        .orderBy('time')
+        .limit(1)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getDiscoveries(String id) {

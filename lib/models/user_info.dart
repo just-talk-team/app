@@ -12,7 +12,8 @@ class UserInfo extends Equatable {
       @required this.filters,
       @required this.gender,
       @required this.age,
-      @required this.birthday});
+      @required this.birthday,
+      @required this.id});
 
   final String nickname;
   final String photo;
@@ -21,6 +22,7 @@ class UserInfo extends Equatable {
   final Gender gender;
   final int age;
   final DateTime birthday;
+  final String id;
 
   UserInfo.empty()
       : nickname = '',
@@ -29,9 +31,9 @@ class UserInfo extends Equatable {
         filters = Preferences.empty(),
         gender = Gender.None,
         age = 0,
-        birthday = null;
+        birthday = null,
+        id ='';
 
   @override
-  List<Object> get props =>
-      [nickname, photo, preferences, gender, age, birthday, filters];
+  List<Object> get props =>[id];
 }

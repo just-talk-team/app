@@ -11,25 +11,26 @@ void main() {
   FirebaseFirestore firebaseFirestore;
   FirebaseStorage firebaseStorage;
 
-  setUpAll(() {
+  setUpAll(() async {
     firebaseFirestore = MockFirestoreInstance();
     firebaseStorage = MockFirebaseStorage();
     userService = UserService(
         firebaseFirestore: firebaseFirestore, firebaseStorage: firebaseStorage);
+
+    await firebaseFirestore.collection('users').doc('test_user').set({
+      'uid': 'test user',
+    });
   });
 
   test('Set topics to hear', () async {
     //arrange
     Topic topic = Topic('example', DateTime.now());
-    await firebaseFirestore.collection('users').doc('test user').set({
-      'uid': 'test user',
-    });
 
     List<Topic> topics = [topic];
     List<Topic> results = [];
 
     //execute
-    userService.setTopicsToHear(topics, 'test user');
+    userService.setTopicsToHear(topics, 'test_user');
 
     //verify
     await firebaseFirestore
@@ -49,6 +50,23 @@ void main() {
     expect(results.length, 1);
   });
 
+  test('Listen to new discoveries', () async {
+    //arrange
+    Stream<QuerySnapshot> discoveries = userService.getDiscoveries('test_user');
 
-  
+    discoveries.listen((QuerySnapshot querySnapshot) {
+      querySnapshot.docChanges.forEach((element) => print(element.doc.id));
+    });
+
+    //execute
+    await firebaseFirestore
+        .collection('users')
+        .doc('test_user')
+        .collection('discoveries')
+        .doc('test_discovery')
+        .set({
+          'field':0
+        });
+    //verify
+  });
 }
