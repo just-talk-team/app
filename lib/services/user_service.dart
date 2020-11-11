@@ -2,11 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:just_talk/models/contact.dart';
-import 'package:just_talk/models/message.dart';
 
 import 'package:just_talk/models/preferences.dart';
-import 'package:just_talk/models/room.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
