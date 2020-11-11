@@ -102,7 +102,8 @@ class Search extends SearchDelegate {
     ContactsState contactState = contactCubit.state;
     if (contactState.runtimeType == ContactsResult) {
       List<Contact> contacts = (contactState as ContactsResult).contacts;
-      return contactList(contacts.where((element) => validate(element.name, query)));
+      return contactList(
+          contacts.where((element) => validate(element.name, query)));
     }
     return Container();
   }
@@ -127,6 +128,7 @@ class _ContactPageState extends State<ContactPage> {
     super.initState();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    BlocProvider.of<ContactCubit>(context).init();
   }
 
   @override

@@ -52,6 +52,7 @@ class ContactCubit extends Cubit<ContactsState> {
     Comparator<Contact> comparator =
         (a, b) => a.lastMessageTime.compareTo(b.lastMessageTime);
     _userId = userId;
+    _streams = [];
     _userService = userService;
     _contacts = PriorityQueue(comparator);
   }
