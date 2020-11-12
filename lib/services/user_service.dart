@@ -8,6 +8,7 @@ import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/constants.dart';
+import 'package:just_talk/models/user_profile.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:tuple/tuple.dart';
 
@@ -126,6 +127,71 @@ class UserService {
     });
   }
 
+  Future<UserProfile> getUserInfoProfile(String id) async {
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection("users").doc(id);
+    List<String> badgets = [];
+    List<String> segments = [];
+    List<String> topicsTalk = [];
+    List<String> topicsHear = [];
+
+    await userDoc
+        .collection('segments')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs
+            .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
+          var data = queryDocumentSnapshot.data();
+          if (data['validate'] == true) {
+            segments.add(data.toString());
+          }
+        });
+      }
+    });
+    await userDoc
+        .collection('badgets')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs
+            .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
+          var data = queryDocumentSnapshot.data();
+          badgets.add(data.toString());
+        });
+      }
+    });
+    await userDoc
+        .collection('topics_talk')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs
+            .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
+          var data = queryDocumentSnapshot.data();
+          topicsTalk.add(data.toString());
+        });
+      }
+    });
+    await userDoc
+        .collection('topics_hear')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs
+            .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
+          var data = queryDocumentSnapshot.data();
+          topicsHear.add(data.toString());
+        });
+      }
+    });
+
+    return UserProfile(
+        badgets: badgets,
+        segments: segments,
+        topicsHear: topicsHear,
+        topicsTalk: topicsTalk);
+  }
   Future<List<String>> getSegments(String id) async {
     List<String> segments = [];
 

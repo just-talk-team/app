@@ -1,6 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/models/user_profile.dart';
+import 'package:just_talk/services/user_service.dart';
+import 'package:just_talk/models/user.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -63,7 +68,13 @@ class _Profile extends State<Profile> {
     'Teorias de conspiracion',
     'Among US'
   ];
+  Future<UserProfile> getUserInfo(BuildContext context) async {
+    UserService userService = UserService();
+    User user = BlocProvider.of<AuthenticationCubit>(context).state.user;
+    return await userService.getUserInfoProfile(user.id);
+  }
 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -237,7 +248,8 @@ class _Profile extends State<Profile> {
                               color: Color(0xffb3a407),
                             ),
                           ),
-                          AutoSizeText('Divertido',
+                          AutoSizeText(
+                            'Divertido',
                               maxLines: 2,
                               style: TextStyle(color: Color(0xffb3a407)))
                         ],
@@ -251,20 +263,21 @@ class _Profile extends State<Profile> {
             //TopicsHear
             Expanded(
               child: Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Wrap(
-                      spacing: 6.0,
-                      runSpacing: 6.0,
-                      children:
-                          List<Widget>.generate(topicsHear.length, (int index) {
-                        return Chip(
-                          label: Text(topicsHear[index]),
-                        );
-                      }),
-                    ),
-                  )),
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Wrap(
+                    spacing: 6.0,
+                    runSpacing: 6.0,
+                    children:
+                        List<Widget>.generate(topicsHear.length, (int index) {
+                      return Chip(
+                        label: Text(topicsHear[index]),
+                      );
+                    }),
+                  ),
+                ),
+              ),
             )
           ],
         ),
