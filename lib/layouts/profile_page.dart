@@ -7,6 +7,7 @@ import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/models/user.dart';
 import 'package:just_talk/models/user_info.dart';
+import 'package:just_talk/models/user_profile.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -21,7 +22,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserInfo userInfo;
-
+  UserProfile userProfile;
   List<String> arrayTest = [
     'upc.edu.pe',
     'cibertec.edu.pe',
@@ -79,10 +80,15 @@ class _ProfilePageState extends State<ProfilePage> {
     'Among US'
   ];
 
-  Future<UserInfo> getUser(BuildContext context) async {
+  Future<bool> getUser(BuildContext context) async {
     UserService userService = UserService();
     User user = BlocProvider.of<AuthenticationCubit>(context).state.user;
-    return await userService.getUser(user.id, true, false);
+    userInfo = await userService.getUser(user.id, true, false);
+    userProfile = await userService.getUserInfoProfile(user.id);
+    if (userInfo != null && userProfile != null) {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -112,10 +118,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: FutureBuilder(
           future: getUser(context),
-          builder: (context, AsyncSnapshot<UserInfo> user) {
-            userInfo = user.data;
-
-            if (user.hasData) {
+          builder: (context, AsyncSnapshot<bool> flagUserExist) {
+            if (flagUserExist.hasData && flagUserExist.data) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Column(
@@ -131,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               radius: 30,
                               backgroundColor: Colors.grey,
                               backgroundImage: NetworkImage(
-                                user.data.photo,
+                                userInfo.photo,
                               ),
                             ),
                           ),
@@ -142,13 +146,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                                 child: Text(
-                                  user.data.nickname,
+                                  userInfo.nickname,
                                   style: Theme.of(context).textTheme.headline6,
                                 ),
                               ),
-                              Text(describeEnum(user.data.gender),
+                              Text(describeEnum(userInfo.gender),
                                   style: Theme.of(context).textTheme.caption),
-                              Text("${user.data.age} años",
+                              Text("${userInfo.age} años",
                                   style: Theme.of(context).textTheme.caption),
                             ],
                           )
@@ -165,10 +169,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Wrap(
                             spacing: 6.0,
                             runSpacing: 6.0,
-                            children: List<Widget>.generate(arrayTest.length,
-                                (int index) {
+                            children: List<Widget>.generate(
+                                userProfile.segments.length, (int index) {
                               return Chip(
-                                label: Text(arrayTest[index]),
+                                label: Text(userProfile.segments[index]),
                               );
                             }),
                           ),
@@ -268,10 +272,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: Wrap(
                               spacing: 6.0,
                               runSpacing: 6.0,
-                              children: List<Widget>.generate(topicsHear.length,
-                                  (int index) {
+                              children: List<Widget>.generate(
+                                  userProfile.topicsHear.length, (int index) {
                                 return Chip(
-                                  label: Text(topicsHear[index]),
+                                  label: Text(userProfile.topicsHear[index]),
                                 );
                               }),
                             ),
