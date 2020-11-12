@@ -120,7 +120,7 @@ class UserService {
     });
   }
 
-  Future<UserProfile> getUserBadgets(String id) async {
+  Future<UserProfile> getUserInfoProfile(String id) async {
     DocumentReference userDoc =
         FirebaseFirestore.instance.collection("users").doc(id);
     List<String> badgets = [];
