@@ -1,14 +1,16 @@
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/configuration.dart';
 import 'package:just_talk/layouts/friend_filter.dart';
 import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
+import 'package:just_talk/layouts/profile.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
 import 'package:just_talk/layouts/topics_hear.dart';
 import 'package:just_talk/layouts/topics_talk.dart';
-
 
 class RouterGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -32,12 +34,12 @@ class RouterGenerator {
             builder: (context) =>
                 ConfigurationPage(arg['userId'], arg['userInfo']));
       case '/topics_to_hear':
-        return MaterialPageRoute(builder: (context) => TopicsHear(
-            arg['segments']
-        ));
+        return MaterialPageRoute(
+            builder: (context) => TopicsHear(arg['segments']));
       case '/filters':
         return MaterialPageRoute(builder: (context) => FriendFilter());
-
+      case '/profile_user':
+        return MaterialPageRoute(builder: (context) => Profile(arg['userId2']));
     }
 
     return _errorRoute();

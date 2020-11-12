@@ -396,15 +396,27 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                 alignment: Alignment.centerLeft,
                 child: Column(
                   children: [
+                    
                     Icon(
                       Icons.star_border,
                       size: 40,
                       color: Color(0xffb31049),
                     ),
-                    Icon(
+                    
+                      Container(
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.of(context)
+                        .pushNamed('/profile_user',
+                        arguments: {
+                          'userId2' : userId2
+                          });},
+                        child: Icon(
                       Icons.report,
                       size: 40,
                       color: Color(0xffb31049),
+                      ),
+                    )
                     )
                   ],
                 ),
