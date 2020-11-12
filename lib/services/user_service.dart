@@ -314,6 +314,44 @@ class UserService {
     }
   }
 
+  Future<List<Topic>> getTopicsHear(String id) async {
+    List<Topic> topics = [];
+
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
+
+    await topicTalkCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        topics.add(Topic(element.id, element.data()['time'].toDate()));
+      });
+    });
+    return topics;
+  }
+
+  Future<void> deleteTopicsHear(String id, List<Topic> topics) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_talk');
+
+    for (Topic topic in topics) {
+      await topicTalkCollection.doc(topic.topic).delete();
+    }
+  }
+
+  Future<void> setTopicsHear(String id, List<Topic> topics) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
+
+    for (Topic topic in topics) {
+      await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
+    }
+  }
+
   Future<void> updatePreferences(String id, Preferences preferences) async {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({
