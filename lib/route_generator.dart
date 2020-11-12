@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/configuration.dart';
 import 'package:just_talk/layouts/friend_filter.dart';
