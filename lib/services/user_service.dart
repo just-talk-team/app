@@ -144,7 +144,7 @@ class UserService {
             .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
           var data = queryDocumentSnapshot.data();
           if (data['validate'] == true) {
-            segments.add(data["email"].toString());
+            segments.add(queryDocumentSnapshot.id.toString());
           }
         });
       }
