@@ -57,17 +57,38 @@ class _SegmentPage extends State<SegmentPage> {
               ),
               SizedBox(height: 50),
               Padding(
-                padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-                child: AutoSizeText(
-                  'Sientete seguro y conversa con personas en tu entorno! :)',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                ),
-              ),
+                  padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                  child: Column(
+                    children: [
+                      AutoSizeText(
+                        "Descubre personas",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      AutoSizeText(
+                        "interesantes que forman",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      AutoSizeText(
+                        "parte de tu organización!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  )),
             ],
           )),
 
@@ -76,7 +97,7 @@ class _SegmentPage extends State<SegmentPage> {
             child: Padding(
               padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
@@ -148,10 +169,10 @@ class _SegmentPage extends State<SegmentPage> {
                       child: RaisedButton.icon(
                         key: Key('Finalizar'),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                            side: BorderSide(color: Colors.red)),
-                        color: Color(0xFFb31020),
-                        padding: EdgeInsets.all(18.0),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        color: Color(0xFFB31048),
+                        padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
                         textColor: Colors.white,
                         onPressed: () async {
                           debugPrint("PASSED TO");
@@ -165,10 +186,10 @@ class _SegmentPage extends State<SegmentPage> {
                             Navigator.of(context).pushReplacementNamed('/home');
                           }
                         },
-                        icon: Icon(Icons.sentiment_satisfied, size: 18),
+                        icon: Icon(Icons.sentiment_very_satisfied, size: 35),
                         label: Text(
                           "Finalizar",
-                          style: TextStyle(fontSize: 25),
+                          style: TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
@@ -180,7 +201,7 @@ class _SegmentPage extends State<SegmentPage> {
                           MediaQuery.of(context).size.width / 25,
                           0),
                       child: AutoSizeText(
-                        '* Una vez validado el correo, deberás validar el mismo ingresando al enlace que enviamos',
+                        '* Una vez agregado un correo, deberás validar el mismo ingresando al enlace que te enviamos',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Color(0xff8a8a8a)),
                       ))

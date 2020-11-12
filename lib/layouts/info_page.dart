@@ -37,7 +37,6 @@ class _InfoPage extends State<InfoPage> {
 
     if (widget.userI.genre == null) return;
     _defaultChoiceIndex = widget.userI.genre.index;
-
   }
 
   Widget choiceChips() {
@@ -50,9 +49,20 @@ class _InfoPage extends State<InfoPage> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                 child: ChoiceChip(
-                    label: Text(describeEnum(_choices[index])),
+                    padding: EdgeInsets.all(10),
+                    label: Text(
+                      describeEnum(_choices[index]),
+                      style: (index == _defaultChoiceIndex)
+                          ? TextStyle(
+                              fontFamily: "Roboto",
+                              fontWeight: FontWeight.normal,
+                              color: Colors.white)
+                          : TextStyle(
+                              fontFamily: "Roboto",
+                              fontWeight: FontWeight.normal),
+                    ),
                     selected: (index == _defaultChoiceIndex),
-                    selectedColor: Colors.green,
+                    selectedColor: Color(0xFFB3A407),
                     onSelected: (bool selected) {
                       setState(() {
                         widget.userI.genre = _choices[index];
@@ -85,17 +95,47 @@ class _InfoPage extends State<InfoPage> {
             ),
             SizedBox(height: 50),
             Padding(
-              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-              child: AutoSizeText(
-                'Brindanos tus datos, para encontrar personas como tu!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-              ),
-            ),
+                padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                child: Column(
+                  children: [
+                    AutoSizeText(
+                      "Bríndanos tus datos para",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
+                      "conversar al instante",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
+                      "con otras personas",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
+                      "que quieren escucharte!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ],
+                )),
           ],
         )),
         //Content
@@ -104,14 +144,14 @@ class _InfoPage extends State<InfoPage> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  padding: EdgeInsets.fromLTRB(40, 0, 40, 40),
                   child: Center(
                     child: MyTextFieldDatePicker(
                       key: Key('DatePicker'),
-                      labelText: "Date",
+                      labelText: "Fecha de Nacimiento",
                       prefixIcon: Icon(Icons.date_range),
                       suffixIcon: Icon(Icons.arrow_drop_down),
                       lastDate: DateTime.now().add(Duration(days: 366)),
@@ -129,14 +169,13 @@ class _InfoPage extends State<InfoPage> {
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                        padding: EdgeInsets.fromLTRB(40, 0, 40, 0),
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Sexo',
                             style: TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

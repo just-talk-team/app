@@ -77,12 +77,12 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           title: Text('Configurar'),
           centerTitle: true,
           leading: IconButton(
-              iconSize: 30,
-              icon: Icon(Icons.keyboard_arrow_left),
-              color: Colors.black,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_left),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
         ),
         body: Container(
@@ -107,7 +107,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   suffixIcon: Icon(Icons.date_range),
                   lastDate: DateTime.now().add(Duration(days: 366)),
                   firstDate: DateTime(1970),
-                  initialDate: widget.userInfo.birthday,
+                  initialDate: widget.userInfo.birthdate,
                   onDateChanged: (selectedDate) {}),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

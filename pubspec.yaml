@@ -103,6 +103,11 @@ flutter:
             style: normal
           - asset: fonts/ARLRDBD.TTF
             weight: 700
+
+      - family: Roboto
+        fonts:
+          - asset: fonts/Roboto.ttf
+            style: normal
          
   #   - family: Schyler
   #     fonts:

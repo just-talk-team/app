@@ -36,7 +36,7 @@ class UserService {
     await newUser.set({
       'uid': userId,
       'avatar': url,
-      'birthday': userI.dateTime,
+      'birthdate': userI.dateTime,
       'friends': {},
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
@@ -107,8 +107,9 @@ class UserService {
               badgets: data['filters']['badgets'].cast<String>());
         }
 
-        DateTime birthday = data['birthday'].toDate();
-        int age = (birthday.difference(DateTime.now()).inDays / 365).truncate();
+        DateTime birthdate = data['birthdate'].toDate();
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
 
         user = UserInfo(
             nickname: data['nickname'],
@@ -116,7 +117,7 @@ class UserService {
             preferences: preferences,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthday: birthday,
+            birthdate: birthdate,
             filters: filters,
             id: id);
 

@@ -49,17 +49,47 @@ class _AvatarPage extends State<AvatarPage> {
               ),
               SizedBox(height: 70),
               Padding(
-                padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-                child: AutoSizeText(
-                  'No elijas una foto tuya! elige algo que te represente a ti :)',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                ),
-              ),
+                  padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+                  child: Column(
+                    children: [
+                      AutoSizeText(
+                        "No elijas una foto tuya!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      AutoSizeText(
+                        "Elige algo que te",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      AutoSizeText(
+                        "represente",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      AutoSizeText(
+                        "a ti",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  )),
             ],
           )),
 
@@ -76,7 +106,7 @@ class _AvatarPage extends State<AvatarPage> {
                                 height: 100,
                                 width: 100,
                                 child: FloatingActionButton(
-                                  backgroundColor: Color(0xFFb31020),
+                                  backgroundColor: Color(0xFFB31048),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(50.0),
                                   ),

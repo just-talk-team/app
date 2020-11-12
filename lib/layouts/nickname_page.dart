@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_input.dart';
@@ -58,10 +59,36 @@ class _NicknamePage extends State<NicknamePage> {
               Center(
                 child: Padding(
                     padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                    child: Text(
-                      'Elige tu nombre de pila! :)',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: [
+                        AutoSizeText(
+                          "Elige un nombre de pila!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          "¿Con qué nombre quieres",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          "que te conozcan?",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ],
                     )),
               ),
             ],
