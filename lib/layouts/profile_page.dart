@@ -242,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             width: 2,
                                             color: Color(0xffb3a407))),
                                     child: Icon(
-                                      Icons.sentiment_very_satisfied,
+                                      Icons.sentiment_very_satisfied_rounded,
                                       size: 30,
                                       color: Color(0xffb3a407),
                                     ),
@@ -287,16 +287,28 @@ class _ProfilePageState extends State<ProfilePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.sentiment_satisfied),
-            title: Text('Just Talk'),
+            icon: Icon(Icons.sentiment_very_satisfied_rounded,
+                color: Color(0xFF73000000)),
+            title: Text(
+              'Just Talk',
+              style: TextStyle(
+                  color: Color(0xFF73000000), fontWeight: FontWeight.bold),
+            ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            title: Text('Amigos'),
+            icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
+            title: Text(
+              'Amigos',
+              style: TextStyle(
+                  color: Color(0xFF73000000), fontWeight: FontWeight.bold),
+            ),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            title: Text('Mi perfil'),
+            icon: Icon(Icons.person_rounded),
+            title: Text(
+              'Mi perfil',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
         currentIndex: widget._index,

@@ -186,7 +186,8 @@ class _SegmentPage extends State<SegmentPage> {
                             Navigator.of(context).pushReplacementNamed('/home');
                           }
                         },
-                        icon: Icon(Icons.sentiment_very_satisfied, size: 35),
+                        icon: Icon(Icons.sentiment_very_satisfied_rounded,
+                            size: 35),
                         label: Text(
                           "Finalizar",
                           style: TextStyle(fontSize: 20),

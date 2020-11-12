@@ -262,7 +262,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                                             width: 2,
                                             color: Color(0xff959595))),
                                     child: Icon(
-                                      Icons.sentiment_very_satisfied,
+                                      Icons.sentiment_very_satisfied_rounded,
                                       size: 30,
                                       color: Color(0xff959595),
                                     ),

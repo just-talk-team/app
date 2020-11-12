@@ -232,7 +232,7 @@ class _Profile extends State<Profile> {
                                 border: Border.all(
                                     width: 2, color: Color(0xffb3a407))),
                             child: Icon(
-                              Icons.sentiment_very_satisfied,
+                              Icons.sentiment_very_satisfied_rounded,
                               size: 30,
                               color: Color(0xffb3a407),
                             ),
