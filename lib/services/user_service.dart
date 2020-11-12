@@ -144,7 +144,7 @@ class UserService {
             .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
           var data = queryDocumentSnapshot.data();
           if (data['validate'] == true) {
-            segments.add(data.toString());
+            segments.add(data["email"].toString());
           }
         });
       }
@@ -168,7 +168,7 @@ class UserService {
       if (querySnapshot.docs.isNotEmpty) {
         querySnapshot.docs
             .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
-          var data = queryDocumentSnapshot.data();
+          var data = queryDocumentSnapshot.id;
           topicsTalk.add(data.toString());
         });
       }
@@ -180,7 +180,7 @@ class UserService {
       if (querySnapshot.docs.isNotEmpty) {
         querySnapshot.docs
             .forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
-          var data = queryDocumentSnapshot.data();
+          var data = queryDocumentSnapshot.id;
           topicsHear.add(data.toString());
         });
       }
@@ -192,6 +192,7 @@ class UserService {
         topicsHear: topicsHear,
         topicsTalk: topicsTalk);
   }
+
   Future<List<String>> getSegments(String id) async {
     List<String> segments = [];
 
