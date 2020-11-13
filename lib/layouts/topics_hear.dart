@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/bloc/discovery_cubit.dart';
 import 'package:just_talk/bloc/discovery_state.dart';
+import 'package:just_talk/bloc/topic_hear_cubit.dart';
+import 'package:just_talk/bloc/topic_hear_state.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/topics_service.dart';
@@ -25,6 +27,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   TopicsService topicsService;
   DiscoveryService discoveryService;
   DiscoveryCubit discoveryCubit;
+  TopicHearCubit topicHearCubit;
 
   int levelClock = 6;
 
@@ -36,12 +39,14 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
     topicsToHear = [];
     checkList = [];
+
     id = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     userService = RepositoryProvider.of<UserService>(context);
-    topicsService = TopicsService();
     discoveryService = DiscoveryService();
+    initCubit();
 
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
       userService.setTopicsToHear(checkList, id);
@@ -60,6 +65,11 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           _startClock();
       }
     });
+  }
+
+  void initCubit() async {
+    topicHearCubit = TopicHearCubit(topicsService: TopicsService());
+    topicHearCubit.init(await userService.getSegments(id));
   }
 
   @override
@@ -153,6 +163,16 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     });
   }
 
+  List<Topic> getTopics(List<Topic> src, List<Topic> filter) {
+    List<Topic> topics = [];
+    for (Topic topic in src) {
+      if (!filter.contains(topic)) {
+        topics.add(topic);
+      }
+    }
+    return topics;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,12 +194,12 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           textAlign: TextAlign.center,
         ),
       ),
-      body: FutureBuilder(
-          future: topicsService.getTopicsToHear(widget.segments),
-          builder: (context, AsyncSnapshot<List<Topic>> topics) {
-            topicsToHear = topics.data;
+      body: BlocBuilder<TopicHearCubit, TopicHearState>(
+          cubit: topicHearCubit,
+          builder: (context, TopicHearState topicHearState) {
+            if (topicHearState.runtimeType == TopicHearResult) {
+              topicsToHear = getTopics((topicHearState as TopicHearResult).topics, checkList);
 
-            if (topics.hasData) {
               return Container(
                 margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child: Padding(

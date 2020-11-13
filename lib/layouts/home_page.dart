@@ -84,26 +84,15 @@ class HomePage extends StatelessWidget {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.sentiment_very_satisfied_rounded),
-              title: Text(
-                'Just Talk',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              label: 'Just Talk',             
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
-              title: Text(
-                'Amigos',
-                style: TextStyle(
-                    color: Color(0xFF73000000), fontWeight: FontWeight.bold),
-              ),
+              label: 'Amigos',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
-              title: Text(
-                'Mi perfil',
-                style: TextStyle(
-                    color: Color(0xFF73000000), fontWeight: FontWeight.bold),
-              ),
+              label: 'Mi perfil',
             ),
           ],
           currentIndex: _index,

@@ -30,105 +30,85 @@ class _AvatarPage extends State<AvatarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          //Title
-          Container(
-              child: Column(
-            children: <Widget>[
-              SizedBox(height: 110),
-              Container(
-                child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Text(
-                      'Avatar',
-                      style:
-                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                    )),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        //Title
+        Container(
+          child: FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                'Avatar',
+                style:
+                    TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              )),
+        ),
+        Column(
+          children: [
+            AutoSizeText(
+              "No elijas una foto tuya!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(height: 70),
-              Padding(
-                  padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-                  child: Column(
-                    children: [
-                      AutoSizeText(
-                        "No elijas una foto tuya!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                      ),
-                      AutoSizeText(
-                        "Elige algo que te",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                      ),
-                      AutoSizeText(
-                        "represente",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                      ),
-                      AutoSizeText(
-                        "a ti",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                      ),
-                    ],
-                  )),
-            ],
-          )),
+              maxLines: 1,
+            ),
+            AutoSizeText(
+              "Elige algo que te",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+            ),
+            AutoSizeText(
+              "represente",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+            ),
+            AutoSizeText(
+              "a ti",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+            ),
+          ],
+        ),
 
-          //Content
-          Container(
-            child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Center(
-                        child: widget.userI.imgProfile == null
-                            ? SizedBox(
-                                height: 100,
-                                width: 100,
-                                child: FloatingActionButton(
-                                  backgroundColor: Color(0xFFB31048),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50.0),
-                                  ),
-                                  onPressed: getImage,
-                                  tooltip: 'Pick Image',
-                                ),
-                              )
-                            : GestureDetector(
-                                onTap: getImage,
-                                child: ClipOval(
-                                  child: Image.file(
-                                    widget.userI.imgProfile,
-                                    height: 200.0,
-                                    width: 200.0,
-                                  ),
-                                ),
-                              ),
-                      )
-                    ])),
-          )
-        ],
-      ),
+        //Content
+        widget.userI.imgProfile == null
+            ? SizedBox(
+                height: 100,
+                width: 100,
+                child: FloatingActionButton(
+                  backgroundColor: Color(0xFFB31048),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
+                  onPressed: getImage,
+                  tooltip: 'Pick Image',
+                ),
+              )
+            : GestureDetector(
+                onTap: getImage,
+                child: ClipOval(
+                  child: Image.file(
+                    widget.userI.imgProfile,
+                    height: 200.0,
+                    width: 200.0,
+                  ),
+                ),
+              )
+      ],
     );
   }
 

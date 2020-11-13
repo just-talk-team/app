@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore_mocks/cloud_firestore_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/topics_service.dart';
 
 void main() {
@@ -22,14 +21,5 @@ void main() {
           .doc('example')
           .set({'last_update': DateTime.now()});
     }
-  });
-
-  test('Get topics to hear from segments', () async {
-    //arrange
-    List<Topic> topics = [];
-    //execute
-    topics = await topicsService.getTopicsToHear(segments);
-    //verify
-    expect(topics.length, 2);
   });
 }

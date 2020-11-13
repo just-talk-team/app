@@ -322,15 +322,17 @@ class UserService {
     return topics;
   }
 
-  Future<void> deleteTopicsHear(String id, List<Topic> topics) async {
+  Future<void> deleteTopicsHear(String id) async {
     CollectionReference topicTalkCollection = FirebaseFirestore.instance
         .collection("users")
         .doc(id)
-        .collection('topics_talk');
+        .collection('topics_hear');
 
-    for (Topic topic in topics) {
-      await topicTalkCollection.doc(topic.topic).delete();
-    }
+    topicTalkCollection.get().then((value) async {
+      for (DocumentSnapshot documentSnapshot in value.docs){
+        await documentSnapshot.reference.delete();
+      }
+    });
   }
 
   Future<void> setTopicsHear(String id, List<Topic> topics) async {

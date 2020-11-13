@@ -10,35 +10,29 @@ class TopicsTalk extends StatefulWidget {
   _TopicsTalk createState() => _TopicsTalk();
 }
 
-class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
+class _TopicsTalk extends State<TopicsTalk> {
   TextEditingController topicsTalkController;
 
   FocusNode textFieldFocusNode;
   int levelClock = 6;
 
   List<Topic> topicsTalk;
-  List<Topic> topicsTalkRemoved;
+  List<Topic> deletedTopics;
+
   String userId;
   UserService userService;
-
-  void joinList(List<Topic> topicsTalk, List<Topic> topicsFirestore,
-      List<Topic> topicsTalkRemoved) {
-    for (Topic topic in topicsFirestore) {
-      if (!topicsTalk.contains(topic) && !topicsTalkRemoved.contains(topic)) {
-        topicsTalk.add(topic);
-      }
-    }
-  }
+  bool flag;
 
   @override
   void initState() {
     super.initState();
     userService = RepositoryProvider.of<UserService>(context);
     topicsTalk = [];
-    topicsTalkRemoved = [];
+    deletedTopics = [];
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     topicsTalkController = TextEditingController();
     textFieldFocusNode = FocusNode();
+    flag = false;
   }
 
   @override
@@ -68,14 +62,16 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                 ? Colors.black
                 : Colors.black.withOpacity(0.5),
             onPressed: () async {
-              await userService.deleteTopicsTalk(userId, topicsTalkRemoved);
-              await userService.setTopicsTalk(userId, topicsTalk);
-              List<Topic> topics = await userService.getTopicsHear(userId);
-              await userService.deleteTopicsHear(userId, topics);
-              await userService.setTopicsHear(userId, topicsTalk);
+              if (flag) {
+                await userService.setTopicsTalk(userId, topicsTalk);
+                await userService.deleteTopicsTalk(userId, deletedTopics);
+
+                await userService.deleteTopicsHear(userId);
+                await userService.setTopicsHear(userId, topicsTalk);
+
+                deletedTopics.clear();          
+              }
               List<String> segments = await userService.getSegments(userId);
-              topicsTalkRemoved.clear();
-              topicsTalk.clear();
               Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
                 'segments': segments,
               });
@@ -97,8 +93,11 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                   future: RepositoryProvider.of<UserService>(context)
                       .getTopicsTalk(userId),
                   builder: (context, AsyncSnapshot<List<Topic>> topics) {
-                    if (topics.data != null) {
-                      joinList(topicsTalk, topics.data, topicsTalkRemoved);
+                    if (topics.hasData && !flag) {
+                      topicsTalk = topics.data;
+                    }
+
+                    if (topicsTalk.length > 0) {
                       return Container(
                         margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child: Padding(
@@ -125,9 +124,11 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                                     ),
                                     deleteIconColor: Color(0xFFB31048),
                                     onDeleted: () {
+                                      if (!flag) {
+                                        flag = true;
+                                      }
                                       setState(() {
-                                        topicsTalkRemoved
-                                            .add(topicsTalk[index]);
+                                        deletedTopics.add(topicsTalk[index]);
                                         topicsTalk.removeAt(index);
                                       });
                                     },
@@ -163,6 +164,10 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                       if (topicsTalkController.text.isEmpty) {
                         return;
                       }
+
+                      if (!flag) {
+                        flag = true;
+                      }
                       topicsTalk.add(
                           Topic(topicsTalkController.text, DateTime.now()));
                       topicsTalkController.clear();
@@ -174,31 +179,6 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
           ],
         ),
       ),
-    );
-  }
-}
-
-class Countdown extends AnimatedWidget {
-  Countdown({Key key, this.animation}) : super(key: key, listenable: animation);
-  Animation<int> animation;
-
-  @override
-  build(BuildContext context) {
-    Duration clockTimer = Duration(seconds: animation.value);
-
-    String timerText =
-        '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-
-    print('animation.value  ${animation.value} ');
-    print('inMinutes ${clockTimer.inMinutes.toString()}');
-    print('inSeconds ${clockTimer.inSeconds.toString()}');
-    print(
-        'inSeconds.remainder ${clockTimer.inSeconds.remainder(60).toString()}');
-
-    return Text(
-      "$timerText",
-      style: TextStyle(),
-      textAlign: TextAlign.center,
     );
   }
 }

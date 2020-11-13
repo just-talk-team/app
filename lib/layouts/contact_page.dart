@@ -95,9 +95,6 @@ class Search extends SearchDelegate {
   }
 
   @override
-  Widget buildResults(BuildContext context) {}
-
-  @override
   Widget buildSuggestions(BuildContext context) {
     ContactsState contactState = contactCubit.state;
     if (contactState.runtimeType == ContactsResult) {
@@ -106,6 +103,12 @@ class Search extends SearchDelegate {
           contacts.where((element) => validate(element.name, query)));
     }
     return Container();
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    throw UnimplementedError();
   }
 }
 
@@ -175,26 +178,15 @@ class _ContactPageState extends State<ContactPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.sentiment_very_satisfied_rounded,
                 color: Color(0xFF73000000)),
-            title: Text(
-              'Just Talk',
-              style: TextStyle(
-                  color: Color(0xFF73000000), fontWeight: FontWeight.bold),
-            ),
+            label: 'Just Talk',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_rounded),
-            title: Text(
-              'Amigos',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            label: 'Amigos',      
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
-            title: Text(
-              'Mi perfil',
-              style: TextStyle(
-                  color: Color(0xFF73000000), fontWeight: FontWeight.bold),
-            ),
+            label: 'Mi perfil',
           ),
         ],
         currentIndex: widget._index,
