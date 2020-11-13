@@ -170,9 +170,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         title: Text(
           '¿Sobre que puedo escuchar?',
           style: TextStyle(
-              color: Color(0xff666666),
-              fontSize: 20,
-              fontWeight: FontWeight.bold),
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
       ),

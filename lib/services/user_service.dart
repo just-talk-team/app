@@ -41,22 +41,14 @@ class UserService {
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
       'preferences': {
-        'ages': {
-          'minimun': 18,
-          'maximun': 99,
-        },
+        'ages': [16, 99],
         'segments': FieldValue.arrayUnion([]),
-        //'genders': {'women': 0, 'men': 0},
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
       'filters': {
-        'ages': {
-          'minimun': 18,
-          'maximun': 99,
-        },
+        'ages': [16, 99],
         'segments': FieldValue.arrayUnion([]),
-        //'genders': {'women': 0, 'men': 0},
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
@@ -89,8 +81,8 @@ class UserService {
 
         if (preferencesFlag) {
           preferences = Preferences(
-              maximumAge: data['preferences']['ages']['maximun'],
-              minimunAge: data['preferences']['ages']['minimun'],
+              minimunAge: data['preferences']['ages'].cast<int>()[0],
+              maximumAge: data['preferences']['ages'].cast<int>()[1],
               genders: EnumToString.fromList(
                   Gender.values, data['preferences']['genders']),
               segments: data['preferences']['segments'].cast<String>(),
@@ -99,8 +91,8 @@ class UserService {
 
         if (filtersFlag) {
           filters = Preferences(
-              maximumAge: data['filters']['ages']['maximun'],
-              minimunAge: data['filters']['ages']['minimun'],
+              minimunAge: data['filters']['ages'].cast<int>()[0],
+              maximumAge: data['filters']['ages'].cast<int>()[1],
               genders: EnumToString.fromList(
                   Gender.values, data['filters']['genders']),
               segments: data['filters']['segments'].cast<String>(),
@@ -206,8 +198,8 @@ class UserService {
   Future<Preferences> getFilters(String id) async {
     var data = await _firebaseFirestore.collection('users').doc(id).get();
     return Preferences(
-        maximumAge: data.data()['filters']['ages']['maximun'],
-        minimunAge: data.data()['filters']['ages']['minimun'],
+        minimunAge: data.data()['filters']['ages'].cast<int>()[0],
+        maximumAge: data.data()['filters']['ages'].cast<int>()[1],
         genders: EnumToString.fromList(
             Gender.values, data.data()['filters']['genders']),
         segments: data.data()['filters']['segments'].cast<String>(),
@@ -356,10 +348,7 @@ class UserService {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({
       'preferences': {
-        'ages': {
-          'maximun': preferences.maximumAge,
-          'minimun': preferences.minimunAge
-        },
+        'ages': [preferences.minimunAge, preferences.maximumAge],
         'genders': FieldValue.arrayUnion(
             EnumToString.toList<Gender>(preferences.genders)),
         'segments': FieldValue.arrayUnion(preferences.segments),
@@ -372,10 +361,7 @@ class UserService {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({
       'filters': {
-        'ages': {
-          'maximun': preferences.maximumAge,
-          'minimun': preferences.minimunAge
-        },
+        'ages': [preferences.minimunAge, preferences.maximumAge],
         'genders': FieldValue.arrayUnion(
             EnumToString.toList<Gender>(preferences.genders)),
         'segments': FieldValue.arrayUnion(preferences.segments),
