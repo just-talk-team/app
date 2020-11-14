@@ -7,9 +7,10 @@ import 'package:just_talk/widgets/date_picker.dart';
 
 // ignore: must_be_immutable
 class ConfigurationPage extends StatefulWidget {
-  ConfigurationPage(this.userId, this.userInfo);
   final String userId;
   UserInfo userInfo;
+  ConfigurationPage(this.userId, this.userInfo);
+
   final List<String> multipleChoices = ['Masculino', 'Femenino'];
 
   @override
@@ -19,9 +20,10 @@ class ConfigurationPage extends StatefulWidget {
 class _ConfigurationPageState extends State<ConfigurationPage> {
   TextEditingController nickController;
   TextEditingController segmentController;
-
   FocusNode textFieldFocusNode;
   List<String> _multipleSelected;
+
+  set birthdayModified(DateTime birthdayModified) {}
 
   @override
   void initState() {
@@ -77,12 +79,12 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           title: Text('Configurar'),
           centerTitle: true,
           leading: IconButton(
-              iconSize: 30,
-              icon: Icon(Icons.keyboard_arrow_left),
-              color: Colors.black,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_left),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
         ),
         body: Container(
