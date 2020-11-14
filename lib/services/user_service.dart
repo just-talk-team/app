@@ -36,27 +36,19 @@ class UserService {
     await newUser.set({
       'uid': userId,
       'avatar': url,
-      'birthday': userI.dateTime,
+      'birthdate': userI.dateTime,
       'friends': {},
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
       'preferences': {
-        'ages': {
-          'minimun': 18,
-          'maximun': 99,
-        },
+        'ages': [16, 99],
         'segments': FieldValue.arrayUnion([]),
-        //'genders': {'women': 0, 'men': 0},
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
       'filters': {
-        'ages': {
-          'minimun': 18,
-          'maximun': 99,
-        },
+        'ages': [16, 99],
         'segments': FieldValue.arrayUnion([]),
-        //'genders': {'women': 0, 'men': 0},
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
@@ -89,8 +81,8 @@ class UserService {
 
         if (preferencesFlag) {
           preferences = Preferences(
-              maximumAge: data['preferences']['ages']['maximun'],
-              minimunAge: data['preferences']['ages']['minimun'],
+              minimunAge: data['preferences']['ages'].cast<int>()[0],
+              maximumAge: data['preferences']['ages'].cast<int>()[1],
               genders: EnumToString.fromList(
                   Gender.values, data['preferences']['genders']),
               segments: data['preferences']['segments'].cast<String>(),
@@ -99,16 +91,17 @@ class UserService {
 
         if (filtersFlag) {
           filters = Preferences(
-              maximumAge: data['filters']['ages']['maximun'],
-              minimunAge: data['filters']['ages']['minimun'],
+              minimunAge: data['filters']['ages'].cast<int>()[0],
+              maximumAge: data['filters']['ages'].cast<int>()[1],
               genders: EnumToString.fromList(
                   Gender.values, data['filters']['genders']),
               segments: data['filters']['segments'].cast<String>(),
               badgets: data['filters']['badgets'].cast<String>());
         }
 
-        DateTime birthday = data['birthday'].toDate();
-        int age = (birthday.difference(DateTime.now()).inDays / 365).truncate();
+        DateTime birthdate = data['birthdate'].toDate();
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
 
         user = UserInfo(
             nickname: data['nickname'],
@@ -116,7 +109,7 @@ class UserService {
             preferences: preferences,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthday: birthday,
+            birthdate: birthdate,
             filters: filters,
             id: id);
 
@@ -205,8 +198,8 @@ class UserService {
   Future<Preferences> getFilters(String id) async {
     var data = await _firebaseFirestore.collection('users').doc(id).get();
     return Preferences(
-        maximumAge: data.data()['filters']['ages']['maximun'],
-        minimunAge: data.data()['filters']['ages']['minimun'],
+        minimunAge: data.data()['filters']['ages'].cast<int>()[0],
+        maximumAge: data.data()['filters']['ages'].cast<int>()[1],
         genders: EnumToString.fromList(
             Gender.values, data.data()['filters']['genders']),
         segments: data.data()['filters']['segments'].cast<String>(),
@@ -313,14 +306,51 @@ class UserService {
     }
   }
 
+  Future<List<Topic>> getTopicsHear(String id) async {
+    List<Topic> topics = [];
+
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
+
+    await topicTalkCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        topics.add(Topic(element.id, element.data()['time'].toDate()));
+      });
+    });
+    return topics;
+  }
+
+  Future<void> deleteTopicsHear(String id) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
+
+    topicTalkCollection.get().then((value) async {
+      for (DocumentSnapshot documentSnapshot in value.docs){
+        await documentSnapshot.reference.delete();
+      }
+    });
+  }
+
+  Future<void> setTopicsHear(String id, List<Topic> topics) async {
+    CollectionReference topicTalkCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
+
+    for (Topic topic in topics) {
+      await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
+    }
+  }
+
   Future<void> updatePreferences(String id, Preferences preferences) async {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({
       'preferences': {
-        'ages': {
-          'maximun': preferences.maximumAge,
-          'minimun': preferences.minimunAge
-        },
+        'ages': [preferences.minimunAge, preferences.maximumAge],
         'genders': FieldValue.arrayUnion(
             EnumToString.toList<Gender>(preferences.genders)),
         'segments': FieldValue.arrayUnion(preferences.segments),
@@ -333,10 +363,7 @@ class UserService {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({
       'filters': {
-        'ages': {
-          'maximun': preferences.maximumAge,
-          'minimun': preferences.minimunAge
-        },
+        'ages': [preferences.minimunAge, preferences.maximumAge],
         'genders': FieldValue.arrayUnion(
             EnumToString.toList<Gender>(preferences.genders)),
         'segments': FieldValue.arrayUnion(preferences.segments),

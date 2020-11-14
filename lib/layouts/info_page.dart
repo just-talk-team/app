@@ -37,7 +37,6 @@ class _InfoPage extends State<InfoPage> {
 
     if (widget.userI.genre == null) return;
     _defaultChoiceIndex = widget.userI.genre.index;
-
   }
 
   Widget choiceChips() {
@@ -50,9 +49,20 @@ class _InfoPage extends State<InfoPage> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                 child: ChoiceChip(
-                    label: Text(describeEnum(_choices[index])),
+                    padding: EdgeInsets.all(10),
+                    label: Text(
+                      describeEnum(_choices[index]),
+                      style: (index == _defaultChoiceIndex)
+                          ? TextStyle(
+                              fontFamily: "Roboto",
+                              fontWeight: FontWeight.normal,
+                              color: Colors.white)
+                          : TextStyle(
+                              fontFamily: "Roboto",
+                              fontWeight: FontWeight.normal),
+                    ),
                     selected: (index == _defaultChoiceIndex),
-                    selectedColor: Colors.green,
+                    selectedColor: Color(0xFFB3A407),
                     onSelected: (bool selected) {
                       setState(() {
                         widget.userI.genre = _choices[index];
@@ -67,92 +77,64 @@ class _InfoPage extends State<InfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Stack(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         //Title
         Container(
-            child: Column(
-          children: <Widget>[
-            SizedBox(height: 110),
-            Container(
-              child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    'Mis Datos',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  )),
+            child: Text(
+              'Mis Datos',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 50),
-            Padding(
-              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-              child: AutoSizeText(
-                'Brindanos tus datos, para encontrar personas como tu!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
+          ),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 100),
+            child: AutoSizeText(
+              "Bríndanos tus datos para conversar al instante con otras personas que quieren escucharte!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
+              maxLines: 5,
             ),
-          ],
-        )),
-        //Content
+          ),
 
-        Container(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(0, 250, 0, 0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                  child: Center(
-                    child: MyTextFieldDatePicker(
-                      key: Key('DatePicker'),
-                      labelText: "Date",
-                      prefixIcon: Icon(Icons.date_range),
-                      suffixIcon: Icon(Icons.arrow_drop_down),
-                      lastDate: DateTime.now().add(Duration(days: 366)),
-                      firstDate: DateTime(1970),
-                      initialDate: widget.userI.dateTime.toDate(),
-                      onDateChanged: (selectedDate) {
-                        widget.userI.dateTime =
-                            Timestamp.fromDate(selectedDate);
-                        validate();
-                      },
-                    ),
+        //Content
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              MyTextFieldDatePicker(
+                key: Key('DatePicker'),
+                labelText: "Fecha de Nacimiento",
+                prefixIcon: Icon(Icons.date_range),
+                suffixIcon: Icon(Icons.arrow_drop_down),
+                lastDate: DateTime.now().add(Duration(days: 366)),
+                firstDate: DateTime(1970),
+                initialDate: widget.userI.dateTime.toDate(),
+                onDateChanged: (selectedDate) {
+                  widget.userI.dateTime = Timestamp.fromDate(selectedDate);
+                  validate();
+                },
+              ),
+              SizedBox(height: 50,),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Sexo',
+                  style: TextStyle(
+                    fontSize: 20,
                   ),
                 ),
-                Container(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Sexo',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      Padding(
-                          padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-                          child: Center(child: choiceChips())),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 10,),
+              Center(child: choiceChips()),
+            ],
           ),
         ),
       ],
-    ));
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:just_talk/models/contact.dart';
-import 'package:just_talk/models/message.dart';
+
 
 class ContactsState extends Equatable {
   @override

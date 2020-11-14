@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenNotRegisterValidInfo() {
   return when<FlutterWorld>(
-    'no seleccione un genero o su fecha de nacimiento',
+    'he dont select a gender or his date of birth',
     (context) async {
       final dateFinder = find.byValueKey('DatePicker');
       await FlutterDriverUtils.tap(context.world.driver, dateFinder);

@@ -2,14 +2,23 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/models/user_info.dart';
+import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/date_picker.dart';
 
 // ignore: must_be_immutable
 class ConfigurationPage extends StatefulWidget {
-  ConfigurationPage(this.userId, this.userInfo);
+  ConfigurationPage({
+    this.userId,
+    this.userInfo,
+    this.userService
+  });
+
   final String userId;
   UserInfo userInfo;
+  UserService userService;
+
   final List<String> multipleChoices = ['Masculino', 'Femenino'];
 
   @override
@@ -17,21 +26,28 @@ class ConfigurationPage extends StatefulWidget {
 }
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
+  List<String> userSegments;
+
   TextEditingController nickController;
   TextEditingController segmentController;
 
   FocusNode textFieldFocusNode;
   List<String> _multipleSelected;
 
+  UserService userService;
+
   @override
   void initState() {
     super.initState();
+    userSegments = [];
     nickController = TextEditingController();
     segmentController = TextEditingController();
     textFieldFocusNode = FocusNode();
-    _multipleSelected = [describeEnum(widget.userInfo.gender)];
 
+    _multipleSelected = [describeEnum(widget.userInfo.gender)];
     nickController.text = widget.userInfo.nickname;
+
+    userService = RepositoryProvider.of<UserService>(context);
   }
 
   @override
@@ -77,12 +93,12 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           title: Text('Configurar'),
           centerTitle: true,
           leading: IconButton(
-              iconSize: 30,
-              icon: Icon(Icons.keyboard_arrow_left),
-              color: Colors.black,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_left),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
         ),
         body: Container(
@@ -107,7 +123,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   suffixIcon: Icon(Icons.date_range),
                   lastDate: DateTime.now().add(Duration(days: 366)),
                   firstDate: DateTime(1970),
-                  initialDate: widget.userInfo.birthday,
+                  initialDate: widget.userInfo.birthdate,
                   onDateChanged: (selectedDate) {}),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,36 +141,45 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                       )),
                 ],
               ),
-              Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  TextFormField(
-                    controller: segmentController,
-                    decoration: InputDecoration(
-                      labelText: 'Segmentos',
-                      hintText: 'Correo de tu organización',
-                      border: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.grey, width: 0.0),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    key: Key("Add segment"),
-                    icon: Icon(Icons.send),
-                    onPressed: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      String email = segmentController.text;
-                      if (!EmailValidator.validate(email)) {
-                        return;
-                      }
-                      setState(() {
-                        widget.userInfo.preferences.segments.add(email);
-                      });
-                    },
-                  ),
-                ],
-              ),
+              FutureBuilder<List<String>>(
+                  future: userService.getSegments(widget.userId),
+                  builder: (context, segments) {
+                    if (segments.hasData) {
+                      userSegments = segments.data;
+
+                      return Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          TextFormField(
+                            controller: segmentController,
+                            decoration: InputDecoration(
+                              labelText: 'Segmentos',
+                              hintText: 'Correo de tu organización',
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 0.0),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            key: Key("Add segment"),
+                            icon: Icon(Icons.send),
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              String email = segmentController.text;
+                              if (!EmailValidator.validate(email)) {
+                                return;
+                              }
+                              setState(() {
+                                userSegments.add(email);
+                              });
+                            },
+                          ),
+                        ],
+                      );
+                    }
+                    return Container();
+                  }),
               Container(
                   height: MediaQuery.of(context).size.width / 3,
                   width: MediaQuery.of(context).size.width,
@@ -164,15 +189,14 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                       spacing: 6.0,
                       runSpacing: 6.0,
                       children: List<Widget>.generate(
-                          widget.userInfo.preferences.segments.length,
+                          userSegments.length,
                           (int index) {
                         return Chip(
                           label:
-                              Text(widget.userInfo.preferences.segments[index]),
+                              Text(userSegments[index]),
                           onDeleted: () {
                             setState(() {
-                              widget.userInfo.preferences.segments
-                                  .removeAt(index);
+                            userSegments.removeAt(index);
                             });
                           },
                         );
@@ -188,7 +212,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   color: Color(0xFFb31020),
                   padding: EdgeInsets.all(18.0),
                   textColor: Colors.white,
-                  onPressed: () async {},
+                  onPressed: () async {
+                    
+                  },
                   icon: Icon(Icons.sentiment_satisfied, size: 18),
                   label: Text(
                     "Finalizar",

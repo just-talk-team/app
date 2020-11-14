@@ -52,18 +52,23 @@ class _BadgetState extends State<Badget> {
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                     width: 2,
-                    color: selected ? Color(0xffb3a407) : Color(0xff8a8a8a))),
+                    color: selected
+                        ? Color(0xffb3a407)
+                        : Colors.black.withOpacity(0.5))),
             child: Icon(
               widget._icon,
               size: 40,
-              color: selected ? Color(0xffb3a407) : Color(0xff8a8a8a),
+              color:
+                  selected ? Color(0xffb3a407) : Colors.black.withOpacity(0.5),
             ),
           ),
           AutoSizeText(
             widget._text,
             maxLines: 2,
             style: TextStyle(
-                color: selected ? Color(0xffb3a407) : Color(0xff8a8a8a)),
+                color: selected
+                    ? Color(0xffb3a407)
+                    : Colors.black.withOpacity(0.5)),
           )
         ],
       ),

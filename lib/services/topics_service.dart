@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_talk/models/topic.dart';
+import 'package:tuple/tuple.dart';
 
 class TopicsService {
   FirebaseFirestore _firebaseFirestore;
@@ -7,33 +8,29 @@ class TopicsService {
   TopicsService({FirebaseFirestore firebaseFirestore})
       : _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance;
 
-  List<Topic> _validate(List<Topic> topics) {
-    Set<Topic> topicsSet = Set();
-    for (Topic element in topics) {
-      topicsSet.add(element);
-    }
-    return topicsSet.toList();
-  }
 
-  Future<List<Topic>> getTopicsToHear(List<String> segments) async {
-    CollectionReference segmentCollection = _firebaseFirestore.collection("segments");
-    List<Topic> topicsToHear = <Topic>[];
-
-    for (String segment in segments) {
-      await segmentCollection
-          .doc(segment)
-          .collection('topics')
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.where((QueryDocumentSnapshot queryDocumentSnapshot) {
-          DateTime lastUpdate = queryDocumentSnapshot.data()['last_update'].toDate();
-          return DateTime.now().difference(lastUpdate).inMinutes <= 5;
-        }).forEach((QueryDocumentSnapshot queryDocumentSnapshot) {
-          topicsToHear.add(Topic(queryDocumentSnapshot.id,
-              queryDocumentSnapshot.data()['last_update'].toDate()));
-        });
+  Stream<List<Tuple2<Topic, bool>>> getTopicsToHear(String segment) {
+    CollectionReference segmentCollection =
+        _firebaseFirestore.collection("segments");
+    return segmentCollection
+        .doc(segment)
+        .collection('topics')
+        .snapshots()
+        .map<List<Tuple2<Topic, bool>>>((event) {
+      List<Tuple2<Topic, bool>> topics = [];
+      event.docChanges.forEach((DocumentChange documentChange) {
+        DateTime docDate = documentChange.doc.data()['time'].toDate();
+        //if (DateTime.now().difference(docDate).inMinutes <= 5) {
+        Topic topic = Topic(documentChange.doc.id, docDate);
+        bool flag = false;
+        if (documentChange.type == DocumentChangeType.added ||
+            documentChange.type == DocumentChangeType.modified) {
+          flag = true;
+        }
+        topics.add(Tuple2(topic, flag));
+        //}
       });
-    }
-    return _validate(topicsToHear);
+      return topics;
+    });
   }
 }

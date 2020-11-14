@@ -30,7 +30,11 @@ class RouterGenerator {
       case '/configuration':
         return MaterialPageRoute(
             builder: (context) =>
-                ConfigurationPage(arg['userId'], arg['userInfo']));
+                ConfigurationPage(
+                  userId: arg['userId'],
+                  userInfo: arg['userInfo'],
+                  userService: arg['userService'],
+                ));
       case '/topics_to_hear':
         return MaterialPageRoute(builder: (context) => TopicsHear(
             arg['segments']

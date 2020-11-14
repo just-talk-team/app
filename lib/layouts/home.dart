@@ -40,7 +40,11 @@ class _HomeState extends State<Home> {
               child: ContactPage(1, _navbarCubit),
             );
           case ProfileState:
-            return ProfilePage(2, _navbarCubit);
+            return ProfilePage(
+              index: 2,
+              navbarCubit: _navbarCubit,
+              userService: RepositoryProvider.of<UserService>(context),
+              );
           default:
             return HomePage(0, _navbarCubit);
         }

@@ -5,15 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 
 import 'package:just_talk/bloc/navbar_cubit.dart';
-import 'package:just_talk/models/user.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage(this._index, this._navbarCubit);
 
-  final int _index;
-  final NavbarCubit _navbarCubit;
+  ProfilePage({this.index, this.navbarCubit, this.userService});
+
+  final int index;
+  final NavbarCubit navbarCubit;
+  final UserService userService;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -21,6 +22,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   UserInfo userInfo;
+  String userId;
 
   List<String> arrayTest = [
     'upc.edu.pe',
@@ -79,11 +81,12 @@ class _ProfilePageState extends State<ProfilePage> {
     'Among US'
   ];
 
-  Future<UserInfo> getUser(BuildContext context) async {
-    UserService userService = UserService();
-    User user = BlocProvider.of<AuthenticationCubit>(context).state.user;
-    return await userService.getUser(user.id, true, false);
+  @override
+  void initState(){
+    super.initState();
+    userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +105,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         .state
                         .user
                         .id,
-                    'userInfo': userInfo
+                    'userInfo': userInfo,
+                    'userService': widget.userService,
                   }).then((value) {
                     setState(() {});
                   });
@@ -111,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
       body: FutureBuilder(
-          future: getUser(context),
+          future: widget.userService.getUser(userId, false, false),
           builder: (context, AsyncSnapshot<UserInfo> user) {
             userInfo = user.data;
 
@@ -242,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             width: 2,
                                             color: Color(0xffb3a407))),
                                     child: Icon(
-                                      Icons.sentiment_very_satisfied,
+                                      Icons.sentiment_very_satisfied_rounded,
                                       size: 30,
                                       color: Color(0xffb3a407),
                                     ),
@@ -286,30 +290,30 @@ class _ProfilePageState extends State<ProfilePage> {
           }),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sentiment_satisfied),
-            title: Text('Just Talk'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            title: Text('Amigos'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            title: Text('Mi perfil'),
-          ),
-        ],
-        currentIndex: widget._index,
+            BottomNavigationBarItem(
+              icon: Icon(Icons.sentiment_very_satisfied_rounded),
+              label: 'Just Talk',             
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
+              label: 'Amigos',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
+              label: 'Mi perfil',
+            ),
+          ],
+        currentIndex: widget.index,
         onTap: (index) {
           switch (index) {
             case 0:
-              widget._navbarCubit.toHome();
+              widget.navbarCubit.toHome();
               break;
             case 1:
-              widget._navbarCubit.toContacts();
+              widget.navbarCubit.toContacts();
               break;
             case 2:
-              widget._navbarCubit.toProfile();
+              widget.navbarCubit.toProfile();
               break;
           }
         },

@@ -1,14 +1,15 @@
-Feature: Registrar configuración inicial
-    Como usuario quiero poder registrar mi configuración inicial para tener lista la aplicación para ser usada.
 
-    Scenario: Datos de configuracion válidos
-        Given un usuario que se encuentra en la seccion de registro de segmentos
-        And ha completado todos los datos del registro
-        When da click en el boton de "Finalizar"
-        Then sera añadido y llevado a la pantalla "Preference"
+Feature: Register Initial Configuration
+    As a user I want to be able to register my initial configuration to have the application ready to be used.
 
-    Scenario: Datos de configuracion no válidos
-        Given un usuario que se encuentra en la seccion de registro de segmentos
-        And no ha completado alguno de los datos del registro
-        When da click en el boton de "Finalizar"
-        Then no sera añadido y dirigido a la pantalla "Preference"
+    Scenario: Valid configuration data
+        Given a user who is in the segment registration section
+        And has completed all the registration data
+        When he clicks on the "Finish" button
+        Then it will be added and taken to the "Preference" screen.
+
+    Scenario: Invalid configuration data
+        Given a user who is in the segment registration section
+        And has not completed any of the registration data
+        When he clicks on the "Finish" button
+        Then it will not be added and directed to the "Preference" screen.

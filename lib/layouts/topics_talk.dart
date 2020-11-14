@@ -6,39 +6,33 @@ import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class TopicsTalk extends StatefulWidget {
-
   @override
   _TopicsTalk createState() => _TopicsTalk();
 }
 
-class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
+class _TopicsTalk extends State<TopicsTalk> {
   TextEditingController topicsTalkController;
 
   FocusNode textFieldFocusNode;
   int levelClock = 6;
 
   List<Topic> topicsTalk;
-  List<Topic> topicsTalkRemoved;
+  List<Topic> deletedTopics;
+
   String userId;
   UserService userService;
-
-  void joinList(List<Topic> topicsTalk, List<Topic> topicsTalk2, List<Topic> topicsTalkRemoved){
-    for (Topic topic in topicsTalk2){
-      if (!topicsTalk.contains(topic) && !topicsTalkRemoved.contains(topic)){
-        topicsTalk.add(topic);
-      }
-    }
-  }
+  bool flag;
 
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     userService = RepositoryProvider.of<UserService>(context);
-    topicsTalk = [ ];
-    topicsTalkRemoved = [ ];
+    topicsTalk = [];
+    deletedTopics = [];
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     topicsTalkController = TextEditingController();
     textFieldFocusNode = FocusNode();
+    flag = false;
   }
 
   @override
@@ -60,36 +54,50 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
             Navigator.of(context).pop();
           },
         ),
-        actions: [IconButton(
-          iconSize: 30,
-          icon: Icon(Icons.keyboard_arrow_right),
-          color: topicsTalk.length > 0 ? Colors.black: Colors.grey[400],
-          onPressed: () async {
-            await userService.setTopicsTalk(userId, topicsTalk);
-            await userService.deleteTopicsTalk(userId, topicsTalkRemoved);
-            List<String> segments = await userService.getSegments(userId);
-            topicsTalk.clear();
-            topicsTalkRemoved.clear();
-            Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
-              'segments' : segments,
-            });
-          },
-        ),
+        actions: [
+          IconButton(
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_right),
+            color: topicsTalk.length > 0
+                ? Colors.black
+                : Colors.black.withOpacity(0.5),
+            onPressed: () async {
+              if (flag) {
+                await userService.setTopicsTalk(userId, topicsTalk);
+                await userService.deleteTopicsTalk(userId, deletedTopics);
+
+                await userService.deleteTopicsHear(userId);
+                await userService.setTopicsHear(userId, topicsTalk);
+
+                deletedTopics.clear();          
+              }
+              List<String> segments = await userService.getSegments(userId);
+              Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
+                'segments': segments,
+              });
+            },
+          ),
         ],
         centerTitle: true,
-        title: Text('¿De qué puedo hablar?',),
+        title: Text(
+          '¿De qué puedo hablar?',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
           children: [
-          Expanded(
-            flex: 6,
-            child: FutureBuilder(
-                future: RepositoryProvider.of<UserService>(context).getTopicsTalk(userId),
-                builder: (context, AsyncSnapshot <List<Topic>> topics){
-                    if (topics.data != null){
-                      joinList(topicsTalk, topics.data, topicsTalkRemoved);
+            Expanded(
+              flex: 6,
+              child: FutureBuilder(
+                  future: RepositoryProvider.of<UserService>(context)
+                      .getTopicsTalk(userId),
+                  builder: (context, AsyncSnapshot<List<Topic>> topics) {
+                    if (topics.hasData && !flag) {
+                      topicsTalk = topics.data;
+                    }
+
+                    if (topicsTalk.length > 0) {
                       return Container(
                         margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child: Padding(
@@ -99,13 +107,28 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                               child: Wrap(
                                 spacing: 6.0,
                                 runSpacing: 6.0,
-                                children: List<Widget>.generate(topicsTalk.length, (int index) {
+                                children: List<Widget>.generate(
+                                    topicsTalk.length, (int index) {
                                   return Chip(
-                                    label: Text(topicsTalk[index].topic),
-                                    deleteIconColor: Colors.red[900],
+                                    shape: StadiumBorder(
+                                        side: BorderSide(
+                                            width: 0.5,
+                                            color:
+                                                Colors.black.withOpacity(0.5))),
+                                    backgroundColor: Colors.transparent,
+                                    label: Text(
+                                      topicsTalk[index].topic,
+                                      style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                    deleteIconColor: Color(0xFFB31048),
                                     onDeleted: () {
+                                      if (!flag) {
+                                        flag = true;
+                                      }
                                       setState(() {
-                                        topicsTalkRemoved.add(topicsTalk[index]);
+                                        deletedTopics.add(topicsTalk[index]);
                                         topicsTalk.removeAt(index);
                                       });
                                     },
@@ -116,68 +139,46 @@ class _TopicsTalk extends State<TopicsTalk> with TickerProviderStateMixin {
                       );
                     }
                     return Container();
-                }),
+                  }),
             ),
             Expanded(
               flex: 1,
-              child: Stack(
-                  alignment: Alignment.centerRight,
-                  children: <Widget>[
-                    TextFormField(
-                      controller: topicsTalkController,
-                      focusNode: textFieldFocusNode,
-                      decoration: InputDecoration(
-                        labelText: 'Agregue un tema del cual pueda hablar',
-                        hintText: 'Puedo hablar de ...',
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: Colors.grey, width: 0.0),
-                        ),
-                      ),
+              child: Stack(alignment: Alignment.centerRight, children: <Widget>[
+                TextFormField(
+                  controller: topicsTalkController,
+                  focusNode: textFieldFocusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Puedo hablar de ...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 0.0),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        setState(() {
-                          if (topicsTalkController.text.isEmpty) {
-                            return;
-                          }
-                          topicsTalk.add(Topic(topicsTalkController.text, DateTime.now()));
-                          topicsTalkController.clear();
-                        });
-                      },
-                    )
-                  ]),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send_rounded),
+                  onPressed: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    setState(() {
+                      if (topicsTalkController.text.isEmpty) {
+                        return;
+                      }
+
+                      if (!flag) {
+                        flag = true;
+                      }
+                      topicsTalk.add(
+                          Topic(topicsTalkController.text, DateTime.now()));
+                      topicsTalkController.clear();
+                    });
+                  },
+                )
+              ]),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class Countdown extends AnimatedWidget {
-  Countdown({Key key, this.animation}) : super(key: key, listenable: animation);
-  Animation<int> animation;
-
-  @override
-  build(BuildContext context) {
-    Duration clockTimer = Duration(seconds: animation.value);
-
-    String timerText =
-        '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-
-    print('animation.value  ${animation.value} ');
-    print('inMinutes ${clockTimer.inMinutes.toString()}');
-    print('inSeconds ${clockTimer.inSeconds.toString()}');
-    print(
-        'inSeconds.remainder ${clockTimer.inSeconds.remainder(60).toString()}');
-
-    return Text(
-      "$timerText",
-      style: TextStyle(),
-      textAlign: TextAlign.center,
     );
   }
 }

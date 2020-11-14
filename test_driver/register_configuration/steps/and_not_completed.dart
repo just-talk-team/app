@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric andNotCompleted() {
   return and<FlutterWorld>(
-    'no ha completado alguno de los datos del registro',
+    'has not completed any of the registration data',
     (context) async {
       final SerializableFinder pv = find.byValueKey('pageview');
       await context.world.driver.waitFor(pv);

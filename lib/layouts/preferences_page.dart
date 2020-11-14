@@ -101,8 +101,18 @@ class _PreferenceDataState extends State<PreferenceData> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
-            label: Text(segment),
-            selectedColor: Color(0xffb3a407),
+            padding: EdgeInsets.all(10),
+            label: Text(
+              segment,
+              style: (widget.preferences.segments.contains(segment))
+                  ? TextStyle(
+                      fontFamily: "Roboto",
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white)
+                  : TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.normal),
+            ),
+            selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.segments.contains(segment),
             onSelected: (bool selected) {
               setState(() {
@@ -123,8 +133,17 @@ class _PreferenceDataState extends State<PreferenceData> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
-            label: Text(multipleChoice),
-            selectedColor: Color(0xffb3a407),
+            padding: EdgeInsets.all(10),
+            label: Text(multipleChoice,
+                style: (widget.preferences.genders.contains(
+                        EnumToString.fromString(Gender.values, multipleChoice)))
+                    ? TextStyle(
+                        fontFamily: "Roboto",
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white)
+                    : TextStyle(
+                        fontFamily: "Roboto", fontWeight: FontWeight.normal)),
+            selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.genders.contains(
                 EnumToString.fromString(Gender.values, multipleChoice)),
             onSelected: (bool selected) {
@@ -148,7 +167,9 @@ class _PreferenceDataState extends State<PreferenceData> {
     double min = widget.preferences.minimunAge.toDouble();
     double max = widget.preferences.maximumAge.toDouble();
 
-    interval = min.toString() + " - " + max.toString();
+    interval = widget.preferences.minimunAge.toString() +
+        " - " +
+        widget.preferences.maximumAge.toString();
     currentRangeValues = RangeValues(min, max);
   }
 
@@ -157,18 +178,18 @@ class _PreferenceDataState extends State<PreferenceData> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           //Single choice chip
           Container(
-            //color: Colors.amberAccent,
+            margin: EdgeInsets.only(top: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 AutoSizeText('Segmentos',
                     textAlign: TextAlign.left,
                     style: TextStyle(
-                        color: Color(0xff666666),
+                        color: Colors.black.withOpacity(0.5),
                         fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 Container(
@@ -187,14 +208,14 @@ class _PreferenceDataState extends State<PreferenceData> {
           ),
           //Multiple choice chips
           Container(
-            //color: Colors.blueAccent,
+            margin: EdgeInsets.only(top: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 AutoSizeText('Sexo',
                     textAlign: TextAlign.left,
                     style: TextStyle(
-                        color: Color(0xff666666),
+                        color: Colors.black.withOpacity(0.5),
                         fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 Container(
@@ -207,13 +228,13 @@ class _PreferenceDataState extends State<PreferenceData> {
           ),
           //Age
           Container(
-            //color: Colors.lightGreen,
+            margin: EdgeInsets.only(top: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 AutoSizeText('Edad',
                     style: TextStyle(
-                        color: Color(0xff666666),
+                        color: Colors.black.withOpacity(0.5),
                         fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 Container(
@@ -224,10 +245,10 @@ class _PreferenceDataState extends State<PreferenceData> {
                         width: 200,
                         child: Material(
                             child: RangeSlider(
-                          activeColor: Color(0xffb3a407),
-                          inactiveColor: Color(0xffb3a407),
+                          activeColor: Color(0xFFB3A407),
+                          inactiveColor: Color(0xFFB3A407),
                           values: currentRangeValues,
-                          min: 18,
+                          min: 16,
                           max: 99,
                           divisions: 100,
                           labels: RangeLabels(
@@ -242,7 +263,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                                   currentRangeValues.start.toInt();
                               widget.preferences.maximumAge =
                                   currentRangeValues.end.toInt();
-                                  
+
                               interval = values.start.round().toString() +
                                   " - " +
                                   values.end.round().toString();
@@ -257,7 +278,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xff666666)),
+                              color: Colors.black.withOpacity(0.5)),
                         ),
                       ),
                     )
@@ -268,26 +289,23 @@ class _PreferenceDataState extends State<PreferenceData> {
           ),
           //Insignias
           Container(
-            //color: Colors.cyanAccent,
+            margin: EdgeInsets.only(top: 20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    SizedBox(width: 30),
-                    AutoSizeText('Insignias',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Color(0xff666666),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
-                  ],
-                ),
+                AutoSizeText('Insignias',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        color: Colors.black.withOpacity(0.5),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
                 SizedBox(height: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(badgets.length, (index) {
                       return Badget(
-                          selected:  widget.preferences.badgets.contains(badgets[index].item1),
+                          selected: widget.preferences.badgets
+                              .contains(badgets[index].item1),
                           icon: badgets[index].item2,
                           text: badgets[index].item1,
                           valueChanged: (bool selected) {
