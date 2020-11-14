@@ -59,7 +59,7 @@ void main() {
       documentReference = MockDocumentReference();
       _firestore = MockFirebaseFirestore();
     });
-    test('Llamada al metodo signInWithCredential', () async {
+    test('signInWithCredential method is called', () async {
       final auth.AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: '',
         idToken: googleAuth.idToken,

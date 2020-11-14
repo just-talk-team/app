@@ -6,6 +6,7 @@ import 'package:just_talk/services/authentication_service.dart';
 import 'package:mockito/mockito.dart';
 
 class MockFacebookSignIn extends Mock implements FacebookLogin {}
+
 class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 void main() async {
@@ -19,7 +20,7 @@ void main() async {
     authenticationService = AuthenticationService(
         firebaseAuth: firebaseAuth, facebookLogin: facebookLogin);
   });
-  group('Login con Facebook', () {
+  group('Login with a Facebook account', () {
     MockGoogleSignIn googleSignIn;
     MockGoogleSignInAccount signinAccount;
     MockGoogleSignInAuthentication googleAuth;
@@ -30,7 +31,7 @@ void main() async {
       googleAuth = await signinAccount.authentication;
     });
 
-    test('Llamada al metodo signInWithCredential', () async {
+    test('signInWithCredential method is called', () async {
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: '',
         idToken: googleAuth.idToken,

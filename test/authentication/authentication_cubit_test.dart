@@ -20,12 +20,12 @@ void main() {
   });
 
   group('AuthenticationCubit', () {
-    test('Resulta en error cuando AuthenticationService es nulo', () {
+    test('Error response when AuthenticationService is null', () {
       expect(() => AuthenticationCubit(authenticationService: null),
           throwsAssertionError);
     });
 
-    test('El estado inicial es AuthenticationState.unknown', () {
+    test('The initial states is AuthenticationState.unknown', () {
       final authenticationCubit =
           AuthenticationCubit(authenticationService: authenticationService);
       expect(authenticationCubit.state, const AuthenticationState.unknown());
@@ -33,7 +33,7 @@ void main() {
     });
 
     blocTest<AuthenticationCubit, AuthenticationState>(
-      'Un usuario se añade al stream',
+      'A user is added to the stream',
       build: () {
         when(authenticationService.user).thenAnswer((_) => Stream.value(user));
         return AuthenticationCubit(
@@ -46,7 +46,7 @@ void main() {
 
     group('AuthenticationUserChanged', () {
       blocTest<AuthenticationCubit, AuthenticationState>(
-        'Emite [authenticate] cuando el usuario no es nulo',
+        'Log [authenticate] when the user model is not null',
         build: () =>
             AuthenticationCubit(authenticationService: authenticationService),
         act: (cubit) => cubit.mapAuthenticationUserChangedToState(
@@ -55,7 +55,7 @@ void main() {
       );
 
       blocTest<AuthenticationCubit, AuthenticationState>(
-        'Emite [unauthenticated] cuando el usuario esta vacio',
+        'log [unauthenticated] when the user model is',
         build: () =>
             AuthenticationCubit(authenticationService: authenticationService),
         act: (cubit) => cubit.mapAuthenticationUserChangedToState(
@@ -66,15 +66,13 @@ void main() {
 
     group('Logout', () {
       blocTest<AuthenticationCubit, AuthenticationState>(
-          'Se llama al metodo logout de AuthenticationService',
+          'Logout method from AuthenticationSerive is called',
           build: () =>
               AuthenticationCubit(authenticationService: authenticationService),
           act: (cubit) => cubit.logOut(),
           verify: (_) {
             verify(authenticationService.logOut()).called(1);
-          }
-      );
+          });
     });
-    
   });
 }
