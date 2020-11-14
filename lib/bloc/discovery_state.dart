@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 class DiscoveryState extends Equatable {
   @override
@@ -6,14 +7,20 @@ class DiscoveryState extends Equatable {
 }
 
 class DiscoveryFound extends DiscoveryState {
-  DiscoveryFound({this.room});
+  DiscoveryFound({@required String room})
+      : assert(room != null),
+        this.room = room;
+
   final String room;
   @override
   List<Object> get props => [room];
 }
 
 class DiscoveryReady extends DiscoveryState {
-  DiscoveryReady({this.room});
+  DiscoveryReady({@required String room})
+      : assert(room != null),
+        this.room = room;
+
   final String room;
   @override
   List<Object> get props => [room];

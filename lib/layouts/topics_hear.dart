@@ -74,6 +74,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         case DiscoveryFound:
           chatReady((discoveryState as DiscoveryFound).room);
           _startClock();
+          break;
+        case DiscoveryReady:
+          String roomId = (discoveryState as DiscoveryReady).room;
+          print("Room ID: $roomId");
+          break;
+        // Send to chat
+
       }
     });
   }
@@ -173,7 +180,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         } else {
           accept = false;
           Navigator.of(context).pop();
-          //await discoveryCubit.reset();
+          await discoveryCubit.reset();
         }
       }
     });
