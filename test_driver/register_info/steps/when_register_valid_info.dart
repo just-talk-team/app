@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenRegisterValidInfo() {
   return when<FlutterWorld>(
-    'seleccione un genero y su fecha de nacimiento',
+    'he select a gender and his date of birth',
     (context) async {
       final dateFinder = find.byValueKey('DatePicker');
       await FlutterDriverUtils.tap(context.world.driver, dateFinder);

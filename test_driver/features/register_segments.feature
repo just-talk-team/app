@@ -11,3 +11,17 @@ Feature: Configurar segmentos
         When escriba un correo invalido "xmaplehotmail.com" o ya seleccionado y presione el boton agregar
         Then el segmento "xmaplehotmail.com" no sera agregado a la lista
 
+
+
+Feature: Configure Segments
+    As a user I want to be able to configure segments to be able to have a better chance of meeting people who are part of my environment.
+
+    Scenario: Valid segmentation email
+        Given a user who is in the segment registration section
+        When he write a valid email "xmaple@hotmail.com" and press the add button
+        Then the segment "xmaple@hotmail.com" will be added to the list
+
+    Scenario: Invalid segmentation email
+        Given a user who is in the segment registration section
+        When he write an invalid email "xmaplehotmail.com" or already selected and press the add button
+        Then the segment "xmaplehotmail.com" will not be added to the list

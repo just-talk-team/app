@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric thenRegisterNickname() {
   return then<FlutterWorld>(
-    'sera dirigido a la seccion de registro de nickname',
+    'he will be directed to the nickname registration section',
     (context) async {
       final nicknameFinder = find.text('Nickname');
       await FlutterDriverUtils.isPresent(context.world.driver, nicknameFinder);

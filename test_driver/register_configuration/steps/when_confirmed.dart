@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenConfirmed() {
   return when1<String,FlutterWorld>(
-    'da click en el boton de {string}',
+    'he clicks on the {string} button',
     (button,context) async {
       final finishFinder = find.byValueKey('Finish register');
       await FlutterDriverUtils.tap(context.world.driver, finishFinder);  
