@@ -9,39 +9,50 @@ import 'package:just_talk/layouts/splash.dart';
 import 'package:just_talk/layouts/topics_hear.dart';
 import 'package:just_talk/layouts/topics_talk.dart';
 
-
 class RouterGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final Map arg = settings.arguments;
 
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (context) => Splash());
+        return MaterialPageRoute(
+            builder: (context) => Splash(), settings: RouteSettings(name: '/'));
       case '/home':
-        return MaterialPageRoute(builder: (context) => Home());
+        return MaterialPageRoute(
+            builder: (context) => Home(),
+            settings: RouteSettings(name: '/home'));
       case '/login':
-        return MaterialPageRoute(builder: (context) => Login());
+        return MaterialPageRoute(
+            builder: (context) => Login(),
+            settings: RouteSettings(name: '/login'));
       case '/register':
-        return MaterialPageRoute(builder: (context) => Register());
+        return MaterialPageRoute(
+            builder: (context) => Register(),
+            settings: RouteSettings(name: '/register'));
       case '/preferences':
-        return MaterialPageRoute(builder: (context) => Preference());
+        return MaterialPageRoute(
+            builder: (context) => Preference(),
+            settings: RouteSettings(name: '/preferences'));
       case '/topics_talk':
-        return MaterialPageRoute(builder: (context) => TopicsTalk());
+        return MaterialPageRoute(
+            builder: (context) => TopicsTalk(),
+            settings: RouteSettings(name: '/topics_talk'));
       case '/configuration':
         return MaterialPageRoute(
-            builder: (context) =>
-                ConfigurationPage(
+            builder: (context) => ConfigurationPage(
                   userId: arg['userId'],
                   userInfo: arg['userInfo'],
                   userService: arg['userService'],
-                ));
+                ),
+            settings: RouteSettings(name: '/configuration'));
       case '/topics_to_hear':
-        return MaterialPageRoute(builder: (context) => TopicsHear(
-            arg['segments']
-        ));
+        return MaterialPageRoute(
+            builder: (context) => TopicsHear(arg['segments']),
+            settings: RouteSettings(name: '/topics_to_hear'));
       case '/filters':
-        return MaterialPageRoute(builder: (context) => FriendFilter());
-
+        return MaterialPageRoute(
+            builder: (context) => FriendFilter(),
+            settings: RouteSettings(name: '/filters'));
     }
 
     return _errorRoute();

@@ -132,7 +132,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                     GestureDetector(
                       onTap: () {
                         accept = true;
-                        //discoveryService.activateUser(rooom, id);
+                        discoveryService.activateUser(rooom, id);
                         //_controller.stop();
                       },
                       child: Container(
@@ -168,12 +168,14 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       if (status == AnimationStatus.completed) {
         popFlag = true;
         if (!accept) {
-          Navigator.of(context)
-              .popUntil((route) => route.settings.name == "/home");
+          Navigator.of(context).popUntil((route) {
+            print(route.settings.name);
+            return (route.settings.name == '/topics_talk');
+          });
         } else {
           accept = false;
           Navigator.of(context).pop();
-          await discoveryCubit.reset();
+          //await discoveryCubit.reset();
         }
       }
     });
