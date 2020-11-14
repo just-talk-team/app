@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenNotRegisterValidSegment() {
   return when1<String, FlutterWorld>(
-    'escriba un correo invalido {string} o ya seleccionado y presione el boton agregar',
+    'he write an invalid email {string} or already selected and press the add button',
     (email, context) async {
       final segmentFinder = find.byValueKey('Segment input');
       await FlutterDriverUtils.tap(context.world.driver, segmentFinder);

@@ -5,7 +5,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric thenNotRegisterUser() {
   return then1<String, FlutterWorld>(
-    'no sera añadido y dirigido a la pantalla {string}',
+    'it will not be added and directed to the {string} screen.',
     (preference, context) async {
       final preferenceFinder = find.byType(preference);
 

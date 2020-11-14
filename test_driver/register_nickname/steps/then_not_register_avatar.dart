@@ -5,7 +5,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric thenNotRegisterAvatar() {
   return then<FlutterWorld>(
-    'no pasara a la seccion de registro de avatar',
+    'it will not go to the avatar registration section',
     (context) async {
       final avatarFinder = find.byType('AvatarPage');
       await FlutterDriverUtils.isAbsent(context.world.driver, avatarFinder);

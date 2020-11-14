@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric andCompleted() {
   return and<FlutterWorld>(
-    'ha completado todos los datos del registro',
+    'has completed all the registration data',
     (context) async {
       final dateFinder = find.byValueKey('DatePicker');
       await FlutterDriverUtils.tap(context.world.driver, dateFinder);
