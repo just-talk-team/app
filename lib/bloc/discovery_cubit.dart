@@ -28,8 +28,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     discoveries.cancel();
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
-      querySnapshot.docChanges.forEach((element) {
-        if (!element.doc.data()['activated']) {
+      querySnapshot.docs.forEach((element) {
+        if (!element.data()['activated']) {
           return;
         }
       });

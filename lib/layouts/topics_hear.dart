@@ -74,6 +74,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         case DiscoveryFound:
           chatReady((discoveryState as DiscoveryFound).room);
           _startClock();
+          break;
+        case DiscoveryReady:
+          String roomId = (discoveryState as DiscoveryReady).room;
+          print("Room ID: $roomId");
+          break;
+        // Send to chat
+
       }
     });
   }
@@ -132,7 +139,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                     GestureDetector(
                       onTap: () {
                         accept = true;
-                        //discoveryService.activateUser(rooom, id);
+                        discoveryService.activateUser(rooom, id);
                         //_controller.stop();
                       },
                       child: Container(
@@ -169,7 +176,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         popFlag = true;
         if (!accept) {
           Navigator.of(context)
-              .popUntil((route) => route.settings.name == "/home");
+              .popUntil((route) => (route.settings.name == '/home'));
         } else {
           accept = false;
           Navigator.of(context).pop();
