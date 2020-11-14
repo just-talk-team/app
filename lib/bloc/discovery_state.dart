@@ -6,9 +6,10 @@ class DiscoveryState extends Equatable {
 }
 
 class DiscoveryFound extends DiscoveryState {
-  DiscoveryFound();
+  DiscoveryFound({this.room});
+  final String room;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [room];
 }
 
 class DiscoveryReady extends DiscoveryState {
