@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric thenNotRegisterNickname() {
   return then<FlutterWorld>(
-    'no pasara a la seccion de registro de nickname',
+    'it will not go to the nickname registration section',
     (context) async {
       final nicknameFinder = find.text('Nickname');
         //expect(nicknameFinder, findsOneWidget);

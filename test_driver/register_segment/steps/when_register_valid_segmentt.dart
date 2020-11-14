@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenRegisterValidSegment() {
   return when1<String,FlutterWorld>(
-    'escriba un correo valido {string} y presione el boton de agregar',
+    'he write a valid email {string} and press the add button',
     (email,context) async {
       final segmentFinder = find.byValueKey('Segment input');
       await FlutterDriverUtils.tap(context.world.driver, segmentFinder);

@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric whenRegisterValidNickname() {
   return when<FlutterWorld>(
-    'ingrese un nickname valido',
+    'enter a valid nickname',
     (context) async {
       final nicknameFinder = find.byValueKey('Nickname input');
       await FlutterDriverUtils.tap(context.world.driver, nicknameFinder);

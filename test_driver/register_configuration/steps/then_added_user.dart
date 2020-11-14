@@ -4,7 +4,7 @@ import 'package:gherkin/gherkin.dart';
 
 StepDefinitionGeneric thenRegisterUser() {
   return then1<String, FlutterWorld>(
-    'sera añadido y llevado a la pantalla {string}',
+    'it will be added and taken to the {string} screen.',
     (preference, context) async {
       final preferenceFinder = find.byType(preference);
       await FlutterDriverUtils.isPresent(
