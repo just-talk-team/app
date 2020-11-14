@@ -35,10 +35,14 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   List<Topic> checkList;
   Timer _timer;
   String id;
+  bool popFlag;
+  bool accept;
 
   @override
   void initState() {
     super.initState();
+    popFlag = true;
+    accept = false;
 
     topicsToHear = [];
     checkList = [];
@@ -52,24 +56,33 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       userService.setTopicsToHear(checkList, id);
       checkList.clear();
     });
+  }
+
+  void initCubit() async {
+    topicHearCubit = TopicHearCubit(topicsService: TopicsService());
+    topicHearCubit.init(await userService.getSegments(id));
 
     discoveryCubit = DiscoveryCubit(
         discoveryService: discoveryService,
         userId: id,
         userService: userService);
 
+    await discoveryCubit.init();
+
     discoveryCubit.listen((DiscoveryState discoveryState) {
       switch (discoveryState.runtimeType) {
         case DiscoveryFound:
-          chatReady();
+          chatReady((discoveryState as DiscoveryFound).room);
           _startClock();
+          break;
+        case DiscoveryReady:
+          String roomId = (discoveryState as DiscoveryReady).room;
+          print("Room ID: $roomId");
+          break;
+        // Send to chat
+
       }
     });
-  }
-
-  void initCubit() async {
-    topicHearCubit = TopicHearCubit(topicsService: TopicsService());
-    topicHearCubit.init(await userService.getSegments(id));
   }
 
   @override
@@ -78,7 +91,8 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     _timer.cancel();
   }
 
-  void chatReady() {
+  void chatReady(String rooom) {
+    popFlag = false;
     showGeneralDialog(
         barrierDismissible: false,
         transitionDuration: const Duration(milliseconds: 200),
@@ -124,8 +138,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                     ),
                     GestureDetector(
                       onTap: () {
-                        _controller.reset();
-                        Navigator.of(context).pop();
+                        accept = true;
+                        discoveryService.activateUser(rooom, id);
+                        //_controller.stop();
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -156,9 +171,17 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         );
 
     _controller.forward();
-    _controller.addStatusListener((status) {
+    _controller.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        Navigator.of(context).pop();
+        popFlag = true;
+        if (!accept) {
+          Navigator.of(context)
+              .popUntil((route) => (route.settings.name == '/home'));
+        } else {
+          accept = false;
+          Navigator.of(context).pop();
+          await discoveryCubit.reset();
+        }
       }
     });
   }
@@ -175,57 +198,67 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          iconSize: 30,
-          icon: Icon(Icons.keyboard_arrow_left),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        if (popFlag) {
+          Navigator.of(context).pop();
+          return true;
+        }
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_left),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            '¿Sobre que puedo escuchar?',
+            style: TextStyle(
+                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
-        title: Text(
-          '¿Sobre que puedo escuchar?',
-          style: TextStyle(
-              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      body: BlocBuilder<TopicHearCubit, TopicHearState>(
-          cubit: topicHearCubit,
-          builder: (context, TopicHearState topicHearState) {
-            if (topicHearState.runtimeType == TopicHearResult) {
-              topicsToHear = getTopics((topicHearState as TopicHearResult).topics, checkList);
+        body: BlocBuilder<TopicHearCubit, TopicHearState>(
+            cubit: topicHearCubit,
+            builder: (context, TopicHearState topicHearState) {
+              if (topicHearState.runtimeType == TopicHearResult) {
+                topicsToHear = getTopics(
+                    (topicHearState as TopicHearResult).topics, checkList);
 
-              return Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: Padding(
-                    padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Wrap(
-                        spacing: 6.0,
-                        runSpacing: 6.0,
-                        children: List<Widget>.generate(topicsToHear.length,
-                            (int index) {
-                          return ActionChip(
-                            label: Text(topicsToHear[index].topic),
-                            onPressed: () {
-                              setState(() {
-                                checkList.add(topicsToHear[index]);
-                              });
-                            },
-                          );
-                        }),
-                      ),
-                    )),
-              );
-            }
-            return Container();
-          }),
+                return Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Wrap(
+                          spacing: 6.0,
+                          runSpacing: 6.0,
+                          children: List<Widget>.generate(topicsToHear.length,
+                              (int index) {
+                            return ActionChip(
+                              label: Text(topicsToHear[index].topic),
+                              onPressed: () {
+                                setState(() {
+                                  checkList.add(topicsToHear[index]);
+                                });
+                              },
+                            );
+                          }),
+                        ),
+                      )),
+                );
+              }
+              return Container();
+            }),
+      ),
     );
   }
 }
@@ -242,11 +275,10 @@ class Countdown extends AnimatedWidget {
     String timerText =
         '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
 
-    print('animation.value  ${animation.value} ');
-    print('inMinutes ${clockTimer.inMinutes.toString()}');
-    print('inSeconds ${clockTimer.inSeconds.toString()}');
-    print(
-        'inSeconds.remainder ${clockTimer.inSeconds.remainder(60).toString()}');
+    //print('animation.value  ${animation.value} ');
+    //print('inMinutes ${clockTimer.inMinutes.toString()}');
+    //print('inSeconds ${clockTimer.inSeconds.toString()}');
+    //print('inSeconds.remainder ${clockTimer.inSeconds.remainder(60).toString()}');
 
     return Text(
       "$timerText",
