@@ -220,6 +220,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                                     ),
                                   )
                                 ],
+                                ],
                               ),
                               Column(
                                 //mainAxisAlignment: MainAxisAlignment.start,
