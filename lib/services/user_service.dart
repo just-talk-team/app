@@ -268,6 +268,19 @@ class UserService {
         .snapshots();
   }
 
+  Future<void> deleteDiscoveries(String id) async {
+     CollectionReference discoveriesCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection("discoveries");
+
+    await discoveriesCollection.get().then((value) async {
+      for (DocumentSnapshot documentSnapshot in value.docs){
+        await documentSnapshot.reference.delete();
+      }
+    });
+  }
+
   Future<void> setTopicsTalk(String id, List<Topic> topics) async {
     CollectionReference topicTalkCollection = FirebaseFirestore.instance
         .collection("users")
@@ -328,7 +341,7 @@ class UserService {
         .doc(id)
         .collection('topics_hear');
 
-    topicTalkCollection.get().then((value) async {
+    await topicTalkCollection.get().then((value) async {
       for (DocumentSnapshot documentSnapshot in value.docs){
         await documentSnapshot.reference.delete();
       }
