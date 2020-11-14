@@ -9,7 +9,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
       : super(DiscoveryNotFound());
 
-  Future<void> reset() async{
+  Future<void> reset() async {
     _done();
     await init();
   }
@@ -28,13 +28,20 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     discoveries.cancel();
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
+      bool flag = true;
+
       querySnapshot.docs.forEach((element) {
         if (!element.data()['activated']) {
+          flag = false;
           return;
         }
       });
-      emit(DiscoveryReady(room: roomId));
-      _done();
+
+      if (flag) {
+        emit(DiscoveryReady(room: roomId));
+        _done();
+      }
+      return;
     });
   }
 
