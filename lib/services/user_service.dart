@@ -133,7 +133,7 @@ class UserService {
     return segments;
   }
 
-   Future<List<String>> getSegmentsDomains(String id) async {
+  Future<List<String>> getSegmentsDomains(String id) async {
     List<String> segments = [];
 
     CollectionReference segmentCollection =
@@ -141,12 +141,13 @@ class UserService {
 
     await segmentCollection.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((element) {
-        segments.add(element.id);
+        if (element.data()['validate'] == true) {
+          segments.add(element.id);
+        }
       });
     });
     return segments;
   }
-
 
   Future<Map<String, int>> getBadgets(String id) async {
     Map<String, int> badgets = {};
@@ -284,13 +285,13 @@ class UserService {
   }
 
   Future<void> deleteDiscoveries(String id) async {
-     CollectionReference discoveriesCollection = FirebaseFirestore.instance
+    CollectionReference discoveriesCollection = FirebaseFirestore.instance
         .collection("users")
         .doc(id)
         .collection("discoveries");
 
     await discoveriesCollection.get().then((value) async {
-      for (DocumentSnapshot documentSnapshot in value.docs){
+      for (DocumentSnapshot documentSnapshot in value.docs) {
         await documentSnapshot.reference.delete();
       }
     });
@@ -357,7 +358,7 @@ class UserService {
         .collection('topics_hear');
 
     await topicTalkCollection.get().then((value) async {
-      for (DocumentSnapshot documentSnapshot in value.docs){
+      for (DocumentSnapshot documentSnapshot in value.docs) {
         await documentSnapshot.reference.delete();
       }
     });
