@@ -107,10 +107,10 @@ class _PreferenceDataState extends State<PreferenceData> {
               style: (widget.preferences.segments.contains(segment))
                   ? TextStyle(
                       fontFamily: "Roboto",
-                      fontWeight: FontWeight.normal,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white)
                   : TextStyle(
-                      fontFamily: "Roboto", fontWeight: FontWeight.normal),
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
             ),
             selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.segments.contains(segment),
@@ -139,10 +139,10 @@ class _PreferenceDataState extends State<PreferenceData> {
                         EnumToString.fromString(Gender.values, multipleChoice)))
                     ? TextStyle(
                         fontFamily: "Roboto",
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white)
                     : TextStyle(
-                        fontFamily: "Roboto", fontWeight: FontWeight.normal)),
+                        fontFamily: "Roboto", fontWeight: FontWeight.bold)),
             selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.genders.contains(
                 EnumToString.fromString(Gender.values, multipleChoice)),

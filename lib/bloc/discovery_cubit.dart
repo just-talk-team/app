@@ -24,11 +24,26 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     rooms.cancel();
   }
 
+  @override
+  Future<void> close() {
+    if (rooms != null) {
+      rooms.cancel();
+    }
+    if (discoveries != null) {
+      discoveries.cancel();
+    }
+    return super.close();
+  }
+
   void _validateRoom(String roomId) {
     discoveries.cancel();
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
       bool flag = true;
+
+      querySnapshot.docChanges.forEach((element) {
+        print("${element.type} ${element.doc.data()['activated']}");
+      });
 
       querySnapshot.docs.forEach((element) {
         if (!element.data()['activated']) {

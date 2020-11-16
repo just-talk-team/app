@@ -127,11 +127,26 @@ class UserService {
 
     await segmentCollection.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((element) {
+        segments.add(element.data()['email']);
+      });
+    });
+    return segments;
+  }
+
+   Future<List<String>> getSegmentsDomains(String id) async {
+    List<String> segments = [];
+
+    CollectionReference segmentCollection =
+        _firebaseFirestore.collection("users").doc(id).collection('segments');
+
+    await segmentCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
         segments.add(element.id);
       });
     });
     return segments;
   }
+
 
   Future<Map<String, int>> getBadgets(String id) async {
     Map<String, int> badgets = {};

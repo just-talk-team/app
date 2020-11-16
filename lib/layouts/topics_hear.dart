@@ -33,13 +33,12 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   TopicHearCubit topicHearCubit;
   SharedPreferences sharedPreferences;
 
-  int levelClock = 6;
+  int levelClock = 20;
 
   List<Topic> topicsToHear;
   List<Topic> checkList;
   Timer _timer;
   String id;
-  bool popFlag;
   bool accept;
 
   void initSharedPreferences() async {
@@ -49,7 +48,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    popFlag = true;
     accept = false;
     initSharedPreferences();
     topicsToHear = [];
@@ -68,7 +66,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
   void initCubit() async {
     topicHearCubit = TopicHearCubit(topicsService: TopicsService());
-    topicHearCubit.init(await userService.getSegments(id));
+    topicHearCubit.init(await userService.getSegmentsDomains(id));
 
     discoveryCubit = DiscoveryCubit(
         discoveryService: discoveryService,
@@ -95,75 +93,83 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     super.dispose();
+    await discoveryCubit.close();
     _timer.cancel();
   }
 
-  void chatReady(String rooom) {
-    popFlag = false;
+  void chatReady(String room) {
     showGeneralDialog(
         barrierDismissible: false,
         transitionDuration: const Duration(milliseconds: 200),
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width - 100,
-              height: MediaQuery.of(context).size.height / 3,
-              child: Material(
-                elevation: 20,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
+          return WillPopScope(
+            onWillPop: () {},
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width - 100,
+                height: MediaQuery.of(context).size.height / 3,
+                child: Material(
+                  elevation: 20,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                        width: 2, color: Color(0xff959595))),
+                                child: Countdown(
+                                  animation: StepTween(
+                                    begin: levelClock,
+                                    end: 0,
+                                  ).animate(_controller),
+                                ),
+                              )
+                            ],
+                          )),
+                      Container(
                         padding: EdgeInsets.symmetric(horizontal: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(
-                                      width: 2, color: Color(0xff959595))),
-                              child: Countdown(
-                                animation: StepTween(
-                                  begin: levelClock,
-                                  end: 0,
-                                ).animate(_controller),
-                              ),
-                            )
-                          ],
-                        )),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: Text(
-                        'Sala de chat lista, recuerda ser tu mismo!',
-                        style:
-                            TextStyle(color: Color(0xff959595), fontSize: 15),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        accept = true;
-                        discoveryService.activateUser(rooom, id);
-                        //_controller.stop();
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
                         child: Text(
-                          'ACEPTAR',
-                          style: TextStyle(
-                              letterSpacing: 2,
-                              color: Color(0xffff3f82),
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
+                          'Sala de chat lista, recuerda ser tu mismo!',
+                          style:
+                              TextStyle(color: Color(0xff959595), fontSize: 15),
                         ),
                       ),
-                    )
-                  ],
+                      StatefulBuilder(builder: (context, setState) {
+                        if (!accept) {
+                          return GestureDetector(
+                            onTap: () {
+                              accept = true;
+                              discoveryService.activateUser(room, id);
+                              setState(() {});
+                              //_controller.stop();
+                            },
+                            child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'ACEPTAR',
+                                  style: TextStyle(
+                                      letterSpacing: 2,
+                                      color: Color(0xffff3f82),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                          );
+                        }
+                        return Container(child: CircularProgressIndicator());
+                      })
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -182,7 +188,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     _controller.forward();
     _controller.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        popFlag = true;
         if (!accept) {
           Navigator.of(context)
               .popUntil((route) => (route.settings.name == '/home'));
@@ -207,67 +212,58 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (popFlag) {
-          Navigator.of(context).pop();
-          return true;
-        }
-        return false;
-      },
-      child: Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          centerTitle: true,
-          leading: IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.keyboard_arrow_left),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Text(
-            '¿Sobre que puedo escuchar?',
-            style: TextStyle(
-                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          iconSize: 30,
+          icon: Icon(Icons.keyboard_arrow_left),
+          color: Colors.black,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        body: BlocBuilder<TopicHearCubit, TopicHearState>(
-            cubit: topicHearCubit,
-            builder: (context, TopicHearState topicHearState) {
-              if (topicHearState.runtimeType == TopicHearResult) {
-                topicsToHear = getTopics(
-                    (topicHearState as TopicHearResult).topics, checkList);
-
-                return Container(
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Wrap(
-                          spacing: 6.0,
-                          runSpacing: 6.0,
-                          children: List<Widget>.generate(topicsToHear.length,
-                              (int index) {
-                            return ActionChip(
-                              label: Text(topicsToHear[index].topic),
-                              onPressed: () {
-                                setState(() {
-                                  checkList.add(topicsToHear[index]);
-                                });
-                              },
-                            );
-                          }),
-                        ),
-                      )),
-                );
-              }
-              return Container();
-            }),
+        title: Text(
+          '¿Sobre que puedo escuchar?',
+          style: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
       ),
+      body: BlocBuilder<TopicHearCubit, TopicHearState>(
+          cubit: topicHearCubit,
+          builder: (context, TopicHearState topicHearState) {
+            if (topicHearState.runtimeType == TopicHearResult) {
+              topicsToHear = getTopics(
+                  (topicHearState as TopicHearResult).topics, checkList);
+
+              return Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: List<Widget>.generate(topicsToHear.length,
+                            (int index) {
+                          return ActionChip(
+                            label: Text(topicsToHear[index].topic),
+                            onPressed: () {
+                              setState(() {
+                                checkList.add(topicsToHear[index]);
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    )),
+              );
+            }
+            return Container();
+          }),
     );
   }
 }
