@@ -82,7 +82,7 @@ class _AppViewState extends State<AppView> {
             primaryColor: Colors.black,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'ArialRounded',
-            accentColor: Colors.amber,
+            accentColor: Color(0xffff3f82),
             appBarTheme: AppBarTheme(
                 elevation: 0,
                 color: Colors.white,
