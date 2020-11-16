@@ -10,6 +10,7 @@ import 'package:just_talk/bloc/topic_hear_cubit.dart';
 import 'package:just_talk/bloc/topic_hear_state.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/discovery_service.dart';
+import 'package:just_talk/services/stream_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
