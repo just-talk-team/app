@@ -86,8 +86,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           _controller.stop();
           Navigator.of(context).pop();
           String roomId = (discoveryState as DiscoveryReady).room;
+          sharedPreferences.setString("chatCol", "discoveries");
           sharedPreferences.setString("roomId", roomId);
-          Navigator.pushNamed(context, '/chat');
+          Navigator.pushReplacementNamed(context, '/chat');
           print("Room ID: $roomId");
           break;
         // Send to chat
@@ -253,7 +254,17 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                         children: List<Widget>.generate(topicsToHear.length,
                             (int index) {
                           return ActionChip(
-                            label: Text(topicsToHear[index].topic),
+                            shape: StadiumBorder(
+                                side: BorderSide(
+                                    width: 0.5,
+                                    color: Colors.black.withOpacity(0.5))),
+                            backgroundColor: Colors.transparent,
+                            label: Text(
+                              topicsToHear[index].topic,
+                              style: TextStyle(
+                                  fontFamily: "Roboto",
+                                  fontWeight: FontWeight.normal),
+                            ),
                             onPressed: () {
                               setState(() {
                                 checkList.add(topicsToHear[index]);

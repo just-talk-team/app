@@ -40,7 +40,7 @@ class _AvatarPage extends State<AvatarPage> {
               child: Text(
                 'Avatar',
                 style:
-                    TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               )),
         ),
         Column(
@@ -49,7 +49,7 @@ class _AvatarPage extends State<AvatarPage> {
               "No elijas una foto tuya!",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
@@ -58,7 +58,7 @@ class _AvatarPage extends State<AvatarPage> {
               "Elige algo que te",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
@@ -67,7 +67,7 @@ class _AvatarPage extends State<AvatarPage> {
               "represente",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
@@ -76,7 +76,7 @@ class _AvatarPage extends State<AvatarPage> {
               "a ti",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,

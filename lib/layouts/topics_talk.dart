@@ -85,6 +85,7 @@ class _TopicsTalk extends State<TopicsTalk> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 6,
