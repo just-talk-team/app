@@ -11,20 +11,9 @@ class DiscoveryService {
         .collection('discoveries')
         .doc(roomId)
         .collection('users')
-        .snapshots();
-  }
-
-  Future<void> check(String roomId) async {
-    await _firebaseFirestore
-        .collection('discoveries')
-        .doc(roomId)
-        .collection('users')
-        .get()
-        .then((value) {
-      value.docs.forEach((element) {
-        print("Future ${element.id} - ${element.data()['activated']}");
-      });
-    });
+        .snapshots()
+        .where((QuerySnapshot querySnapshot) =>
+            querySnapshot.metadata.isFromCache == false);
   }
 
   Future<void> activateUser(String roomId, String userId) async {

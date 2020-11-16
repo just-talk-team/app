@@ -35,9 +35,10 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     return super.close();
   }
 
-  void _validateRoom(String roomId) async{
+  void _validateRoom(String roomId) {
     discoveries.cancel();
-    await discoveryService.check(roomId);
+
+    roomStream = discoveryService.getRoom(roomId);
 
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
@@ -88,6 +89,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   final String userId;
   final DiscoveryService discoveryService;
   final UserService userService;
+
+  Stream<QuerySnapshot> roomStream;
   StreamSubscription<QuerySnapshot> discoveries;
   StreamSubscription<QuerySnapshot> rooms;
 }
