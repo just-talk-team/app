@@ -14,6 +14,19 @@ class DiscoveryService {
         .snapshots();
   }
 
+  Future<void> check(String roomId) async {
+    await _firebaseFirestore
+        .collection('discoveries')
+        .doc(roomId)
+        .collection('users')
+        .get()
+        .then((value) {
+      value.docs.forEach((element) {
+        print("Future ${element.id} - ${element.data()['activated']}");
+      });
+    });
+  }
+
   Future<void> activateUser(String roomId, String userId) async {
     await _firebaseFirestore
         .collection('discoveries')

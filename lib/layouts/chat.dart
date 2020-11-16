@@ -43,8 +43,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 
   getMessages() {
-    chatMessages =
-        FirebaseFirestore.instance.collection('chats').doc(chatId).snapshots();
+    Map chid = {"id": chatId};
+    chatMessages = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chid["id"])
+        .snapshots();
     setState(() {});
   }
 
