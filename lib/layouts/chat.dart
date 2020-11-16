@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Chat extends StatefulWidget {
   @override
@@ -9,9 +10,13 @@ class Chat extends StatefulWidget {
 
 class _Chat extends State<Chat> with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
-  String userId1 = "ruuGzjupvRdVakpRblsyTP0yC0n1", //youId
-      userId2 = "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"; //anotherUserId
-  String chatId;
+  SharedPreferences sharedPreferences;
+
+  String userId1 = "";
+  String userId2 = "";
+  //String userId1 = "ruuGzjupvRdVakpRblsyTP0yC0n1", //youId
+  //    userId2 = "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"; //anotherUserId
+  String chatId = "";
   List<CustomText> messages = [
     CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
     CustomText(
@@ -215,6 +220,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                                     ),
                                   )
                                 ],
+                                ],
                               ),
                               Column(
                                 //mainAxisAlignment: MainAxisAlignment.start,
@@ -305,14 +311,21 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 
   void consultChatRoom() async {
-    if (userId1[0].codeUnitAt(0) > userId2[0].codeUnitAt(0)) {
+    /*if (userId1[0].codeUnitAt(0) > userId2[0].codeUnitAt(0)) {
       chatId = "$userId1\_$userId2";
     } else {
       chatId = "$userId2\_$userId1";
-    }
+    }*/
+    sharedPreferences = await SharedPreferences.getInstance();
+    chatId = sharedPreferences.getString("roomId");
     DocumentReference currentChat =
         FirebaseFirestore.instance.collection('chats').doc(chatId);
 
+    var userId1 = chatId.substring(0, 28);
+    var userId2 = chatId.substring(29, 57);
+
+    debugPrint("us1 : " + userId1);
+    debugPrint("us2 : " + userId2);
     var users = [userId1, userId2];
     currentChat.get().then((data) => {
           if (data.exists)

@@ -9,6 +9,8 @@ import 'package:just_talk/layouts/splash.dart';
 import 'package:just_talk/layouts/topics_hear.dart';
 import 'package:just_talk/layouts/topics_talk.dart';
 
+import 'layouts/chat.dart';
+
 class RouterGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final Map arg = settings.arguments;
@@ -53,6 +55,10 @@ class RouterGenerator {
         return MaterialPageRoute(
             builder: (context) => FriendFilter(),
             settings: RouteSettings(name: '/filters'));
+      case '/chat':
+        return MaterialPageRoute(
+            builder: (context) => Chat(),
+            settings: RouteSettings(name: '/chat'));
     }
 
     return _errorRoute();

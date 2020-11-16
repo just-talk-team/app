@@ -12,6 +12,9 @@ import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'chat.dart';
 
 class TopicsHear extends StatefulWidget {
   TopicsHear(this.segments);
@@ -28,6 +31,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   DiscoveryService discoveryService;
   DiscoveryCubit discoveryCubit;
   TopicHearCubit topicHearCubit;
+  SharedPreferences sharedPreferences;
 
   int levelClock = 20;
 
@@ -37,11 +41,15 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   String id;
   bool accept;
 
+  void initSharedPreferences() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
+
   @override
   void initState() {
     super.initState();
     accept = false;
-
+    initSharedPreferences();
     topicsToHear = [];
     checkList = [];
 
@@ -75,10 +83,11 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           break;
         case DiscoveryReady:
           String roomId = (discoveryState as DiscoveryReady).room;
+          sharedPreferences.setString("roomId", roomId);
+          Navigator.pushNamed(context, '/chat');
           print("Room ID: $roomId");
           break;
         // Send to chat
-
       }
     });
   }
