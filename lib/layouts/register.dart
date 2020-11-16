@@ -70,45 +70,41 @@ class _Register extends State<Register> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
-        child: Stack(children: <Widget>[
-          PageView(key: Key("pageview"), controller: controller,
-              //physics: new NeverScrollableScrollPhysics(),
-              children: <Widget>[
-                //MyInfo(context, controller),
-                //Nickname(context),
-                InfoPage(widget._user, controller),
-                NicknamePage(widget._user, controller),
-                AvatarPage(widget._user, controller),
-                SegmentPage(widget._user, controller, widget._userService),
-              ]),
-          Container(
-            alignment: Alignment.topCenter,
-            margin: EdgeInsets.only(top: 50),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                    SmoothPageIndicator(
-                      controller: controller,
-                      count: 4,
-                      effect: JumpingDotEffect(
-                          spacing: 12.0,
-                          dotWidth: 20.0,
-                          dotHeight: 20.0,
-                          strokeWidth: 1.5,
-                          paintStyle: PaintingStyle.stroke,
-                          dotColor: Colors.black,
-                          activeDotColor: const Color(0xffb3a507)),
-                    ),
-                  ],
-                ),
-              ],
+        child: Column(children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.only(top: 50),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SmoothPageIndicator(
+                    controller: controller,
+                    count: 4,
+                    effect: JumpingDotEffect(
+                        spacing: 12.0,
+                        dotWidth: 20.0,
+                        dotHeight: 20.0,
+                        strokeWidth: 0.8,
+                        paintStyle: PaintingStyle.stroke,
+                        dotColor: Colors.black,
+                        activeDotColor: const Color(0xffb3a507)),
+                  ),
+                ],
+              ),
             ),
-          )
+          ),
+          Expanded(
+            flex: 15,
+            child: PageView(key: Key("pageview"), controller: controller,
+                //physics: new NeverScrollableScrollPhysics(),
+                children: <Widget>[
+                  InfoPage(widget._user, controller),
+                  NicknamePage(widget._user, controller),
+                  AvatarPage(widget._user, controller),
+                  SegmentPage(widget._user, controller, widget._userService),
+                ]),
+          ),
         ]),
       ),
     );
