@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class Chat extends StatefulWidget {
   @override
@@ -11,25 +14,49 @@ class Chat extends StatefulWidget {
 class _Chat extends State<Chat> with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
   SharedPreferences sharedPreferences;
+  final auth.FirebaseAuth _auth =
+      auth.FirebaseAuth.instance; //Instancia de Firebase
+  auth.User _currentUser;
 
   String userId1 = "";
   String userId2 = "";
-  //String userId1 = "ruuGzjupvRdVakpRblsyTP0yC0n1", //youId
-  //    userId2 = "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"; //anotherUserId
+  //String userId1 = "cejXgSpWtiQnTp3q0nyyJkrapv52", //youId
+  //    userId2 = "abChRWzOXXPbDgR1xgxaziZbH652"; //anotherUserId
+
   String chatId = "";
-  List<CustomText> messages = [
-    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
-    CustomText(
-        "An immutable description of how to paint a boxThe BoxDecoration class provides a variety of ways to draw a boxThe box has a border, a body, and may cast a boxShadowThe shape of the box can be a circle or a rectangle. If it is a rectangle, then the borderRadius property controls the roundness of the cornersThe body of the box is painted in layers. The bottom-most layer is the color, which fills the box. Above that is the gradient, which also fills the box. Finally there is the image, the precise alignment of which is controlled by the DecorationImage classhe border paints over the body; the boxShadow, naturally, paints below it.",
-        "ruuGzjupvRdVakpRblsyTP0yC0n1"),
-    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
-    CustomText("Hola como estás?", "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"),
-    CustomText("Hola como estás?", "ruuGzjupvRdVakpRblsyTP0yC0n1"),
-    CustomText("Hola como estás?", "uJcO8LqB4dgY8RUTLYHsaa6W5yN2"),
-  ];
+  String chatCol = "";
+  List<CustomText> messages = [];
   AnimationController _controller;
   int levelClock = 301;
   Stream chatMessages;
+
+  getChatId() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    _currentUser = _auth.currentUser;
+
+    chatId = sharedPreferences.getString("roomId");
+    chatCol = sharedPreferences.getString("chatCol");
+    debugPrint("RoomId : " + chatId);
+    debugPrint("chatCol : " + chatCol);
+    var str1 = chatId.substring(0, 28);
+    var str2 = chatId.substring(29, 57);
+    String uid = _currentUser.uid;
+
+    debugPrint("uid : " + uid);
+    if (str1 == uid) {
+      userId1 = str1;
+      userId2 = str2;
+    } else {
+      userId1 = str2;
+      userId2 = str1;
+    }
+    chatMessages = FirebaseFirestore.instance
+        .collection(chatCol)
+        .doc(chatId)
+        .collection("messages")
+        .snapshots();
+    setState(() {});
+  }
 
   void _startClock() {
     _controller = AnimationController(
@@ -42,47 +69,24 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _controller.forward();
   }
 
-  getMessages() {
-    Map chid = {"id": chatId};
-    chatMessages = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chid["id"])
-        .snapshots();
-    setState(() {});
-  }
-
-  sendMessage(text, type) {
-    Map<String, dynamic> message = {
-      'user': userId1,
-      'message': text.toString(),
-      'time': DateTime.now().millisecondsSinceEpoch
-    };
-    FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('chat')
-        .add(message);
-    messages.add(CustomText(text, type));
-
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    //Crear chat en caso de no existir
+    //consultChatRoom();
+    getChatId();
+    _startClock();
   }
 
   Widget chatMessagesList() {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection('chats')
+            .collection(chatCol)
             .doc(chatId)
-            .collection('chat')
+            .collection("messages")
             .orderBy("time", descending: false)
             .snapshots(),
         builder: (context, snapshot) {
-          //if (snapshot.data == null) return CircularProgressIndicator();
-          /*return ListView(
-            children: snapshot.data.docs.map((document) {
-              return CustomText(
-                  document.data()["message"], document.data()["user"]);
-            }),
-          );*/
           if (snapshot.data == null) return CircularProgressIndicator();
           return ListView.builder(
               physics: NeverScrollableScrollPhysics(),
@@ -97,7 +101,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   leaveChat() {
     return showGeneralDialog(
-        barrierDismissible: false,
         barrierColor: Colors.black45,
         transitionDuration: const Duration(milliseconds: 200),
         context: context,
@@ -124,7 +127,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacementNamed(context, '/login');
+                            Navigator.pushReplacementNamed(context, '/home');
                           },
                           child: Text(
                             'ACEPTAR',
@@ -293,7 +296,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.pushReplacementNamed(context, '/home');
                       },
                       child: Text(
                         'FINALIZAR',
@@ -312,213 +315,182 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         });
   }
 
-  void consultChatRoom() async {
-    /*if (userId1[0].codeUnitAt(0) > userId2[0].codeUnitAt(0)) {
-      chatId = "$userId1\_$userId2";
-    } else {
-      chatId = "$userId2\_$userId1";
-    }*/
-    sharedPreferences = await SharedPreferences.getInstance();
-    chatId = sharedPreferences.getString("roomId");
-    DocumentReference currentChat =
-        FirebaseFirestore.instance.collection('chats').doc(chatId);
+  sendMessage(text, type) {
+    Map<String, dynamic> message = {
+      'user': userId1,
+      'message': text.toString(),
+      'time': DateTime.now().millisecondsSinceEpoch
+    };
+    FirebaseFirestore.instance
+        .collection(chatCol)
+        .doc(chatId)
+        .collection("messages")
+        .add(message);
+    messages.add(CustomText(text, type));
 
-    var userId1 = chatId.substring(0, 28);
-    var userId2 = chatId.substring(29, 57);
-
-    debugPrint("us1 : " + userId1);
-    debugPrint("us2 : " + userId2);
-    var users = [userId1, userId2];
-    currentChat.get().then((data) => {
-          if (data.exists)
-            {
-              //Chat ya existe
-            }
-          else
-            {
-              currentChat.set({
-                'chatRoomId': chatId,
-                'users': FieldValue.arrayUnion(users),
-                'chat': Map()
-              })
-              //Nuevo chat
-            }
-        });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    consultChatRoom();
-    getMessages();
-    _startClock();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          elevation: 2,
-          toolbarHeight: 100,
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: [
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                      image: NetworkImage(
-                        'https://writestylesonline.com/wp-content/uploads/2018/11/Three-Statistics-That-Will-Make-You-Rethink-Your-Professional-Profile-Picture.jpg',
-                      ),
-                      fit: BoxFit.fill),
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        elevation: 2,
+        toolbarHeight: 100,
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                    image: NetworkImage(
+                      'https://writestylesonline.com/wp-content/uploads/2018/11/Three-Statistics-That-Will-Make-You-Rethink-Your-Professional-Profile-Picture.jpg',
+                    ),
+                    fit: BoxFit.fill),
+              ),
+            ),
+            Text(
+              'Alexa',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                  color: Colors.black),
+            ),
+            SizedBox(width: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Mujer',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
-              ),
-              Text(
-                'Alexa',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                    color: Colors.black),
-              ),
-              SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                SizedBox(height: 10),
+                Text(
+                  '18 años',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                )
+              ],
+            ),
+            Spacer(),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Column(
                 children: [
-                  Text(
-                    'Mujer',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                  Icon(
+                    Icons.star_border,
+                    size: 40,
+                    color: Color(0xffb31049),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    '18 años',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                  Icon(
+                    Icons.report,
+                    size: 40,
+                    color: Color(0xffb31049),
                   )
                 ],
               ),
-              Spacer(),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.star_border,
-                      size: 40,
-                      color: Color(0xffb31049),
-                    ),
-                    Icon(
-                      Icons.report,
-                      size: 40,
-                      color: Color(0xffb31049),
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
+            )
+          ],
         ),
-        body: Container(
-            margin: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                    child: Container(
-                        child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: GestureDetector(
-                              onTap: () {
-                                finishChat();
-                                //leaveChat();
-                                //Navigator.pushReplacementNamed(
-                                //    context, '/login');
-                              },
-                              child: Icon(Icons.clear,
-                                  size: 30, color: Color(0xffb31049)),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.fromLTRB(15, 3, 15, 3),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(25),
-                                border: Border.all(
-                                    width: 2, color: Color(0xff959595))),
-                            child: Countdown(
-                              animation: StepTween(
-                                begin: levelClock,
-                                end: 0,
-                              ).animate(_controller),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                        child: Container(
-                            child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
+      ),
+      body: Container(
+          margin: EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                  child: Container(
                       child: Column(
-                        children: [chatMessagesList()],
-                        /*
-                        children:
-                            List<Widget>.generate(messages.length, (int index) {
-                          return messages[index];
-                        }),
-                        */
-                      ),
-                    )))
-                  ],
-                ))),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        child: TextField(
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 2.0),
-                            ),
-                            hintText: 'Escribe aqui el mensaje...',
+                children: [
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: GestureDetector(
+                            onTap: () {
+                              finishChat();
+                            },
+                            child: Icon(Icons.clear,
+                                size: 30, color: Color(0xffb31049)),
                           ),
                         ),
-                      ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(15, 3, 15, 3),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                  width: 2, color: Color(0xff959595))),
+                          child: Countdown(
+                            animation: StepTween(
+                              begin: levelClock,
+                              end: 0,
+                            ).animate(_controller),
+                          ),
+                        )
+                      ],
                     ),
-                    Container(
-                      width: 70,
-                      child: GestureDetector(
-                        onTap: () {
-                          if (_messageController.text.length > 0) {
-                            sendMessage(_messageController.text, userId1);
-                            _messageController.clear();
-                          }
-                        },
-                        child: Icon(Icons.send,
-                            size: 30, color: Color(0xffb31049)),
+                  ),
+                  Expanded(
+                      child: Container(
+                          child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      children: [chatMessagesList()],
+                    ),
+                  )))
+                ],
+              ))),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                        child: SingleChildScrollView(
+                      reverse: true,
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 2.0),
+                          ),
+                          hintText: 'Escribe aqui el mensaje...',
+                        ),
                       ),
-                    )
-                  ],
-                )
-              ],
-            )));
+                    )),
+                  ),
+                  Container(
+                    width: 70,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (_messageController.text.length > 0) {
+                          sendMessage(_messageController.text, userId1);
+                          _messageController.clear();
+                        }
+                      },
+                      child:
+                          Icon(Icons.send, size: 30, color: Color(0xffb31049)),
+                    ),
+                  )
+                ],
+              )
+            ],
+          )),
+    );
   }
 }
 
@@ -533,7 +505,8 @@ class Countdown extends AnimatedWidget {
 
     String timerText =
         '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-
+    if (clockTimer.inSeconds.remainder(60).toString() == "0") {}
+    debugPrint("timer : " + clockTimer.inSeconds.remainder(60).toString());
     return Container(
       child: Text(
         "$timerText",
@@ -549,7 +522,7 @@ class CustomText extends StatelessWidget {
   String text;
   String type;
   //Loaded by sharedPreferences
-  String userId = "ruuGzjupvRdVakpRblsyTP0yC0n1";
+  String userId = "cejXgSpWtiQnTp3q0nyyJkrapv52";
   CustomText(this.text, this.type);
 
   @override
