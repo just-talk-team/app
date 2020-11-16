@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:just_talk/layouts/avatar_page.dart';
 import 'package:just_talk/layouts/info_page.dart';
 import 'package:just_talk/layouts/nickname_page.dart';
@@ -85,7 +85,7 @@ class _Register extends State<Register> {
                         spacing: 12.0,
                         dotWidth: 20.0,
                         dotHeight: 20.0,
-                        strokeWidth: 0.8,
+                        strokeWidth: 0.2,
                         paintStyle: PaintingStyle.stroke,
                         dotColor: Colors.black,
                         activeDotColor: const Color(0xffb3a507)),

@@ -49,7 +49,7 @@ class _NicknamePage extends State<NicknamePage> {
                 child: Text(
                   'Nickname',
                   style:
-                      TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 )),
           ),
           Padding(
@@ -60,7 +60,7 @@ class _NicknamePage extends State<NicknamePage> {
                     "Elige un nombre de pila!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -69,7 +69,7 @@ class _NicknamePage extends State<NicknamePage> {
                     "¿Con qué nombre quieres",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -78,7 +78,7 @@ class _NicknamePage extends State<NicknamePage> {
                     "que te conozcan?",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,

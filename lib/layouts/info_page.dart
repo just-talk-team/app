@@ -84,7 +84,7 @@ class _InfoPage extends State<InfoPage> {
         Container(
             child: Text(
               'Mis Datos',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ),
         Padding(
@@ -93,7 +93,7 @@ class _InfoPage extends State<InfoPage> {
               "Bríndanos tus datos para conversar al instante con otras personas que quieren escucharte!",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 5,
@@ -126,6 +126,7 @@ class _InfoPage extends State<InfoPage> {
                   'Sexo',
                   style: TextStyle(
                     fontSize: 20,
+                    color: Colors.black.withOpacity(0.5)
                   ),
                 ),
               ),

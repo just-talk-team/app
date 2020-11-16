@@ -23,6 +23,7 @@ class SegmentPage extends StatefulWidget {
 
 class _SegmentPage extends State<SegmentPage> {
   TextEditingController etUsername = TextEditingController();
+  bool finished;
 
   bool validateUser(UserInput userInput) {
     for (Tuple2<String, String> segments in userInput.segments) {
@@ -37,9 +38,15 @@ class _SegmentPage extends State<SegmentPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    finished = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0,80,0,0),
+      padding: const EdgeInsets.fromLTRB(0, 80, 0, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -49,7 +56,7 @@ class _SegmentPage extends State<SegmentPage> {
                 fit: BoxFit.contain,
                 child: Text(
                   'Segmento',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 )),
           ),
           Column(
@@ -58,7 +65,7 @@ class _SegmentPage extends State<SegmentPage> {
                 "Descubre personas",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
@@ -67,7 +74,7 @@ class _SegmentPage extends State<SegmentPage> {
                 "interesantes que forman",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
@@ -76,7 +83,7 @@ class _SegmentPage extends State<SegmentPage> {
                 "parte de tu organización!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
@@ -124,7 +131,7 @@ class _SegmentPage extends State<SegmentPage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                 child: Container(
                     height: MediaQuery.of(context).size.width / 3,
                     width: MediaQuery.of(context).size.width,
@@ -136,7 +143,13 @@ class _SegmentPage extends State<SegmentPage> {
                         children: List<Widget>.generate(
                             widget.userI.segments.length, (int index) {
                           return Chip(
+                            shape: StadiumBorder(
+                                side: BorderSide(
+                                    width: 0.5,
+                                    color: Colors.black.withOpacity(0.5))),
+                            backgroundColor: Colors.transparent,
                             label: Text(widget.userI.segments[index].item1),
+                            deleteIconColor: Color(0xFFB31048),
                             onDeleted: () {
                               setState(() {
                                 widget.userI.segments.removeAt(index);
@@ -155,39 +168,47 @@ class _SegmentPage extends State<SegmentPage> {
                 0, MediaQuery.of(context).size.width / 25, 0),
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: RaisedButton.icon(
-                key: Key('Finalizar'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                color: Color(0xFFB31048),
-                padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
-                textColor: Colors.white,
-                onPressed: () async {
-                  debugPrint("PASSED TO");
-                  if (widget.userI.segments.length != 0) {
-                    await widget.userService.registrateUser(
-                        widget.userI,
-                        BlocProvider.of<AuthenticationCubit>(context)
-                            .state
-                            .user
-                            .id);
-                    Navigator.of(context).pushReplacementNamed('/home');
-                  }
-                },
-                icon: Icon(Icons.sentiment_very_satisfied_rounded, size: 35),
-                label: Text(
-                  "Finalizar",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
+              child: StatefulBuilder(builder: (context, setState) {
+                return !finished
+                    ? RaisedButton.icon(
+                        key: Key('Finalizar'),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        color: Color(0xFFB31048),
+                        padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          debugPrint("PASSED TO");
+                          if (widget.userI.segments.length != 0) {
+                            await widget.userService.registrateUser(
+                                widget.userI,
+                                BlocProvider.of<AuthenticationCubit>(context)
+                                    .state
+                                    .user
+                                    .id);
+                            Navigator.of(context).pushReplacementNamed('/home');
+                          }
+                        },
+                        icon: Icon(Icons.sentiment_very_satisfied_rounded,
+                            size: 35),
+                        label: Text(
+                          "Finalizar",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      )
+                    : CircularProgressIndicator();
+              }),
             ),
           ),
           Padding(
-              padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 25,
-                  0, MediaQuery.of(context).size.width / 25, 0),
+              padding: EdgeInsets.fromLTRB(
+                  MediaQuery.of(context).size.width / 25,
+                  0,
+                  MediaQuery.of(context).size.width / 25,
+                  0),
               child: AutoSizeText(
-                '* Una vez agregado un correo, deberás validar el mismo ingresando al enlace que te enviamos',
+                '* Una vez agregado un correo, deberás validar el mismo ingresando al enlace que te enviaremos',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Color(0xff8a8a8a)),
               ))
