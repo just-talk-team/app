@@ -25,7 +25,7 @@ class _PreferenceState extends State<Preference> {
 
   Future<bool> getData() async {
     userInfo = await userService.getUser(userId, true, false);
-    segments = await userService.getSegments(userId);
+    segments = await userService.getSegmentsDomains(userId);
     return true;
   }
 

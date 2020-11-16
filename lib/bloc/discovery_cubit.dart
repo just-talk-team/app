@@ -10,7 +10,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       : super(DiscoveryNotFound());
 
   Future<void> reset() async {
-    _done();
+    rooms.cancel();
     await init();
   }
 
@@ -18,10 +18,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
     await userService.deleteDiscoveries(userId);
     discoveries = userService.getDiscoveries(userId).listen(
         (QuerySnapshot querySnapshot) => _getDiscoveries(querySnapshot));
-  }
-
-  void _done() {
-    rooms.cancel();
   }
 
   @override
@@ -57,7 +53,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
       if (flag) {
         emit(DiscoveryReady(room: roomId));
-        _done();
+        rooms.cancel();
       }
       return;
     });

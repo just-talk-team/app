@@ -83,6 +83,8 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           _startClock();
           break;
         case DiscoveryReady:
+          _controller.stop();
+          Navigator.of(context).pop();
           String roomId = (discoveryState as DiscoveryReady).room;
           sharedPreferences.setString("roomId", roomId);
           Navigator.pushNamed(context, '/chat');
