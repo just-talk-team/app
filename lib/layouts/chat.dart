@@ -1,10 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:just_talk/services/user_service.dart';
+import 'package:just_talk/models/user_info.dart';
+import 'package:intl/intl.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:just_talk/utils/enums.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
 
 class Chat extends StatefulWidget {
   @override
@@ -20,8 +25,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   String userId1 = "";
   String userId2 = "";
-  //String userId1 = "cejXgSpWtiQnTp3q0nyyJkrapv52", //youId
-  //    userId2 = "abChRWzOXXPbDgR1xgxaziZbH652"; //anotherUserId
 
   String chatId = "";
   String chatCol = "";
@@ -29,6 +32,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   AnimationController _controller;
   int levelClock = 301;
   Stream chatMessages;
+  UserInfo userInfo;
 
   getChatId() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -43,19 +47,104 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     String uid = _currentUser.uid;
 
     debugPrint("uid : " + uid);
-    if (str1 == uid) {
+    debugPrint("str1 : " + str1);
+    debugPrint("str2 : " + str2);
+    if (str1.compareTo(uid) == 0) {
+      debugPrint("User is  str1");
       userId1 = str1;
       userId2 = str2;
     } else {
+      debugPrint("User is str2");
       userId1 = str2;
       userId2 = str1;
     }
+    FirebaseFirestore.instance.collection("users").doc(uid);
+
     chatMessages = FirebaseFirestore.instance
         .collection(chatCol)
         .doc(chatId)
         .collection("messages")
         .snapshots();
+
+    //Return Current user ===================================================================
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
+
+    userDoc.get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        var data = documentSnapshot.data();
+        debugPrint("nickname : " + data['nickname']);
+        debugPrint("photo : " + data['avatar']);
+        DateTime birthdate = data['birthdate'].toDate();
+        var formattedDate =
+            DateFormat.yMMMd().format(data['birthdate'].toDate());
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+
+        debugPrint("age : " + age.toString());
+        debugPrint("birthday : " + formattedDate);
+        debugPrint("uid : " + _currentUser.uid);
+
+        userInfo = UserInfo(
+            nickname: data['nickname'],
+            photo: data['avatar'],
+            preferences: null,
+            gender: EnumToString.fromString(Gender.values, data['gender']),
+            age: age,
+            birthdate: data['birthdate'].toDate(),
+            filters: null,
+            id: _currentUser.uid);
+      }
+    });
+
     setState(() {});
+  }
+
+  Future<UserInfo> loadUserData() async {
+    _currentUser = _auth.currentUser;
+
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
+
+    userDoc.get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        var data = documentSnapshot.data();
+        debugPrint("nickname : " + data['nickname']);
+        debugPrint("photo : " + data['avatar']);
+        DateTime birthdate = data['birthdate'].toDate();
+        var formattedDate =
+            DateFormat.yMMMd().format(data['birthdate'].toDate());
+/*
+        var year = data['birthdate'].toDate().year;
+        var month = data['birthdate'].toDate().month;
+        var day = data['birthdate'].toDate().day;
+
+        debugPrint("year : " +
+            year.toString() +
+            " - " +
+            month.toString() +
+            " - " +
+            day.toString());*/
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+
+        debugPrint("age : " + age.toString());
+        debugPrint("birthday : " + formattedDate);
+        debugPrint("uid : " + _currentUser.uid);
+
+        userInfo = UserInfo(
+            nickname: data['nickname'],
+            photo: data['avatar'],
+            preferences: null,
+            gender: EnumToString.fromString(Gender.values, data['gender']),
+            age: age,
+            birthdate: data['birthdate'].toDate(),
+            filters: null,
+            id: _currentUser.uid);
+      }
+      return userInfo;
+    });
+    return userInfo;
   }
 
   void _startClock() {
@@ -72,8 +161,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    //Crear chat en caso de no existir
-    //consultChatRoom();
     getChatId();
     _startClock();
   }
@@ -94,7 +181,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
                 return CustomText(snapshot.data.docs[index].data()["message"],
-                    snapshot.data.docs[index].data()["user"]);
+                    snapshot.data.docs[index].data()["user"], _currentUser.uid);
               });
         });
   }
@@ -127,7 +214,8 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            finishChat();
+                            //Navigator.pushReplacementNamed(context, '/home');
                           },
                           child: Text(
                             'ACEPTAR',
@@ -326,7 +414,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .doc(chatId)
         .collection("messages")
         .add(message);
-    messages.add(CustomText(text, type));
+    messages.add(CustomText(text, type, _currentUser.uid));
 
     setState(() {});
   }
@@ -340,69 +428,89 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         elevation: 2,
         toolbarHeight: 100,
         automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                    image: NetworkImage(
-                      'https://writestylesonline.com/wp-content/uploads/2018/11/Three-Statistics-That-Will-Make-You-Rethink-Your-Professional-Profile-Picture.jpg',
-                    ),
-                    fit: BoxFit.fill),
-              ),
-            ),
-            Text(
-              'Alexa',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                  color: Colors.black),
-            ),
-            SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  'Mujer',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  '18 años',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                )
-              ],
-            ),
-            Spacer(),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Column(
+        title: FutureBuilder(
+          future: loadUserData(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData != null) {
+              return Row(
                 children: [
-                  Icon(
-                    Icons.star_border,
-                    size: 40,
-                    color: Color(0xffb31049),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(image: NetworkImage(
+                          //snapshot.data.nickname,
+                          userInfo.photo), fit: BoxFit.fill),
+                    ),
                   ),
-                  Icon(
-                    Icons.report,
-                    size: 40,
-                    color: Color(0xffb31049),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 100,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: new Text(
+                              userInfo.nickname,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              describeEnum(userInfo.gender),
+                              //snapshot.data.gender.toString(),
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              userInfo.age.toString() + " años",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            )
+                          ],
+                        ),
+                        SizedBox(width: 10)
+                      ],
+                    ),
+                  ),
+
+                  //Spacer(),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.star_border,
+                          size: 40,
+                          color: Color(0xffb31049),
+                        ),
+                        Icon(
+                          Icons.report,
+                          size: 40,
+                          color: Color(0xffb31049),
+                        )
+                      ],
+                    ),
                   )
                 ],
-              ),
-            )
-          ],
+              );
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
         ),
       ),
       body: Container(
@@ -423,7 +531,8 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         Container(
                           child: GestureDetector(
                             onTap: () {
-                              finishChat();
+                              leaveChat();
+                              //finishChat();
                             },
                             child: Icon(Icons.clear,
                                 size: 30, color: Color(0xffb31049)),
@@ -506,7 +615,7 @@ class Countdown extends AnimatedWidget {
     String timerText =
         '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
     if (clockTimer.inSeconds.remainder(60).toString() == "0") {}
-    debugPrint("timer : " + clockTimer.inSeconds.remainder(60).toString());
+    //debugPrint("timer : " + clockTimer.inSeconds.remainder(60).toString());
     return Container(
       child: Text(
         "$timerText",
@@ -522,8 +631,8 @@ class CustomText extends StatelessWidget {
   String text;
   String type;
   //Loaded by sharedPreferences
-  String userId = "cejXgSpWtiQnTp3q0nyyJkrapv52";
-  CustomText(this.text, this.type);
+  String userId;
+  CustomText(this.text, this.type, this.userId);
 
   @override
   Widget build(BuildContext context) {

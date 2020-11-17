@@ -135,7 +135,7 @@ class UserService {
 
   Future<List<String>> getSegmentsDomains(String id) async {
     List<String> segments = [];
-
+    debugPrint("userId : " + id);
     CollectionReference segmentCollection =
         _firebaseFirestore.collection("users").doc(id).collection('segments');
 
@@ -146,6 +146,7 @@ class UserService {
         }
       });
     });
+    debugPrint("segments size : " + segments.length.toString());
     return segments;
   }
 
