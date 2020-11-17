@@ -101,6 +101,7 @@ class _PreferenceDataState extends State<PreferenceData> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
+            showCheckmark: false,
             padding: EdgeInsets.all(10),
             label: Text(
               segment,

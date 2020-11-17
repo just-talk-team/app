@@ -15,13 +15,14 @@ class _TopicsTalk extends State<TopicsTalk> {
 
   FocusNode textFieldFocusNode;
   int levelClock = 6;
+  bool loading = false;
 
   List<Topic> topicsTalk;
   List<Topic> deletedTopics;
 
   String userId;
   UserService userService;
-  bool flag;
+  bool changed = false;
 
   @override
   void initState() {
@@ -32,7 +33,13 @@ class _TopicsTalk extends State<TopicsTalk> {
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     topicsTalkController = TextEditingController();
     textFieldFocusNode = FocusNode();
-    flag = false;
+    loadData();
+  }
+
+  void loadData() async {
+    topicsTalk =
+        await RepositoryProvider.of<UserService>(context).getTopicsTalk(userId);
+    setState(() {});
   }
 
   @override
@@ -62,18 +69,29 @@ class _TopicsTalk extends State<TopicsTalk> {
                 ? Colors.black
                 : Colors.black.withOpacity(0.5),
             onPressed: () async {
-              if (flag) {
+              setState(() {
+                loading = true;
+              });
+
+              if (changed && topicsTalk.length > 0) {
                 userService.setTopicsTalk(userId, topicsTalk);
                 userService.deleteTopicsTalk(userId, deletedTopics);
 
                 await userService.deleteTopicsHear(userId);
                 await userService.setTopicsHear(userId, topicsTalk);
-                deletedTopics.clear();          
+                deletedTopics.clear();
               }
               List<String> segments = await userService.getSegments(userId);
+
               Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
                 'segments': segments,
               });
+
+              setState(() {
+                loading = false;
+              });
+
+              
             },
           ),
         ],
@@ -89,57 +107,47 @@ class _TopicsTalk extends State<TopicsTalk> {
           children: [
             Expanded(
               flex: 6,
-              child: FutureBuilder(
-                  future: RepositoryProvider.of<UserService>(context)
-                      .getTopicsTalk(userId),
-                  builder: (context, AsyncSnapshot<List<Topic>> topics) {
-                    if (topics.hasData && !flag) {
-                      topicsTalk = topics.data;
-                    }
-
-                    if (topicsTalk.length > 0) {
-                      return Container(
-                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        child: Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: Wrap(
-                                spacing: 6.0,
-                                runSpacing: 6.0,
-                                children: List<Widget>.generate(
-                                    topicsTalk.length, (int index) {
-                                  return Chip(
-                                    shape: StadiumBorder(
-                                        side: BorderSide(
-                                            width: 0.5,
-                                            color:
-                                                Colors.black.withOpacity(0.5))),
-                                    backgroundColor: Colors.transparent,
-                                    label: Text(
-                                      topicsTalk[index].topic,
-                                      style: TextStyle(
-                                          fontFamily: "Roboto",
-                                          fontWeight: FontWeight.normal),
-                                    ),
-                                    deleteIconColor: Color(0xFFB31048),
-                                    onDeleted: () {
-                                      if (!flag) {
-                                        flag = true;
-                                      }
-                                      setState(() {
-                                        deletedTopics.add(topicsTalk[index]);
-                                        topicsTalk.removeAt(index);
-                                      });
-                                    },
-                                  );
-                                }),
-                              ),
-                            )),
-                      );
-                    }
-                    return Container();
-                  }),
+              child: !loading
+                  ? Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              spacing: 6.0,
+                              runSpacing: 6.0,
+                              children: List<Widget>.generate(topicsTalk.length,
+                                  (int index) {
+                                return Chip(
+                                  shape: StadiumBorder(
+                                      side: BorderSide(
+                                          width: 0.5,
+                                          color:
+                                              Colors.black.withOpacity(0.5))),
+                                  backgroundColor: Colors.transparent,
+                                  label: Text(
+                                    topicsTalk[index].topic,
+                                    style: TextStyle(
+                                        fontFamily: "Roboto",
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                  deleteIconColor: Color(0xFFB31048),
+                                  onDeleted: () {
+                                    if (!changed) {
+                                      changed = true;
+                                    }
+                                    setState(() {
+                                      deletedTopics.add(topicsTalk[index]);
+                                      topicsTalk.removeAt(index);
+                                    });
+                                  },
+                                );
+                              }),
+                            ),
+                          )),
+                    )
+                  : Center(child: CircularProgressIndicator()),
             ),
             Expanded(
               flex: 1,
@@ -164,9 +172,8 @@ class _TopicsTalk extends State<TopicsTalk> {
                       if (topicsTalkController.text.isEmpty) {
                         return;
                       }
-
-                      if (!flag) {
-                        flag = true;
+                      if (!changed) {
+                        changed = true;
                       }
                       topicsTalk.add(
                           Topic(topicsTalkController.text, DateTime.now()));
