@@ -254,6 +254,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                         (topicHearState as TopicHearResult).topics, checkList);
 
                     return Container(
+                      alignment: Alignment.center,
                       margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Padding(
                           padding: EdgeInsets.fromLTRB(0, 10, 0, 20),

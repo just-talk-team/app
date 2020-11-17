@@ -34,6 +34,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   int levelClock = 301;
   Stream chatMessages;
   UserInfo userInfo;
+  ScrollController _scrollController;
 
   getChatId() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -103,11 +104,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   Future<UserInfo> loadUserData() async {
     _currentUser = _auth.currentUser;
-
     DocumentReference userDoc =
         FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
 
-    userDoc.get().then((DocumentSnapshot documentSnapshot) {
+    await userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
         debugPrint("nickname : " + data['nickname']);
@@ -162,6 +162,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     getChatId();
     _startClock();
   }
@@ -177,7 +178,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         builder: (context, snapshot) {
           if (snapshot.data == null) return CircularProgressIndicator();
           return ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
+              controller: _scrollController,
               shrinkWrap: true,
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
@@ -287,22 +288,31 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         title: FutureBuilder(
           future: loadUserData(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData != null) {
+            if (snapshot.hasData) {
               return Row(
                 children: [
                   Container(
                     margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                    width: 80,
-                    height: 80,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: Offset(0, 3)),
+                      ],
+                      border: Border.all(
+                          width: 0.1, color: Colors.black.withOpacity(0.5)),
                       shape: BoxShape.circle,
                       image: DecorationImage(image: NetworkImage(
                           //snapshot.data.nickname,
                           userInfo.photo), fit: BoxFit.fill),
                     ),
                   ),
-                  Expanded(
-                    child: Row(
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           width: 100,
@@ -315,10 +325,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Row(
                           children: [
                             Text(
                               describeEnum(userInfo.gender),
@@ -328,43 +335,32 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
                             ),
-                            SizedBox(height: 10),
+                            Text(' | '),
                             Text(
                               userInfo.age.toString() + " años",
                               style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
-                            )
+                            ),
+                            SizedBox(width: 10)
                           ],
                         ),
-                        SizedBox(width: 10)
-                      ],
-                    ),
-                  ),
-
-                  //Spacer(),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.star_border,
-                          size: 40,
-                          color: Color(0xffb31049),
-                        ),
-                        Icon(
-                          Icons.report,
-                          size: 40,
-                          color: Color(0xffb31049),
-                        )
-                      ],
-                    ),
+                      ]),
+                  Spacer(),
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.star_border_rounded,
+                        size: 30,
+                        color: Color(0xffb31049),
+                      ),
+                    ],
                   )
                 ],
               );
             } else {
-              return Center(child: CircularProgressIndicator());
+              return Container();
             }
           },
         ),
@@ -380,22 +376,21 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          child: GestureDetector(
-                            onTap: () {
-                              leaveChat();
-                              //finishChat();
-                            },
-                            child: Icon(Icons.clear,
-                                size: 30, color: Color(0xffb31049)),
-                          ),
+                        GestureDetector(
+                          onTap: () {
+                            leaveChat();
+                            //finishChat();
+                          },
+                          child: Icon(Icons.clear_rounded,
+                              size: 30, color: Color(0xffb31049)),
                         ),
                         Container(
-                          padding: EdgeInsets.fromLTRB(15, 3, 15, 3),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 15, vertical: 2),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
                               border: Border.all(
@@ -420,45 +415,55 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   )))
                 ],
               ))),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                        child: SingleChildScrollView(
-                      reverse: true,
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.grey, width: 2.0),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 8,
+                      child: Container(
+                          child: SingleChildScrollView(
+                        reverse: true,
+                        child: TextField(
+                          maxLength: 140,
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 2.0),
+                            ),
+                            hintText: 'Escribe aqui el mensaje...',
                           ),
-                          hintText: 'Escribe aqui el mensaje...',
                         ),
-                      ),
-                    )),
-                  ),
-                  Container(
-                    width: 70,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (_messageController.text.length > 0) {
-                          sendMessage(_messageController.text, userId1);
-                          _messageController.clear();
-                        }
-                      },
-                      child:
-                          Icon(Icons.send, size: 30, color: Color(0xffb31049)),
+                      )),
                     ),
-                  )
-                ],
+                    Expanded(
+                      flex: 2,
+                      child: GestureDetector(
+                        onTap: ()  {
+                          if (_messageController.text.length > 0) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              curve: Curves.easeOut,
+                              duration: const Duration(milliseconds: 300),
+                            );
+                            sendMessage(_messageController.text, userId1);
+                            _messageController.clear();
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          }
+                        },
+                        child: Icon(Icons.send_rounded,
+                            size: 30, color: Color(0xffb31049)),
+                      ),
+                    )
+                  ],
+                ),
               )
             ],
           )),
     );
   }
 }
-
 
 // ignore: must_be_immutable
 class Countdown extends AnimatedWidget {
@@ -476,7 +481,7 @@ class Countdown extends AnimatedWidget {
     return Container(
       child: Text(
         "$timerText",
-        style: TextStyle(fontSize: 22),
+        style: TextStyle(fontSize: 18),
         textAlign: TextAlign.center,
       ),
     );
@@ -490,24 +495,25 @@ class CustomText extends StatelessWidget {
   //Loaded by sharedPreferences
   String userId;
   CustomText(this.text, this.type, this.userId);
+  double maxW;
 
   @override
   Widget build(BuildContext context) {
+    maxW = ((MediaQuery.of(context).size.width) * 0.75).roundToDouble();
+
     return Row(
+      mainAxisAlignment: (this.type != userId)
+          ? MainAxisAlignment.start
+          : MainAxisAlignment.end,
       children: [
-        SizedBox(
-          width: this.type == userId
-              ? MediaQuery.of(context).size.width / 2 - 50
-              : 20,
-        ),
         Container(
-            width: MediaQuery.of(context).size.width / 2,
-            padding: EdgeInsets.fromLTRB(40, 15, 40, 15),
-            margin: EdgeInsets.symmetric(vertical: 10),
+            constraints: BoxConstraints(maxWidth: maxW),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            margin: EdgeInsets.symmetric(vertical: 3),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(
-                    width: 2,
+                    width: 1,
                     color: this.type == userId
                         ? Color(0xff959595)
                         : Color(0xffb3a407))),
@@ -517,7 +523,7 @@ class CustomText extends StatelessWidget {
                   color: this.type == userId
                       ? Color(0xff959595)
                       : Color(0xffb3a407)),
-            ))
+            )),
       ],
     );
   }

@@ -95,17 +95,14 @@ class _TopicsTalk extends State<TopicsTalk> {
                     loading = false;
                   });
                 } else {
-                  Flushbar(               
+                  Flushbar(
                     backgroundColor: Color(0xFFB31048),
                     flushbarPosition: FlushbarPosition.TOP,
                     messageText: Text(
                       "Defina al menos un tema de que hablar!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                      ),   
-                    ),        
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                     duration: Duration(seconds: 3),
                   ).show(context);
                 }
@@ -170,15 +167,13 @@ class _TopicsTalk extends State<TopicsTalk> {
             Expanded(
               flex: 1,
               child: Stack(alignment: Alignment.centerRight, children: <Widget>[
-                TextFormField(
+                TextField(
                   controller: topicsTalkController,
-                  focusNode: textFieldFocusNode,
                   decoration: InputDecoration(
                     hintText: 'Puedo hablar de ...',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
                       borderSide:
-                          const BorderSide(color: Colors.grey, width: 0.0),
+                          const BorderSide(color: Colors.grey, width: 2.0),
                     ),
                   ),
                 ),
