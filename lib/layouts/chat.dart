@@ -23,69 +23,108 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   final auth.FirebaseAuth _auth =
       auth.FirebaseAuth.instance; //Instancia de Firebase
   auth.User _currentUser;
+  List<dynamic> uidDynamic = List<dynamic>();
 
   String userId1 = "";
   String userId2 = "";
 
-  String chatId = "";
+  String roomId = "";
   String chatCol = "";
   List<CustomText> messages = [];
   AnimationController _controller;
   int levelClock = 301;
   Stream chatMessages;
+  UserInfo yourUserInfo;
   UserInfo userInfo;
+
+  var badgets = [1, 1, 1];
+
+  //==========================
+  String _photoUrl = "";
+  String _nickname = "";
+  String _age = "";
+  String _gender = "";
+  bool _isFriend = false;
   ScrollController _scrollController;
 
-  getChatId() async {
+  Future recoverChatInfo() async {
     sharedPreferences = await SharedPreferences.getInstance();
     _currentUser = _auth.currentUser;
-
-    chatId = sharedPreferences.getString("roomId");
-    chatCol = sharedPreferences.getString("chatCol");
-    debugPrint("RoomId : " + chatId);
-    debugPrint("chatCol : " + chatCol);
-    var str1 = chatId.substring(0, 28);
-    var str2 = chatId.substring(29, 57);
     String uid = _currentUser.uid;
 
-    debugPrint("uid : " + uid);
-    debugPrint("str1 : " + str1);
-    debugPrint("str2 : " + str2);
+    roomId = sharedPreferences.getString("roomId");
+    chatCol = sharedPreferences.getString("chatCol");
+
+    var str1 = roomId.substring(0, 28);
+    var str2 = roomId.substring(29, 57);
+
     if (str1.compareTo(uid) == 0) {
-      debugPrint("User is  str1");
       userId1 = str1;
       userId2 = str2;
     } else {
-      debugPrint("User is str2");
       userId1 = str2;
       userId2 = str1;
     }
-    FirebaseFirestore.instance.collection("users").doc(uid);
 
+    List<String> badgets = List<String>();
+    //load your data (check if userId its in friendList)====================================================================
+    DocumentReference yourUserDoc =
+        FirebaseFirestore.instance.collection("users").doc(userId1);
+
+    yourUserDoc.get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        var data = documentSnapshot.data();
+        DateTime birthdate = data['birthdate'].toDate();
+
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+
+        yourUserInfo = UserInfo(
+            nickname: data['nickname'],
+            photo: data['avatar'],
+            preferences: null,
+            gender: EnumToString.fromString(Gender.values, data['gender']),
+            age: age,
+            birthdate: data['birthdate'].toDate(),
+            filters: null,
+            id: userId1);
+      } else {}
+    });
+
+    debugPrint("Badgets isze; " + badgets.length.toString());
+    //Search frieden on user friend list===============================================
+
+    var findFriendOnList = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId1)
+        .collection("friends")
+        .where('roomId', isEqualTo: roomId)
+        .get();
+
+    findFriendOnList.then((value) {
+      if (value.docs.isNotEmpty) {
+        _isFriend = true;
+      }
+    });
+
+    //Recover message stream==============================================================
     chatMessages = FirebaseFirestore.instance
         .collection(chatCol)
-        .doc(chatId)
+        .doc(roomId)
         .collection("messages")
         .snapshots();
 
-    //Return Current user ===================================================================
+    //Return another user ===================================================================
     DocumentReference userDoc =
-        FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
+        FirebaseFirestore.instance.collection("users").doc(userId2);
 
     userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
-        debugPrint("nickname : " + data['nickname']);
-        debugPrint("photo : " + data['avatar']);
         DateTime birthdate = data['birthdate'].toDate();
-        var formattedDate =
-            DateFormat.yMMMd().format(data['birthdate'].toDate());
+
         int age =
             (birthdate.difference(DateTime.now()).inDays / 365).truncate();
-
-        debugPrint("age : " + age.toString());
-        debugPrint("birthday : " + formattedDate);
-        debugPrint("uid : " + _currentUser.uid);
 
         userInfo = UserInfo(
             nickname: data['nickname'],
@@ -95,11 +134,16 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             age: age,
             birthdate: data['birthdate'].toDate(),
             filters: null,
-            id: _currentUser.uid);
+            id: userId2);
+
+        if (userInfo.photo != null) _photoUrl = userInfo.photo;
+        _gender = describeEnum(userInfo.gender);
+        _age = userInfo.age.toString();
+        _nickname = userInfo.nickname;
+
+        setState(() {});
       }
     });
-
-    setState(() {});
   }
 
   Future<UserInfo> loadUserData() async {
@@ -115,7 +159,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         DateTime birthdate = data['birthdate'].toDate();
         var formattedDate =
             DateFormat.yMMMd().format(data['birthdate'].toDate());
-/*
+        /*
         var year = data['birthdate'].toDate().year;
         var month = data['birthdate'].toDate().month;
         var day = data['birthdate'].toDate().day;
@@ -163,7 +207,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    getChatId();
+    recoverChatInfo();
     _startClock();
   }
 
@@ -171,7 +215,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection(chatCol)
-            .doc(chatId)
+            .doc(roomId)
             .collection("messages")
             .orderBy("time", descending: false)
             .snapshots(),
@@ -229,6 +273,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           ),
                         ),
                         GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, true);
+                          },
                           child: Text(
                             'CANCELAR',
                             style: TextStyle(
@@ -256,9 +303,212 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
+          return Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width - 100,
+              height: MediaQuery.of(context).size.height / 3,
+              child: Material(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Icon(
+                          Icons.add_alarm,
+                          size: 40,
+                          color: Color(0xffff3f82),
+                        ),
+                        Text(
+                          '5 min',
+                          style: TextStyle(color: Color(0xffff3f82)),
+                        )
+                      ],
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    badgets[0] *= -1;
+                                    debugPrint(
+                                        "badget 0 : " + badgets[0].toString());
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.all(2),
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          border: Border.all(
+                                              width: 2,
+                                              color: badgets[0] == 1
+                                                  ? Color(0xff959595)
+                                                  : Color(0xFFB3A407))),
+                                      child: Icon(
+                                        Icons.hearing,
+                                        size: 30,
+                                        color: badgets[0] == 1
+                                            ? Color(0xff959595)
+                                            : Color(0xFFB3A407),
+                                      ),
+                                    ),
+                                    Container(
+                                      alignment: Alignment.topCenter,
+                                      width: 70,
+                                      child: Text(
+                                        'Buen oyente',
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: badgets[0] == 1
+                                                ? Color(0xff959595)
+                                                : Color(0xFFB3A407),
+                                            fontSize: 10),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              // 2=================================================
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    badgets[1] *= -1;
+                                    debugPrint(
+                                        "badget 1 : " + badgets[1].toString());
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.all(2),
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          border: Border.all(
+                                              width: 2,
+                                              color: badgets[1] == 1
+                                                  ? Color(0xff959595)
+                                                  : Color(0xFFB3A407))),
+                                      child: Icon(
+                                        Icons.mood,
+                                        size: 30,
+                                        color: badgets[1] == 1
+                                            ? Color(0xff959595)
+                                            : Color(0xFFB3A407),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 70,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Buen conversador',
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: badgets[1] == 1
+                                                ? Color(0xff959595)
+                                                : Color(0xFFB3A407),
+                                            fontSize: 10),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              // 3===================================================
+
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    badgets[2] *= -1;
+                                    debugPrint(
+                                        "badget 2 : " + badgets[2].toString());
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          border: Border.all(
+                                              width: 2,
+                                              color: badgets[2] == 1
+                                                  ? Color(0xff959595)
+                                                  : Color(0xFFB3A407))),
+                                      child: Icon(
+                                        Icons.sentiment_very_satisfied_rounded,
+                                        size: 30,
+                                        color: badgets[2] == 1
+                                            ? Color(0xff959595)
+                                            : Color(0xFFB3A407),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 70,
+                                      alignment: Alignment.center,
+                                      child: Text('Divertido',
+                                          maxLines: 2,
+                                          style: TextStyle(
+                                              color: badgets[2] == 1
+                                                  ? Color(0xff959595)
+                                                  : Color(0xFFB3A407),
+                                              fontSize: 10)),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              //======================================================
+                            ],
+                          ),
+                          SizedBox(height: 10)
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/home');
+                      },
+                      child: Text(
+                        'FINALIZAR',
+                        style: TextStyle(
+                            letterSpacing: 2,
+                            color: Color(0xffff3f82),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+  /*
+  finishChat() {
+    return showGeneralDialog(
+        barrierDismissible: false,
+        barrierColor: Colors.black45,
+        transitionDuration: const Duration(milliseconds: 200),
+        context: context,
+        pageBuilder: (BuildContext context, Animation animation,
+            Animation secondAnimation) {
           return Results();
         });
   }
+  */
 
   sendMessage(text, type) {
     Map<String, dynamic> message = {
@@ -268,12 +518,89 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     };
     FirebaseFirestore.instance
         .collection(chatCol)
-        .doc(chatId)
+        .doc(roomId)
         .collection("messages")
         .add(message);
     messages.add(CustomText(text, type, _currentUser.uid));
 
     setState(() {});
+  }
+
+  addFriend() {
+    //Recover elements
+    List<dynamic> uidList = List<dynamic>();
+    DocumentReference docFriends =
+        FirebaseFirestore.instance.collection("friends").doc(roomId);
+
+    //Add select friend to friend collections
+    var currentChat = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId1)
+        .collection("friends")
+        .where('roomId', isEqualTo: roomId)
+        .get();
+
+    currentChat.then((value) {
+      if (value.docs.isNotEmpty) {
+        //El valor existe
+        docFriends.get().then((value) {
+          if (value.exists) {
+            var data = value.data();
+            uidList = data['friends'];
+          }
+        });
+
+        uidList.remove(userId1);
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(userId1)
+            .collection("friends")
+            .doc(value.docs[0].id)
+            .delete();
+
+        FirebaseFirestore.instance
+            .collection("friends")
+            .doc(roomId)
+            .set({"Friends": FieldValue.arrayUnion(uidList)});
+        _isFriend = false;
+        setState(() {});
+      } else {
+        //El valor no existe
+
+        docFriends.get().then((value) {
+          if (value.exists) {
+            var data = value.data();
+            uidList = data['friends'];
+          }
+        });
+
+        uidList.add(userId1);
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(_currentUser.uid)
+            .collection("friends")
+            .add({"friend": userId2, "roomId": roomId});
+
+        FirebaseFirestore.instance
+            .collection("friends")
+            .doc(roomId)
+            .set({"friends": FieldValue.arrayUnion(uidList)});
+        _isFriend = true;
+        setState(() {});
+      }
+    });
+
+    /*
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(_currentUser.uid)
+        .collection("friends")
+        .add({"friend": userId2, "roomId": roomId});
+
+    //Add select friend to friend array
+    FirebaseFirestore.instance.collection("friends").doc(roomId).set({
+      "friends": FieldValue.arrayUnion([userId1])
+    });*/
   }
 
   @override
@@ -282,89 +609,88 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        elevation: 2,
-        toolbarHeight: 100,
-        automaticallyImplyLeading: false,
-        title: FutureBuilder(
-          future: loadUserData(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
-              return Row(
-                children: [
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 1,
-                            offset: Offset(0, 3)),
-                      ],
-                      border: Border.all(
-                          width: 0.1, color: Colors.black.withOpacity(0.5)),
-                      shape: BoxShape.circle,
-                      image: DecorationImage(image: NetworkImage(
-                          //snapshot.data.nickname,
-                          userInfo.photo), fit: BoxFit.fill),
+          elevation: 2,
+          toolbarHeight: 100,
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: [
+              Container(
+                child: _photoUrl != ""
+                    ? Container(
+                        margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 1,
+                                offset: Offset(0, 3)),
+                          ],
+                          border: Border.all(
+                              width: 0.1, color: Colors.black.withOpacity(0.5)),
+                          shape: BoxShape.circle,
+                          image: DecorationImage(image: NetworkImage(
+                              //snapshot.data.nickname,
+                              userInfo.photo), fit: BoxFit.fill),
+                        ),
+                      )
+                    : null,
+              ),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  width: 100,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: new Text(
+                      _nickname,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 100,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: new Text(
-                              userInfo.nickname,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                            ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      _gender,
+                      //snapshot.data.gender.toString(),
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    Text(' | '),
+                    Text(
+                      _age + " años",
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    SizedBox(width: 10)
+                  ],
+                ),
+              ]),
+              Spacer(),
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      addFriend();
+                    },
+                    child: _isFriend == true
+                        ? Icon(Icons.star, size: 30, color: Color(0xffb31049))
+                        : Icon(
+                            Icons.star_border,
+                            size: 30,
+                            color: Color(0xffb31049),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              describeEnum(userInfo.gender),
-                              //snapshot.data.gender.toString(),
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                            Text(' | '),
-                            Text(
-                              userInfo.age.toString() + " años",
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                            SizedBox(width: 10)
-                          ],
-                        ),
-                      ]),
-                  Spacer(),
-                  Column(
-                    children: [
-                      Icon(
-                        Icons.star_border_rounded,
-                        size: 30,
-                        color: Color(0xffb31049),
-                      ),
-                    ],
-                  )
+                  ),
                 ],
-              );
-            } else {
-              return Container();
-            }
-          },
-        ),
-      ),
+              )
+            ],
+          )),
       body: Container(
           margin: EdgeInsets.all(10),
           child: Column(
@@ -410,7 +736,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     child: Column(
-                      children: [chatMessagesList()],
+                      children: roomId != "" ? [chatMessagesList()] : [],
                     ),
                   )))
                 ],
@@ -440,7 +766,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     Expanded(
                       flex: 2,
                       child: GestureDetector(
-                        onTap: ()  {
+                        onTap: () {
                           if (_messageController.text.length > 0) {
                             _scrollController.animateTo(
                               _scrollController.position.maxScrollExtent,
