@@ -69,29 +69,29 @@ class _TopicsTalk extends State<TopicsTalk> {
                 ? Colors.black
                 : Colors.black.withOpacity(0.5),
             onPressed: () async {
-              setState(() {
-                loading = true;
-              });
+              if (topicsTalk.length > 0) {
+                setState(() {
+                  loading = true;
+                });
 
-              if (changed && topicsTalk.length > 0) {
-                userService.setTopicsTalk(userId, topicsTalk);
-                userService.deleteTopicsTalk(userId, deletedTopics);
+                if (changed) {
+                  userService.setTopicsTalk(userId, topicsTalk);
+                  userService.deleteTopicsTalk(userId, deletedTopics);
 
-                await userService.deleteTopicsHear(userId);
-                await userService.setTopicsHear(userId, topicsTalk);
-                deletedTopics.clear();
+                  await userService.deleteTopicsHear(userId);
+                  await userService.setTopicsHear(userId, topicsTalk);
+                  deletedTopics.clear();
+                }
+                List<String> segments = await userService.getSegments(userId);
+
+                Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
+                  'segments': segments,
+                });
+
+                setState(() {
+                  loading = false;
+                });
               }
-              List<String> segments = await userService.getSegments(userId);
-
-              Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
-                'segments': segments,
-              });
-
-              setState(() {
-                loading = false;
-              });
-
-              
             },
           ),
         ],
