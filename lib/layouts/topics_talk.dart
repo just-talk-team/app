@@ -84,7 +84,7 @@ class _TopicsTalk extends State<TopicsTalk> {
                 }
                 List<String> segments = await userService.getSegments(userId);
 
-                Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
+                await Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
                   'segments': segments,
                 });
 
