@@ -86,8 +86,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           _controller.stop();
           Navigator.of(context).pop();
           String roomId = (discoveryState as DiscoveryReady).room;
+          sharedPreferences.setString("chatCol", "discoveries");
           sharedPreferences.setString("roomId", roomId);
-          Navigator.pushNamed(context, '/chat');
+          Navigator.pushReplacementNamed(context, '/chat');
           print("Room ID: $roomId");
           break;
         // Send to chat
