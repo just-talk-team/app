@@ -375,6 +375,19 @@ class UserService {
     }
   }
 
+  Future<Preferences> getPreferences(String id) async {
+    var user = await _firebaseFirestore.collection("users").doc(id).get();
+    var data = user.data();
+    
+    return Preferences(
+        minimunAge: data['preferences']['ages'].cast<int>()[0],
+        maximumAge: data['preferences']['ages'].cast<int>()[1],
+        genders: EnumToString.fromList(
+            Gender.values, data['preferences']['genders']),
+        segments: data['preferences']['segments'].cast<String>(),
+        badgets: data['preferences']['badgets'].cast<String>());
+  }
+
   Future<void> updatePreferences(String id, Preferences preferences) async {
     DocumentReference user = _firebaseFirestore.collection("users").doc(id);
     await user.update({

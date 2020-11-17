@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
+import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class HomePage extends StatelessWidget {
@@ -52,39 +53,61 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: 40,
             ),
-            RaisedButton.icon(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-              color: Color(0xFFB31048),
-              label: Text(
-                'Just Talk',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-              icon: Icon(Icons.sentiment_very_satisfied_rounded,
-                  color: Colors.white, size: 35),
-              onPressed: () async {
-                String id =
-                    BlocProvider.of<AuthenticationCubit>(context).state.user.id;
-                List<String> segments =
-                    await RepositoryProvider.of<UserService>(context)
-                        .getSegments(id);
+            Builder(
+                builder: (context) => RaisedButton.icon(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                      color: Color(0xFFB31048),
+                      label: Text(
+                        'Just Talk',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                      icon: Icon(Icons.sentiment_very_satisfied_rounded,
+                          color: Colors.white, size: 35),
+                      onPressed: () async {
+                        String id =
+                            BlocProvider.of<AuthenticationCubit>(context)
+                                .state
+                                .user
+                                .id;
+                        List<String> segments =
+                            await RepositoryProvider.of<UserService>(context)
+                                .getSegments(id);
 
-                Navigator.of(context).pushNamed('/topics_talk',
-                    arguments: {'segments': segments});
-              },
-            )
+                        Preferences preferences =
+                            await RepositoryProvider.of<UserService>(context)
+                                .getPreferences(id);
+
+                        if (preferences.segments.length > 0) {
+                          Navigator.of(context).pushNamed('/topics_talk',
+                              arguments: {'segments': segments});
+                        } else {
+                          Scaffold.of(context).showSnackBar(
+                            SnackBar(
+                                backgroundColor: Color(0xFFB31048),
+                                content: Text(
+                                    'Debes de seleccionar al menos un segmento!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold))),
+                          );
+                        }
+                      },
+                    ))
           ],
         )),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.sentiment_very_satisfied_rounded),
-              label: 'Just Talk',             
+              label: 'Just Talk',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
