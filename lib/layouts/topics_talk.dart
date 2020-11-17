@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,37 +63,54 @@ class _TopicsTalk extends State<TopicsTalk> {
           },
         ),
         actions: [
-          IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.keyboard_arrow_right),
-            color: topicsTalk.length > 0
-                ? Colors.black
-                : Colors.black.withOpacity(0.5),
-            onPressed: () async {
-              if (topicsTalk.length > 0) {
-                setState(() {
-                  loading = true;
-                });
+          Builder(
+            builder: (context) => IconButton(
+              iconSize: 30,
+              icon: Icon(Icons.keyboard_arrow_right),
+              color: topicsTalk.length > 0
+                  ? Colors.black
+                  : Colors.black.withOpacity(0.5),
+              onPressed: () async {
+                if (topicsTalk.length > 0) {
+                  setState(() {
+                    loading = true;
+                  });
 
-                if (changed) {
-                  userService.setTopicsTalk(userId, topicsTalk);
-                  userService.deleteTopicsTalk(userId, deletedTopics);
+                  if (changed) {
+                    userService.setTopicsTalk(userId, topicsTalk);
+                    userService.deleteTopicsTalk(userId, deletedTopics);
 
-                  await userService.deleteTopicsHear(userId);
-                  await userService.setTopicsHear(userId, topicsTalk);
-                  deletedTopics.clear();
+                    await userService.deleteTopicsHear(userId);
+                    await userService.setTopicsHear(userId, topicsTalk);
+                    deletedTopics.clear();
+                  }
+                  List<String> segments = await userService.getSegments(userId);
+
+                  await Navigator.of(context)
+                      .pushNamed('/topics_to_hear', arguments: {
+                    'segments': segments,
+                  });
+
+                  setState(() {
+                    loading = false;
+                  });
+                } else {
+                  Flushbar(               
+                    backgroundColor: Color(0xFFB31048),
+                    flushbarPosition: FlushbarPosition.TOP,
+                    messageText: Text(
+                      "Defina al menos un tema de que hablar!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
+                      ),   
+                    ),        
+                    duration: Duration(seconds: 3),
+                  ).show(context);
                 }
-                List<String> segments = await userService.getSegments(userId);
-
-                await Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
-                  'segments': segments,
-                });
-
-                setState(() {
-                  loading = false;
-                });
-              }
-            },
+              },
+            ),
           ),
         ],
         centerTitle: true,

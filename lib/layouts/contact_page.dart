@@ -176,16 +176,17 @@ class _ContactPageState extends State<ContactPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.sentiment_very_satisfied_rounded,
-                color: Color(0xFF73000000)),
+            icon: Icon(
+              Icons.sentiment_very_satisfied_rounded,
+             ),
             label: 'Just Talk',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_rounded),
-            label: 'Amigos',      
+            label: 'Amigos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
+            icon: Icon(Icons.person_rounded),
             label: 'Mi perfil',
           ),
         ],

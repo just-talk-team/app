@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,9 +25,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     loading = false;
   }
-  
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -106,21 +104,21 @@ class _HomePageState extends State<HomePage> {
                     if (preferences.segments.length > 0) {
                       await Navigator.of(context).pushNamed('/topics_talk',
                           arguments: {'segments': segments});
-                      setState(() {
-                        loading = false;
-                      });
                     } else {
-                      Scaffold.of(context).showSnackBar(
-                        SnackBar(
-                            backgroundColor: Color(0xFFB31048),
-                            content: Text(
-                                'Debes de seleccionar al menos un segmento!',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                      );
+                      Flushbar(
+                        backgroundColor: Color(0xFFB31048),
+                        flushbarPosition: FlushbarPosition.TOP,
+                        messageText: Text(
+                          'Debes de seleccionar al menos un segmento!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        duration: Duration(seconds: 3),
+                      ).show(context);
                     }
+                    setState(() {
+                      loading = false;
+                    });
                   },
                 );
               } else {
@@ -136,11 +134,11 @@ class _HomePageState extends State<HomePage> {
               label: 'Just Talk',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
+              icon: Icon(Icons.star_rounded),
               label: 'Amigos',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
+              icon: Icon(Icons.person_rounded),
               label: 'Mi perfil',
             ),
           ],
