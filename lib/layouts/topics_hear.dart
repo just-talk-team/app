@@ -10,12 +10,9 @@ import 'package:just_talk/bloc/topic_hear_cubit.dart';
 import 'package:just_talk/bloc/topic_hear_state.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/services/discovery_service.dart';
-import 'package:just_talk/services/stream_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'chat.dart';
 
 class TopicsHear extends StatefulWidget {
   TopicsHear(this.segments);
@@ -219,68 +216,82 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          iconSize: 30,
-          icon: Icon(Icons.keyboard_arrow_left),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+        resizeToAvoidBottomPadding: false,
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            iconSize: 30,
+            icon: Icon(Icons.keyboard_arrow_left),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            '¿Sobre que puedo escuchar?',
+            style: TextStyle(
+                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
-        title: Text(
-          '¿Sobre que puedo escuchar?',
-          style: TextStyle(
-              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      body: BlocBuilder<TopicHearCubit, TopicHearState>(
-          cubit: topicHearCubit,
-          builder: (context, TopicHearState topicHearState) {
-            if (topicHearState.runtimeType == TopicHearResult) {
-              topicsToHear = getTopics(
-                  (topicHearState as TopicHearResult).topics, checkList);
+        body: Column(
+          children: [
+            RaisedButton(
+              child: Text("chat"),
+              onPressed: () {
+                var roomId =
+                    "cejXgSpWtiQnTp3q0nyyJkrapv52_FwhRosqrvyeBat3MDuoymrIFEdr1";
+                sharedPreferences.setString("chatCol", "discoveries");
+                sharedPreferences.setString("roomId", roomId);
+                Navigator.pushReplacementNamed(context, '/chat');
+              },
+            ),
+            BlocBuilder<TopicHearCubit, TopicHearState>(
+                cubit: topicHearCubit,
+                builder: (context, TopicHearState topicHearState) {
+                  if (topicHearState.runtimeType == TopicHearResult) {
+                    topicsToHear = getTopics(
+                        (topicHearState as TopicHearResult).topics, checkList);
 
-              return Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: Padding(
-                    padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Wrap(
-                        spacing: 6.0,
-                        runSpacing: 6.0,
-                        children: List<Widget>.generate(topicsToHear.length,
-                            (int index) {
-                          return ActionChip(
-                            shape: StadiumBorder(
-                                side: BorderSide(
-                                    width: 0.5,
-                                    color: Colors.black.withOpacity(0.5))),
-                            backgroundColor: Colors.transparent,
-                            label: Text(
-                              topicsToHear[index].topic,
-                              style: TextStyle(
-                                  fontFamily: "Roboto",
-                                  fontWeight: FontWeight.normal),
+                    return Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              spacing: 6.0,
+                              runSpacing: 6.0,
+                              children: List<Widget>.generate(
+                                  topicsToHear.length, (int index) {
+                                return ActionChip(
+                                  shape: StadiumBorder(
+                                      side: BorderSide(
+                                          width: 0.5,
+                                          color:
+                                              Colors.black.withOpacity(0.5))),
+                                  backgroundColor: Colors.transparent,
+                                  label: Text(
+                                    topicsToHear[index].topic,
+                                    style: TextStyle(
+                                        fontFamily: "Roboto",
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      checkList.add(topicsToHear[index]);
+                                    });
+                                  },
+                                );
+                              }),
                             ),
-                            onPressed: () {
-                              setState(() {
-                                checkList.add(topicsToHear[index]);
-                              });
-                            },
-                          );
-                        }),
-                      ),
-                    )),
-              );
-            }
-            return Container();
-          }),
-    );
+                          )),
+                    );
+                  }
+                  return Container();
+                }),
+          ],
+        ));
   }
 }
 

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:just_talk/layouts/avatar_page.dart';
 import 'package:just_talk/layouts/info_page.dart';
 import 'package:just_talk/layouts/nickname_page.dart';
