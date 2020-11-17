@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_talk/widgets/results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 
@@ -164,152 +165,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width - 100,
-              height: MediaQuery.of(context).size.height / 3,
-              child: Material(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      children: [
-                        Icon(
-                          Icons.add_alarm,
-                          size: 40,
-                          color: Color(0xffff3f82),
-                        ),
-                        Text(
-                          '5 min',
-                          style: TextStyle(color: Color(0xffff3f82)),
-                        )
-                      ],
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.all(2),
-                                    padding: EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        border: Border.all(
-                                            width: 2,
-                                            color: Color(0xff959595))),
-                                    child: Icon(
-                                      Icons.hearing,
-                                      size: 30,
-                                      color: Color(0xff959595),
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.topCenter,
-                                    width: 70,
-                                    child: Text(
-                                      'Buen oyente',
-                                      maxLines: 2,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Color(0xff959595),
-                                          fontSize: 10),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Column(
-                                //mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.all(2),
-                                    padding: EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        border: Border.all(
-                                            width: 2,
-                                            color: Color(0xff959595))),
-                                    child: Icon(
-                                      Icons.mood,
-                                      size: 30,
-                                      color: Color(0xff959595),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 70,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Buen conversador',
-                                      maxLines: 2,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Color(0xff959595),
-                                          fontSize: 10),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                //crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        border: Border.all(
-                                            width: 2,
-                                            color: Color(0xff959595))),
-                                    child: Icon(
-                                      Icons.sentiment_very_satisfied_rounded,
-                                      size: 30,
-                                      color: Color(0xff959595),
-                                    ),
-                                  ),
-                                  Container(
-                                      width: 70,
-                                      alignment: Alignment.center,
-                                      child: Text('Divertido',
-                                          maxLines: 2,
-                                          style: TextStyle(
-                                              color: Color(0xff959595),
-                                              fontSize: 10)))
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10)
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacementNamed(context, '/home');
-                      },
-                      child: Text(
-                        'FINALIZAR',
-                        style: TextStyle(
-                            letterSpacing: 2,
-                            color: Color(0xffff3f82),
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
+          return Results();
         });
   }
 
@@ -491,6 +347,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     );
   }
 }
+
 
 // ignore: must_be_immutable
 class Countdown extends AnimatedWidget {

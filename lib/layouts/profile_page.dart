@@ -9,7 +9,6 @@ import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
-
   ProfilePage({this.index, this.navbarCubit, this.userService});
 
   final int index;
@@ -82,11 +81,10 @@ class _ProfilePageState extends State<ProfilePage> {
   ];
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -290,19 +288,21 @@ class _ProfilePageState extends State<ProfilePage> {
           }),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.sentiment_very_satisfied_rounded),
-              label: 'Just Talk',             
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.sentiment_very_satisfied_rounded,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.star_rounded, color: Color(0xFF73000000)),
-              label: 'Amigos',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
-              label: 'Mi perfil',
-            ),
-          ],
+            label: 'Just Talk',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star_rounded),
+            label: 'Amigos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Mi perfil',
+          ),
+        ],
         currentIndex: widget.index,
         onTap: (index) {
           switch (index) {

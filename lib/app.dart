@@ -83,6 +83,17 @@ class _AppViewState extends State<AppView> {
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'ArialRounded',
             accentColor: Color(0xffff3f82),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              unselectedIconTheme: IconThemeData(
+                color: Color(0xFF73000000)
+              ),
+              selectedIconTheme: IconThemeData(
+                color: Colors.black
+              ),
+              selectedLabelStyle: TextStyle(
+                fontWeight: FontWeight.bold
+              )
+            ),
             appBarTheme: AppBarTheme(
                 elevation: 0,
                 color: Colors.white,
