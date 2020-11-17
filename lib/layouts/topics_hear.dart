@@ -236,17 +236,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         ),
         body: Column(
           children: [
-            RaisedButton(
-              child: Text("chat"),
-              onPressed: () {
-                var roomId =
-                    "2BYa9FU72Pc2mkfuMUbnfcKaTvi2_ekL5G7VIhvSxBpPjbDK2UAj7ZmF3";
-
-                sharedPreferences.setString("chatCol", "discoveries");
-                sharedPreferences.setString("roomId", roomId);
-                Navigator.pushReplacementNamed(context, '/chat');
-              },
-            ),
             BlocBuilder<TopicHearCubit, TopicHearState>(
                 cubit: topicHearCubit,
                 builder: (context, TopicHearState topicHearState) {
