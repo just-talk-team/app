@@ -114,6 +114,8 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             onWillPop: () {},
             child: Center(
               child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
                 width: MediaQuery.of(context).size.width - 100,
                 height: MediaQuery.of(context).size.height / 3,
                 child: Material(

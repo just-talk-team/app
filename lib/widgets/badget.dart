@@ -57,7 +57,7 @@ class _BadgetState extends State<Badget> {
                         : Colors.black.withOpacity(0.5))),
             child: Icon(
               widget._icon,
-              size: 40,
+              size: 30,
               color:
                   selected ? Color(0xffb3a407) : Colors.black.withOpacity(0.5),
             ),
