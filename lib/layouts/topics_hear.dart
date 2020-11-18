@@ -96,8 +96,8 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   void dispose() async {
     super.dispose();
-    await discoveryCubit.close();
     _timer.cancel();
+    await discoveryCubit.close();
   }
 
   void chatReady(String room) {
@@ -108,14 +108,17 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
           return WillPopScope(
-            onWillPop: () {},
+            onWillPop: () async {
+              return true;
+            },
             child: Center(
               child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
                 width: MediaQuery.of(context).size.width - 100,
                 height: MediaQuery.of(context).size.height / 3,
                 child: Material(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                   elevation: 20,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -236,16 +239,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         ),
         body: Column(
           children: [
-            RaisedButton(
-              child: Text("chat"),
-              onPressed: () {
-                var roomId =
-                    "cejXgSpWtiQnTp3q0nyyJkrapv52_FwhRosqrvyeBat3MDuoymrIFEdr1";
-                sharedPreferences.setString("chatCol", "discoveries");
-                sharedPreferences.setString("roomId", roomId);
-                Navigator.pushReplacementNamed(context, '/chat');
-              },
-            ),
             BlocBuilder<TopicHearCubit, TopicHearState>(
                 cubit: topicHearCubit,
                 builder: (context, TopicHearState topicHearState) {
