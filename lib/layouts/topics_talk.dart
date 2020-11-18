@@ -171,9 +171,9 @@ class _TopicsTalk extends State<TopicsTalk> {
                   controller: topicsTalkController,
                   decoration: InputDecoration(
                     hintText: 'Puedo hablar de ...',
-                    border: OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(color: Colors.grey, width: 2.0),
+                          BorderSide(color: Colors.grey, width: 2.0),
                     ),
                   ),
                 ),

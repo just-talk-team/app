@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:intl/intl.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
+import 'dart:async';
 
 class Chat extends StatefulWidget {
   @override
@@ -23,69 +22,111 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   final auth.FirebaseAuth _auth =
       auth.FirebaseAuth.instance; //Instancia de Firebase
   auth.User _currentUser;
+  List<dynamic> uidDynamic = List<dynamic>();
 
   String userId1 = "";
   String userId2 = "";
 
-  String chatId = "";
+  String roomId = "";
   String chatCol = "";
   List<CustomText> messages = [];
   AnimationController _controller;
   int levelClock = 301;
   Stream chatMessages;
+  UserInfo yourUserInfo;
   UserInfo userInfo;
+
+  var badgets = [1, 1, 1];
+
+  //==========================
+  String _photoUrl = "";
+  String _nickname = "";
+  String _age = "";
+  String _gender = "";
+  bool _isFriend = false;
+  bool _hasData = false;
+  bool _chatReady;
+
   ScrollController _scrollController;
 
-  getChatId() async {
+  Future recoverChatInfo() async {
     sharedPreferences = await SharedPreferences.getInstance();
     _currentUser = _auth.currentUser;
-
-    chatId = sharedPreferences.getString("roomId");
-    chatCol = sharedPreferences.getString("chatCol");
-    debugPrint("RoomId : " + chatId);
-    debugPrint("chatCol : " + chatCol);
-    var str1 = chatId.substring(0, 28);
-    var str2 = chatId.substring(29, 57);
     String uid = _currentUser.uid;
 
-    debugPrint("uid : " + uid);
-    debugPrint("str1 : " + str1);
-    debugPrint("str2 : " + str2);
+    roomId = sharedPreferences.getString("roomId");
+    chatCol = sharedPreferences.getString("chatCol");
+
+    var str1 = roomId.substring(0, 28);
+    var str2 = roomId.substring(29, 57);
+
     if (str1.compareTo(uid) == 0) {
-      debugPrint("User is  str1");
       userId1 = str1;
       userId2 = str2;
     } else {
-      debugPrint("User is str2");
       userId1 = str2;
       userId2 = str1;
     }
-    FirebaseFirestore.instance.collection("users").doc(uid);
 
+    List<String> badgets = List<String>();
+    //load your data (check if userId its in friendList)====================================================================
+    DocumentReference yourUserDoc =
+        FirebaseFirestore.instance.collection("users").doc(userId1);
+
+    yourUserDoc.get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        var data = documentSnapshot.data();
+        DateTime birthdate = data['birthdate'].toDate();
+
+        int age =
+            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+
+        yourUserInfo = UserInfo(
+            nickname: data['nickname'],
+            photo: data['avatar'],
+            preferences: null,
+            gender: EnumToString.fromString(Gender.values, data['gender']),
+            age: age,
+            birthdate: data['birthdate'].toDate(),
+            filters: null,
+            id: userId1);
+      } else {}
+    });
+
+    debugPrint("Badgets isze; " + badgets.length.toString());
+    //Search frieden on user friend list===============================================
+
+    var findFriendOnList = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId1)
+        .collection("friends")
+        .where('roomId', isEqualTo: roomId)
+        .get();
+
+    findFriendOnList.then((value) {
+      if (value.docs.isNotEmpty) {
+        _isFriend = true;
+      }
+    });
+
+    //Recover message stream==============================================================
     chatMessages = FirebaseFirestore.instance
         .collection(chatCol)
-        .doc(chatId)
+        .doc(roomId)
         .collection("messages")
         .snapshots();
 
-    //Return Current user ===================================================================
+    //Return another user ===================================================================
     DocumentReference userDoc =
-        FirebaseFirestore.instance.collection("users").doc(_currentUser.uid);
+        FirebaseFirestore.instance.collection("users").doc(userId2);
 
     userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
-        debugPrint("nickname : " + data['nickname']);
-        debugPrint("photo : " + data['avatar']);
         DateTime birthdate = data['birthdate'].toDate();
-        var formattedDate =
-            DateFormat.yMMMd().format(data['birthdate'].toDate());
-        int age =
-            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
 
-        debugPrint("age : " + age.toString());
-        debugPrint("birthday : " + formattedDate);
-        debugPrint("uid : " + _currentUser.uid);
+        int age =
+            (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         userInfo = UserInfo(
             nickname: data['nickname'],
@@ -95,11 +136,18 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             age: age,
             birthdate: data['birthdate'].toDate(),
             filters: null,
-            id: _currentUser.uid);
+            id: userId2);
+
+        if (userInfo.photo != null) _photoUrl = userInfo.photo;
+        _gender = describeEnum(userInfo.gender);
+        _age = userInfo.age.toString();
+        _nickname = userInfo.nickname;
+
+        setState(() {
+          _hasData = true;
+        });
       }
     });
-
-    setState(() {});
   }
 
   Future<UserInfo> loadUserData() async {
@@ -115,7 +163,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         DateTime birthdate = data['birthdate'].toDate();
         var formattedDate =
             DateFormat.yMMMd().format(data['birthdate'].toDate());
-/*
+        /*
         var year = data['birthdate'].toDate().year;
         var month = data['birthdate'].toDate().month;
         var day = data['birthdate'].toDate().day;
@@ -127,7 +175,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             " - " +
             day.toString());*/
         int age =
-            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+            (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         debugPrint("age : " + age.toString());
         debugPrint("birthday : " + formattedDate);
@@ -163,15 +211,23 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    getChatId();
+    _chatReady = false;
+    recoverChatInfo();
     _startClock();
   }
 
+  @override
+  void dispose() {
+    _controller.stop();
+    super.dispose();
+  }
+
   Widget chatMessagesList() {
+    _chatReady = true;
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection(chatCol)
-            .doc(chatId)
+            .doc(roomId)
             .collection("messages")
             .orderBy("time", descending: false)
             .snapshots(),
@@ -229,6 +285,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           ),
                         ),
                         GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, true);
+                          },
                           child: Text(
                             'CANCELAR',
                             style: TextStyle(
@@ -260,24 +319,97 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         });
   }
 
-  sendMessage(text, type) {
+  Future<void> sendMessage(text, type) async {
     Map<String, dynamic> message = {
       'user': userId1,
       'message': text.toString(),
       'time': DateTime.now().millisecondsSinceEpoch
     };
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection(chatCol)
-        .doc(chatId)
+        .doc(roomId)
         .collection("messages")
         .add(message);
-    messages.add(CustomText(text, type, _currentUser.uid));
 
-    setState(() {});
+    messages.add(CustomText(text, type, _currentUser.uid));
+  }
+
+  addFriend() {
+    //Recover elements
+    List<dynamic> uidList = List<dynamic>();
+    DocumentReference docFriends =
+        FirebaseFirestore.instance.collection("friends").doc(roomId);
+
+    //Add select friend to friend collections
+    var currentChat = FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId1)
+        .collection("friends")
+        .where('roomId', isEqualTo: roomId)
+        .get();
+
+    currentChat.then((value) {
+      if (value.docs.isNotEmpty) {
+        //El valor existe
+        docFriends.get().then((value) {
+          if (value.exists) {
+            var data = value.data();
+            uidList = data['friends'];
+          }
+        });
+
+        uidList.remove(userId1);
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(userId1)
+            .collection("friends")
+            .doc(value.docs[0].id)
+            .delete();
+
+        FirebaseFirestore.instance
+            .collection("friends")
+            .doc(roomId)
+            .set({"Friends": FieldValue.arrayUnion(uidList)});
+        _isFriend = false;
+        setState(() {});
+      } else {
+        //El valor no existe
+
+        docFriends.get().then((value) {
+          if (value.exists) {
+            var data = value.data();
+            uidList = data['friends'];
+          }
+        });
+
+        uidList.add(userId1);
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(_currentUser.uid)
+            .collection("friends")
+            .add({"friend": userId2, "roomId": roomId});
+
+        FirebaseFirestore.instance
+            .collection("friends")
+            .doc(roomId)
+            .set({"friends": FieldValue.arrayUnion(uidList)});
+        _isFriend = true;
+        setState(() {});
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    Timer(Duration(milliseconds: 200), () {
+      try {
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            curve: Curves.easeOut, duration: const Duration(milliseconds: 400));
+      } catch (exception) {
+        print("Messages empty");
+      }
+    });
+
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: true,
@@ -285,10 +417,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         elevation: 2,
         toolbarHeight: 100,
         automaticallyImplyLeading: false,
-        title: FutureBuilder(
-          future: loadUserData(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
+        title: Builder(
+          builder: (BuildContext context) {
+            if (_hasData) {
               return Row(
                 children: [
                   Container(
@@ -308,7 +439,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       shape: BoxShape.circle,
                       image: DecorationImage(image: NetworkImage(
                           //snapshot.data.nickname,
-                          userInfo.photo), fit: BoxFit.fill),
+                          _photoUrl), fit: BoxFit.fill),
                     ),
                   ),
                   Column(
@@ -319,7 +450,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: new Text(
-                              userInfo.nickname,
+                              _nickname,
                               maxLines: 2,
                               textAlign: TextAlign.center,
                             ),
@@ -328,7 +459,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         Row(
                           children: [
                             Text(
-                              describeEnum(userInfo.gender),
+                              _gender,
                               //snapshot.data.gender.toString(),
                               style: TextStyle(
                                   fontSize: 15,
@@ -337,7 +468,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             ),
                             Text(' | '),
                             Text(
-                              userInfo.age.toString() + " años",
+                              _age + " años",
                               style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -347,16 +478,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           ],
                         ),
                       ]),
-                  Spacer(),
-                  Column(
-                    children: [
-                      Icon(
-                        Icons.star_border_rounded,
-                        size: 30,
-                        color: Color(0xffb31049),
-                      ),
-                    ],
-                  )
                 ],
               );
             } else {
@@ -364,6 +485,26 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             }
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    addFriend();
+                  },
+                  icon: _isFriend
+                      ? Icon(Icons.star_rounded)
+                      : Icon(Icons.star_border_rounded),
+                  iconSize: 30,
+                  color: Color(0xffb31049),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
       body: Container(
           margin: EdgeInsets.all(10),
@@ -406,13 +547,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     ),
                   ),
                   Expanded(
-                      child: Container(
-                          child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: [chatMessagesList()],
-                    ),
-                  )))
+                      child: roomId != "" ? chatMessagesList() : Container())
                 ],
               ))),
               Padding(
@@ -421,35 +556,31 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   children: [
                     Expanded(
                       flex: 8,
-                      child: Container(
-                          child: SingleChildScrollView(
-                        reverse: true,
-                        child: TextField(
-                          maxLength: 140,
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 2.0),
-                            ),
-                            hintText: 'Escribe aqui el mensaje...',
+                      child: TextField(
+                        maxLength: 140,
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 2.0),
                           ),
+                          hintText: 'Escribe aqui el mensaje...',
                         ),
-                      )),
+                      ),
                     ),
                     Expanded(
                       flex: 2,
                       child: GestureDetector(
-                        onTap: ()  {
+                        onTap: () async {
                           if (_messageController.text.length > 0) {
+                            await sendMessage(_messageController.text, userId1);
+                            _messageController.clear();
+                            FocusScope.of(context).requestFocus(FocusNode());
                             _scrollController.animateTo(
                               _scrollController.position.maxScrollExtent,
                               curve: Curves.easeOut,
-                              duration: const Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 400),
                             );
-                            sendMessage(_messageController.text, userId1);
-                            _messageController.clear();
-                            FocusScope.of(context).requestFocus(FocusNode());
                           }
                         },
                         child: Icon(Icons.send_rounded,
