@@ -58,7 +58,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
       userService.setTopicsToHear(checkList, id);
-      checkList.clear();
     });
   }
 
