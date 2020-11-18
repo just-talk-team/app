@@ -31,7 +31,6 @@ class _AvatarPage extends State<AvatarPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         //Title
         Container(
@@ -43,45 +42,17 @@ class _AvatarPage extends State<AvatarPage> {
                     TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               )),
         ),
-        Column(
-          children: [
-            AutoSizeText(
-              "No elijas una foto tuya!",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 80),
+          child: AutoSizeText(
+            "Elige una imagen que te represente!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
-            AutoSizeText(
-              "Elige algo que te",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-            ),
-            AutoSizeText(
-              "represente",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-            ),
-            AutoSizeText(
-              "a ti",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-            ),
-          ],
+            maxLines: 2,
+          ),
         ),
 
         //Content

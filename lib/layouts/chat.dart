@@ -214,6 +214,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _chatReady = false;
     recoverChatInfo();
     _startClock();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print(_scrollController.position.maxScrollExtent);
+    });
   }
 
   @override

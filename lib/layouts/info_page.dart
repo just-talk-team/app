@@ -78,7 +78,7 @@ class _InfoPage extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         //Title
         Container(
@@ -88,15 +88,15 @@ class _InfoPage extends State<InfoPage> {
             ),
           ),
         Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
             child: AutoSizeText(
-              "Bríndanos tus datos para conversar al instante con otras personas que quieren escucharte!",
+              "Mantén conversaciones interesantes",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
-              maxLines: 5,
+              maxLines: 2,
             ),
           ),
 
@@ -104,7 +104,6 @@ class _InfoPage extends State<InfoPage> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               MyTextFieldDatePicker(
                 key: Key('DatePicker'),
