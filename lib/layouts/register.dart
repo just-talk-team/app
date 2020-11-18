@@ -67,11 +67,11 @@ class _Register extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomPadding: true,
       body: SafeArea(
         child: Column(children: <Widget>[
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Container(
               margin: EdgeInsets.only(top: 50),
               child: Row(
@@ -94,7 +94,7 @@ class _Register extends State<Register> {
             ),
           ),
           Expanded(
-            flex: 15,
+            flex: 10,
             child: PageView(key: Key("pageview"), controller: controller,
                 //physics: new NeverScrollableScrollPhysics(),
                 children: <Widget>[
