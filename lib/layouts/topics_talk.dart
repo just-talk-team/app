@@ -172,8 +172,7 @@ class _TopicsTalk extends State<TopicsTalk> {
                   decoration: InputDecoration(
                     hintText: 'Puedo hablar de ...',
                     enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.grey, width: 2.0),
+                      borderSide: BorderSide(color: Colors.grey, width: 2.0),
                     ),
                   ),
                 ),
@@ -188,8 +187,9 @@ class _TopicsTalk extends State<TopicsTalk> {
                       if (!changed) {
                         changed = true;
                       }
-                      topicsTalk.add(
-                          Topic(topicsTalkController.text, DateTime.now()));
+                      topicsTalk.add(Topic(
+                          topicsTalkController.text.toLowerCase(),
+                          DateTime.now()));
                       topicsTalkController.clear();
                     });
                   },
