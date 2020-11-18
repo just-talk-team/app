@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:intl/intl.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
+import 'dart:async';
 
 class Chat extends StatefulWidget {
   @override
@@ -260,20 +259,19 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         });
   }
 
-  sendMessage(text, type) {
+  Future<void> sendMessage(text, type) async {
     Map<String, dynamic> message = {
       'user': userId1,
       'message': text.toString(),
       'time': DateTime.now().millisecondsSinceEpoch
     };
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection(chatCol)
         .doc(chatId)
         .collection("messages")
         .add(message);
-    messages.add(CustomText(text, type, _currentUser.uid));
 
-    setState(() {});
+    messages.add(CustomText(text, type, _currentUser.uid));
   }
 
   @override
@@ -347,16 +345,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           ],
                         ),
                       ]),
-                  Spacer(),
-                  Column(
-                    children: [
-                      Icon(
-                        Icons.star_border_rounded,
-                        size: 30,
-                        color: Color(0xffb31049),
-                      ),
-                    ],
-                  )
                 ],
               );
             } else {
@@ -364,6 +352,28 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             }
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      curve: Curves.easeOut,
+                      duration: const Duration(milliseconds: 300),
+                    );
+                  },
+                  icon: Icon(Icons.star_border_rounded),
+                  iconSize: 30,
+                  color: Color(0xffb31049),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
       body: Container(
           margin: EdgeInsets.all(10),
@@ -405,14 +415,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  Expanded(
-                      child: Container(
-                          child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: [chatMessagesList()],
-                    ),
-                  )))
+                  Expanded(child: chatMessagesList())
                 ],
               ))),
               Padding(
@@ -421,35 +424,31 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   children: [
                     Expanded(
                       flex: 8,
-                      child: Container(
-                          child: SingleChildScrollView(
-                        reverse: true,
-                        child: TextField(
-                          maxLength: 140,
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 2.0),
-                            ),
-                            hintText: 'Escribe aqui el mensaje...',
+                      child: TextField(
+                        maxLength: 140,
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 2.0),
                           ),
+                          hintText: 'Escribe aqui el mensaje...',
                         ),
-                      )),
+                      ),
                     ),
                     Expanded(
                       flex: 2,
                       child: GestureDetector(
-                        onTap: ()  {
+                        onTap: () async {
                           if (_messageController.text.length > 0) {
+                            await sendMessage(_messageController.text, userId1);
+                            _messageController.clear();
+                            FocusScope.of(context).requestFocus(FocusNode());
                             _scrollController.animateTo(
                               _scrollController.position.maxScrollExtent,
                               curve: Curves.easeOut,
                               duration: const Duration(milliseconds: 300),
                             );
-                            sendMessage(_messageController.text, userId1);
-                            _messageController.clear();
-                            FocusScope.of(context).requestFocus(FocusNode());
                           }
                         },
                         child: Icon(Icons.send_rounded,
