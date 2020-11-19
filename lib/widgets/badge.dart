@@ -1,14 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-class Badget extends StatefulWidget {
-  Badget(
+class Badge extends StatefulWidget {
+  Badge(
       {@required bool selected,
       @required IconData icon,
       @required String text,
       @required Function(bool) valueChanged,
       double iconSize = 30,
-      double textSize = 14})
+      double textSize = 14,
+      Color selectedColor = const Color(0xffb3a407)})
       : assert(selected != null),
         assert(icon != null),
         assert(text != null),
@@ -18,7 +19,8 @@ class Badget extends StatefulWidget {
         _valueChanged = valueChanged,
         _text = text,
         _iconSize = iconSize,
-        _textSize = textSize;
+        _textSize = textSize,
+        _selectedColor = selectedColor;
 
   final bool _selected;
   final IconData _icon;
@@ -26,12 +28,13 @@ class Badget extends StatefulWidget {
   final Function(bool) _valueChanged;
   final double _iconSize;
   final double _textSize;
+  final Color _selectedColor;
 
   @override
-  _BadgetState createState() => _BadgetState();
+  _BadgeState createState() => _BadgeState();
 }
 
-class _BadgetState extends State<Badget> {
+class _BadgeState extends State<Badge> {
   bool selected;
 
   @override
@@ -58,13 +61,13 @@ class _BadgetState extends State<Badget> {
                 border: Border.all(
                     width: 2,
                     color: selected
-                        ? Color(0xffb3a407)
+                        ? widget._selectedColor
                         : Colors.black.withOpacity(0.5))),
             child: Icon(
               widget._icon,
               size: widget._iconSize,
               color: selected
-                  ? Color(0xffb3a407)
+                  ? widget._selectedColor
                   : Colors.black.withOpacity(0.5),
             ),
           ),
@@ -74,7 +77,7 @@ class _BadgetState extends State<Badget> {
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: selected
-                    ? Color(0xffb3a407)
+                    ? widget._selectedColor
                     : Colors.black.withOpacity(0.5),
                 fontSize: widget._textSize),
           ),
