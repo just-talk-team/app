@@ -492,6 +492,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       shape: BoxShape.circle,
                     ),
                     child: CircleAvatar(
+                      backgroundColor: Colors.grey,
                       radius: 25,
                       backgroundImage: NetworkImage(_photoUrl),
                     ),
