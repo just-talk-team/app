@@ -214,10 +214,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _chatReady = false;
     recoverChatInfo();
     _startClock();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      print(_scrollController.position.maxScrollExtent);
-    });
   }
 
   @override
@@ -257,18 +253,24 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             Animation secondAnimation) {
           return Center(
             child: Container(
-              width: MediaQuery.of(context).size.width - 100,
-              height: MediaQuery.of(context).size.height / 3,
+              width: MediaQuery.of(context).size.width - 120,
+              height: MediaQuery.of(context).size.height / 5,
               child: Material(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Esta seguro que quiere abandonar el chat?',
-                        style:
-                            TextStyle(color: Color(0xff959595), fontSize: 15),
+                        '¿Esta seguro de que quiere abandonar el chat?',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontFamily: 'Roboto'),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     Row(
@@ -276,29 +278,36 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       children: [
                         GestureDetector(
                           onTap: () {
+                            Navigator.pop(context);
                             finishChat();
                             //Navigator.pushReplacementNamed(context, '/home');
                           },
-                          child: Text(
-                            'ACEPTAR',
-                            style: TextStyle(
-                                letterSpacing: 2,
-                                color: Color(0xffff3f82),
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                            child: Text(
+                              'ACEPTAR',
+                              style: TextStyle(
+                                  letterSpacing: 2,
+                                  color: Color(0xffff3f82),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context, true);
                           },
-                          child: Text(
-                            'CANCELAR',
-                            style: TextStyle(
-                                letterSpacing: 2,
-                                color: Color(0xffff3f82),
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
+                            child: Text(
+                              'CANCELAR',
+                              style: TextStyle(
+                                  letterSpacing: 2,
+                                  color: Color(0xffff3f82),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         )
                       ],
@@ -319,7 +328,16 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Results();
+          return Center(
+            child: Container(
+                width: MediaQuery.of(context).size.width - 50,
+                height: MediaQuery.of(context).size.height / 3,
+                child: Material(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Results(roomId: roomId, userId: _currentUser.uid))),
+          );
         });
   }
 
@@ -407,8 +425,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Timer(Duration(milliseconds: 200), () {
       try {
-        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-            curve: Curves.easeOut, duration: const Duration(milliseconds: 400));
+        if (messages.length > 0) {
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 400));
+        }
       } catch (exception) {
         print("Messages empty");
       }
