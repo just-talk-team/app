@@ -12,7 +12,7 @@ class RemoteService {
     final defaults = <String, dynamic>{'BadgesView': '1'};
 
     await remoteConfig.setDefaults(defaults);
-    await remoteConfig.fetch(expiration: const Duration(hours: 12));
+    await remoteConfig.fetch(expiration: const Duration(hours: 5));
     await remoteConfig.activateFetched();
   }
   RemoteConfig get remoteConfig => _remoteConfig;

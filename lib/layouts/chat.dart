@@ -293,32 +293,27 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             finishChat();
                             //Navigator.pushReplacementNamed(context, '/home');
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                            child: Text(
-                              'ACEPTAR',
-                              style: TextStyle(
-                                  letterSpacing: 2,
-                                  color: Color(0xffff3f82),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                          child: Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
+                        SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context, true);
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
-                            child: Text(
-                              'CANCELAR',
-                              style: TextStyle(
-                                  letterSpacing: 2,
-                                  color: Color(0xffff3f82),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                          child: Text(
+                            'CANCELAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
                           ),
                         )
                       ],
@@ -339,36 +334,23 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Center(
-            child: Container(
-                width: MediaQuery.of(context).size.width - 50,
-                height: MediaQuery.of(context).size.height / 3,
-                child: Material(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Builder(builder: (context) {
-                      int randomNumber =
-                          int.parse(remoteConfig.getString('BadgesView'));
+          return Builder(builder: (context) {
+            int randomNumber = 
+            int.parse(remoteConfig.getString('BadgesView'));
 
-                      print("[RESULTS]: $randomNumber");
+            print("[RESULTS]: $randomNumber");
 
-                      switch (randomNumber) {
-                        case 1:
-                          return Results(
-                              roomId: roomId, userId: _currentUser.uid);
-                        case 2:
-                          return Results2(
-                              roomId: roomId, userId: _currentUser.uid);
-                        case 3:
-                          return Results3(
-                              roomId: roomId, userId: _currentUser.uid);
-                        default:
-                          return Results(
-                              roomId: roomId, userId: _currentUser.uid);
-                      }
-                    }))),
-          );
+            switch (randomNumber) {
+              case 1:
+                return Results(roomId: roomId, userId: _currentUser.uid);
+              case 2:
+                return Results2(roomId: roomId, userId: _currentUser.uid);
+              case 3:
+                return Results3(roomId: roomId, userId: _currentUser.uid);
+              default:
+                return Results(roomId: roomId, userId: _currentUser.uid);
+            }
+          });
         });
   }
 
