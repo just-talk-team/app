@@ -9,13 +9,13 @@ class BadgeService {
   BadgeService(
       {FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage})
       : _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance {
-    _badgets = badgets;
+    _badgets = badges;
   }
 
   FirebaseFirestore _firebaseFirestore;
   List<Tuple2<String, IconData>> _badgets;
 
-  Future<void> registerBadgets(
+  Future<void> registerBadges(
       List<bool> badgetsFlags, String roomID, String userID) async {
     var analytics = FirebaseAnalytics();
 

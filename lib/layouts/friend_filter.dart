@@ -9,7 +9,7 @@ import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:just_talk/widgets/badget.dart';
+import 'package:just_talk/widgets/badge.dart';
 
 class FriendFilter extends StatefulWidget {
   @override
@@ -285,19 +285,19 @@ class _PreferenceDataState extends State<PreferenceData> {
                 SizedBox(height: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(badgets.length, (index) {
-                      return Badget(
+                    children: List.generate(badges.length, (index) {
+                      return Badge(
                           selected: widget.preferences.badgets
-                              .contains(badgets[index].item1),
-                          icon: badgets[index].item2,
-                          text: badgets[index].item1,
+                              .contains(badges[index].item1),
+                          icon: badges[index].item2,
+                          text: badges[index].item1,
                           valueChanged: (bool selected) {
                             if (selected) {
                               widget.preferences.badgets.removeWhere(
-                                  (element) => element == badgets[index].item1);
+                                  (element) => element == badges[index].item1);
                             } else {
                               widget.preferences.badgets
-                                  .add(badgets[index].item1);
+                                  .add(badges[index].item1);
                             }
                           });
                     }))

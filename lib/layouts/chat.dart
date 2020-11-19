@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -48,6 +51,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   bool _chatReady;
 
   ScrollController _scrollController;
+  RemoteConfig remoteConfig;
 
   Future recoverChatInfo() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -205,12 +209,19 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         );
 
     _controller.forward();
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        leaveChat();
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    remoteConfig = RepositoryProvider.of<RemoteService>(context).remoteConfig;
     _chatReady = false;
     recoverChatInfo();
     _startClock();
@@ -232,7 +243,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             .orderBy("time", descending: false)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.data == null) return CircularProgressIndicator();
+          if (snapshot.data == null) return Container();
           return ListView.builder(
               controller: _scrollController,
               shrinkWrap: true,
@@ -336,7 +347,22 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Results(roomId: roomId, userId: _currentUser.uid))),
+                    child: Builder(builder: (context) {
+                      int randomNumber =
+                          int.parse(remoteConfig.getString('BadgesView'));
+
+                      switch(randomNumber){
+                        case 1:
+                          return Results(roomId: roomId, userId: _currentUser.uid);
+                        case 2:
+                        
+                        case 3:
+
+                        default:
+                          return Results(roomId: roomId, userId: _currentUser.uid);
+                      }
+                      
+                    }))),
           );
         });
   }
@@ -440,8 +466,8 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        elevation: 2,
-        toolbarHeight: 100,
+        elevation: 4,
+        toolbarHeight: 80,
         automaticallyImplyLeading: false,
         title: Builder(
           builder: (BuildContext context) {
@@ -449,38 +475,29 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               return Row(
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                    width: 60,
-                    height: 60,
+                    margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 1,
-                            offset: Offset(0, 3)),
+                            spreadRadius: 1.5,
+                            blurRadius: 1.5,
+                            offset: Offset(0, 3))
                       ],
-                      border: Border.all(
-                          width: 0.1, color: Colors.black.withOpacity(0.5)),
                       shape: BoxShape.circle,
-                      image: DecorationImage(image: NetworkImage(
-                          //snapshot.data.nickname,
-                          _photoUrl), fit: BoxFit.fill),
+                    ),
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundImage: NetworkImage(_photoUrl),
                     ),
                   ),
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 100,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: new Text(
-                              _nickname,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                        new Text(
+                          _nickname,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
                         ),
                         Row(
                           children: [
@@ -488,7 +505,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               _gender,
                               //snapshot.data.gender.toString(),
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
                             ),
@@ -496,7 +513,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             Text(
                               _age + " años",
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
                             ),
@@ -543,7 +560,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -557,11 +574,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         ),
                         Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 1),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
                               border: Border.all(
-                                  width: 2, color: Color(0xff959595))),
+                                  width: 2,
+                                  color: Colors.black.withOpacity(0.5))),
                           child: Countdown(
                             animation: StepTween(
                               begin: levelClock,
@@ -582,15 +600,18 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   children: [
                     Expanded(
                       flex: 8,
-                      child: TextField(
-                        maxLength: 140,
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.grey, width: 2.0),
+                      child: Container(
+                        height: 50.0,
+                        child: TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 2.0),
+                            ),
+                            hintText: 'Escribe aqui el mensaje...',
+                            contentPadding: EdgeInsets.all(10.0),
                           ),
-                          hintText: 'Escribe aqui el mensaje...',
                         ),
                       ),
                     ),
@@ -638,7 +659,7 @@ class Countdown extends AnimatedWidget {
     return Container(
       child: Text(
         "$timerText",
-        style: TextStyle(fontSize: 18),
+        style: TextStyle(fontSize: 18, color: Colors.black.withOpacity(0.5)),
         textAlign: TextAlign.center,
       ),
     );

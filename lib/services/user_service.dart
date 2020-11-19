@@ -63,7 +63,7 @@ class UserService {
           .set({'email': element.item1});
     });
 
-    badgets.forEach((element) async {
+    badges.forEach((element) async {
       await newUser.collection('badgets').doc(element.item1).set({'count': 0});
     });
   }
