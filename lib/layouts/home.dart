@@ -6,6 +6,7 @@ import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/layouts/contact_page.dart';
 import 'package:just_talk/layouts/home_page.dart';
 import 'package:just_talk/layouts/profile_page.dart';
+import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class Home extends StatefulWidget {
@@ -46,7 +47,10 @@ class _HomeState extends State<Home> {
               userService: RepositoryProvider.of<UserService>(context),
               );
           default:
-            return HomePage(0, _navbarCubit);
+            return RepositoryProvider.value(
+              value: RepositoryProvider.of<RemoteService>(context),
+              child: HomePage(0, _navbarCubit)
+              );
         }
       },
     );
