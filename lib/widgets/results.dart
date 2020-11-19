@@ -94,6 +94,7 @@ class Results extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class Results2 extends StatelessWidget {
   Results2({Key key, String roomId, String userId}) : super(key: key) {
     _roomId = roomId;
@@ -172,6 +173,7 @@ class Results2 extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class Results3 extends StatelessWidget {
   Results3({Key key, String roomId, String userId}) : super(key: key) {
     _roomId = roomId;

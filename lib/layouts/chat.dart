@@ -351,17 +351,22 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       int randomNumber =
                           int.parse(remoteConfig.getString('BadgesView'));
 
-                      switch(randomNumber){
-                        case 1:
-                          return Results(roomId: roomId, userId: _currentUser.uid);
-                        case 2:
-                        
-                        case 3:
+                      print("[RESULTS]: $randomNumber");
 
+                      switch (randomNumber) {
+                        case 1:
+                          return Results(
+                              roomId: roomId, userId: _currentUser.uid);
+                        case 2:
+                          return Results2(
+                              roomId: roomId, userId: _currentUser.uid);
+                        case 3:
+                          return Results3(
+                              roomId: roomId, userId: _currentUser.uid);
                         default:
-                          return Results(roomId: roomId, userId: _currentUser.uid);
+                          return Results(
+                              roomId: roomId, userId: _currentUser.uid);
                       }
-                      
                     }))),
           );
         });
