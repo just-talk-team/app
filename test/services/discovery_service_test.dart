@@ -46,26 +46,4 @@ void main() {
     expect(data['activated'], true);
   });
 
-  test('Activate room', () async {
-    //arrange
-    createUser('example1', true);
-    createUser('example2', false);
-
-    stream = discoveryService
-        .getRoom('example')
-        .listen((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((element) {
-        expect(element.data()['activated'], true);
-      });
-    });
-
-    //execute
-    await discoveryService.activateUser('example', 'example2');
-
-    //verify
-  });
-
-  tearDownAll(() {
-    stream.cancel();
-  });
 }

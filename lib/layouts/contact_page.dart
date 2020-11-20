@@ -43,7 +43,9 @@ Widget contactList(List<Contact> contacts) {
               style: Theme.of(context).textTheme.bodyText1,
             ),
           ),
-          leading: Icon(Icons.account_circle, size: 50),
+          leading: CircleAvatar(
+              backgroundColor: Colors.grey,
+              backgroundImage: NetworkImage(contacts[index].photo)),
         ),
       );
     },
@@ -166,7 +168,7 @@ class _ContactPageState extends State<ContactPage> {
       body: BlocBuilder<ContactCubit, ContactsState>(builder: (context, state) {
         switch (state.runtimeType) {
           case ContactsEmpty:
-            return Container();
+            return Center(child: CircularProgressIndicator());
           case ContactsResult:
             return contactList((state as ContactsResult).contacts);
           default:
@@ -178,7 +180,7 @@ class _ContactPageState extends State<ContactPage> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.sentiment_very_satisfied_rounded,
-             ),
+            ),
             label: 'Just Talk',
           ),
           BottomNavigationBarItem(

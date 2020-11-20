@@ -19,29 +19,28 @@ class ContactCubit extends Cubit<ContactsState> {
   void init() async {
     _contactsInfo = await _userService.getFilteredValidatedContacts(_userId);
 
-    for (int i = 0; i < _contactsInfo.length; ++i) {
+    for (Tuple2<UserInfo, String> contactInfo in _contactsInfo) {
       Stream<QuerySnapshot> stream =
-          _userService.getLastMessage(_contactsInfo[i].item2);
+          _userService.getLastMessage(contactInfo.item2);
 
       _streams.add(stream.listen((query) {
-        var doc = query.docs[0];
+        if (query.docs.length > 0) {
+          var doc = query.docs[0].data();
 
-        Tuple2<UserInfo, String> userInfo = _contactsInfo
-            .where((element) => element.item1 == doc.data()['userId'])
-            .toList()[0];
+          Contact contact = Contact(
+              id: contactInfo.item1.id,
+              name: contactInfo.item1.nickname,
+              photo: contactInfo.item1.photo,
+              roomId: contactInfo.item2,
+              lastMessage: doc['message'],
+              lastMessageTime: doc['time'].toDate());
 
-        Contact contact = Contact(
-            id: userInfo.item1.id,
-            name: userInfo.item1.nickname,
-            photo: userInfo.item1.photo,
-            roomId: userInfo.item2,
-            lastMessage: doc.data()['message'],
-            lastMessageTime: doc.data()['time']);
-
-        if (_contacts.contains(contact)) {
-          _contacts.remove(contact);
+          if (_contacts.contains(contact)) {
+            _contacts.remove(contact);
+          }
+          _contacts.add(contact);
         }
-        _contacts.add(contact);
+
         emit(ContactsResult(_contacts.toList()));
       }));
     }

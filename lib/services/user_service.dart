@@ -101,7 +101,7 @@ class UserService {
 
         DateTime birthdate = data['birthdate'].toDate();
         int age =
-            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+            (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         user = UserInfo(
             nickname: data['nickname'],
@@ -225,7 +225,7 @@ class UserService {
 
   Future<List<Tuple2<UserInfo, String>>> getFilteredValidatedContacts(
       String id) async {
-    List<String> usersRoom = [];
+    List<Tuple2<String, String>> usersRoom = [];
     List<Tuple2<UserInfo, String>> contacts = [];
     Preferences filter = await getFilters(id);
 
@@ -235,33 +235,33 @@ class UserService {
         .collection('friends')
         .get()
         .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((element) {
-        usersRoom.add(element.id);
+      querySnapshot.docs.forEach((document) {
+        usersRoom
+            .add(Tuple2(document.data()['roomId'], document.data()['friend']));
       });
     });
 
-    for (String userRoom in usersRoom) {
-      var doc = await _firebaseFirestore
-          .collection('friends')
-          .doc(userRoom)
-          .collection('users')
-          .where((element) => element.id != id)
-          .get();
+    for (Tuple2<String, String> userRoomData in usersRoom) {
+      String roomId = userRoomData.item1;
+      String friendId = userRoomData.item2;
 
-      if (doc != null && doc.docs.length > 0) {
-        String contactId = doc.docs[0].id;
+      DocumentSnapshot documentSnapshot =
+          await _firebaseFirestore.collection('friends').doc(roomId).get();
 
-        var userInfo = await getUser(contactId, true, true);
-        var segments = await getSegments(contactId);
-        var badgets = await getBadgets(contactId);
+      List<String> friends = documentSnapshot.data()['friends'].cast<String>();
 
-        if (userInfo.age >= filter.minimunAge &&
+      if (friends.contains(friendId)) {
+        var userInfo = await getUser(friendId, false, false);
+        var segments = await getSegments(friendId);
+        var badgets = await getBadgets(friendId);
+
+        /*if (userInfo.age >= filter.minimunAge &&
             userInfo.age <= filter.maximumAge &&
             _validateSegment(filter.segments, segments) &&
             _validateBadgets(filter.badgets, badgets) &&
-            _validateGender(filter.genders, userInfo.gender)) {
-          contacts.add(Tuple2(userInfo, userRoom));
-        }
+            _validateGender(filter.genders, userInfo.gender)) {*/
+          contacts.add(Tuple2(userInfo, roomId));
+        //}
       }
     }
     return contacts;
@@ -379,7 +379,7 @@ class UserService {
   Future<Preferences> getPreferences(String id) async {
     var user = await _firebaseFirestore.collection("users").doc(id).get();
     var data = user.data();
-    
+
     return Preferences(
         minimunAge: data['preferences']['ages'].cast<int>()[0],
         maximumAge: data['preferences']['ages'].cast<int>()[1],
