@@ -1,6 +1,5 @@
 //INFO PAGE ======================================================================
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_input.dart';

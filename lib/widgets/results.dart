@@ -43,7 +43,7 @@ class Results extends StatelessWidget {
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width - 100,
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.of(context).size.height/3,
         child: Material(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),

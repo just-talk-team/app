@@ -102,13 +102,11 @@ class UserService {
               badgets: data['filters']['badgets'].cast<String>());
         }
 
-
         // MM/dd/yyyy
-        String day = data['birthdate'].substring(3,5);
-        String month = data['birthdate'].substring(0,2);
-        String year = data['birthdate'].substring(6,10);
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
         DateTime birthdate = DateTime.parse('$year-$month-$day');
-        
 
         int age =
             (DateTime.now().difference(birthdate).inDays / 365).truncate();
@@ -247,7 +245,7 @@ class UserService {
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((document) {
         usersRoom
-            .add(Tuple2(document.data()['roomId'], document.data()['friend']));
+            .add(Tuple2(document.id, document.data()['friend']));
       });
     });
 
@@ -422,6 +420,53 @@ class UserService {
         'segments': FieldValue.arrayUnion(preferences.segments),
         'badgets': FieldValue.arrayUnion(preferences.badgets)
       }
+    });
+  }
+
+  Future<void> addFriend(String userId, String friendId, String roomId) async {
+    await _firebaseFirestore
+        .collection("users")
+        .doc(userId)
+        .collection('friends')
+        .doc(roomId)
+        .set({'friend': friendId});
+
+    await _firebaseFirestore.collection("friends").doc(roomId).update({
+      'friends': FieldValue.arrayUnion([userId])
+    });
+
+    var doc = await _firebaseFirestore
+        .collection("friends")
+        .doc(roomId)
+        .collection('messages')
+        .doc('welcome')
+        .get();
+
+    if (!doc.exists) {
+      await _firebaseFirestore
+          .collection("friends")
+          .doc(roomId)
+          .collection('messages')
+          .doc('welcome')
+          .set({
+        'message': 'Inicio del chat',
+        'user': 'information',
+        'time': DateTime.now()
+      });
+    }
+  }
+
+  Future<void> deleteFriend(
+      String userId, String friendId, String roomId) async {
+    await _firebaseFirestore
+        .collection("users")
+        .doc(userId)
+        .collection('friends')
+        .doc(roomId)
+        .delete();
+
+    await _firebaseFirestore.collection("friends").doc(roomId).update({
+      'friends': FieldValue.arrayRemove([userId])
     });
   }
 }

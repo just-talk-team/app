@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/services/remote_service.dart';
+import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:just_talk/models/user_info.dart';
-import 'package:intl/intl.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
@@ -50,7 +50,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   String _gender = "";
   bool _isFriend = false;
   bool _hasData = false;
-  bool _chatReady;
+
 
   ScrollController _scrollController;
   RemoteConfig remoteConfig;
@@ -98,7 +98,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             preferences: null,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthdate: data['birthdate'].toDate(),
+            birthdate: birthdate,
             filters: null,
             id: userId1);
       } else {}
@@ -134,7 +134,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     userDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
-        DateTime birthdate = data['birthdate'].toDate();
+
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
 
         int age =
             (DateTime.now().difference(birthdate).inDays / 365).truncate();
@@ -145,7 +149,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             preferences: null,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthdate: data['birthdate'].toDate(),
+            birthdate: birthdate,
             filters: null,
             id: userId2);
 
@@ -171,12 +175,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         var data = documentSnapshot.data();
         debugPrint("nickname : " + data['nickname']);
         debugPrint("photo : " + data['avatar']);
-  
+
         String day = data['birthdate'].substring(3, 5);
         String month = data['birthdate'].substring(0, 2);
         String year = data['birthdate'].substring(6, 10);
         DateTime birthdate = DateTime.parse('$year-$month-$day');
- 
+
         int age =
             (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
@@ -190,7 +194,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             preferences: null,
             gender: EnumToString.fromString(Gender.values, data['gender']),
             age: age,
-            birthdate: data['birthdate'].toDate(),
+            birthdate: birthdate,
             filters: null,
             id: _currentUser.uid);
       }
@@ -221,7 +225,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     super.initState();
     _scrollController = ScrollController();
     remoteConfig = RepositoryProvider.of<RemoteService>(context).remoteConfig;
-    _chatReady = false;
     recoverChatInfo();
     _startClock();
   }
@@ -233,7 +236,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 
   Widget chatMessagesList() {
-    _chatReady = true;
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection(chatCol)
@@ -378,69 +380,13 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     messages.add(CustomText(text, MessageType.CurrentUser));
   }
 
-  addFriend() {
-    //Recover elements
-    List<dynamic> uidList = List<dynamic>();
-    DocumentReference docFriends =
-        FirebaseFirestore.instance.collection("friends").doc(roomId);
-
-    //Add select friend to friend collections
-    var currentChat = FirebaseFirestore.instance
-        .collection("users")
-        .doc(userId1)
-        .collection("friends")
-        .where('roomId', isEqualTo: roomId)
-        .get();
-
-    currentChat.then((value) {
-      if (value.docs.isNotEmpty) {
-        //El valor existe
-        docFriends.get().then((value) {
-          if (value.exists) {
-            var data = value.data();
-            uidList = data['friends'];
-          }
-        });
-
-        uidList.remove(userId1);
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(userId1)
-            .collection("friends")
-            .doc(value.docs[0].id)
-            .delete();
-
-        FirebaseFirestore.instance
-            .collection("friends")
-            .doc(roomId)
-            .set({"Friends": FieldValue.arrayUnion(uidList)});
-        _isFriend = false;
-        setState(() {});
-      } else {
-        //El valor no existe
-
-        docFriends.get().then((value) {
-          if (value.exists) {
-            var data = value.data();
-            uidList = data['friends'];
-          }
-        });
-
-        uidList.add(userId1);
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(_currentUser.uid)
-            .collection("friends")
-            .add({"friend": userId2, "roomId": roomId});
-
-        FirebaseFirestore.instance
-            .collection("friends")
-            .doc(roomId)
-            .set({"friends": FieldValue.arrayUnion(uidList)});
-        _isFriend = true;
-        setState(() {});
-      }
-    });
+  void addFriend() async {
+    UserService userService = RepositoryProvider.of<UserService>(context);
+    if (!_isFriend) {
+      await userService.addFriend(userId1, userId2, roomId);
+    } else {
+      await userService.deleteFriend(userId1, userId2, roomId);
+    }
   }
 
   @override

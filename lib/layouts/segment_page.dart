@@ -45,8 +45,10 @@ class _SegmentPage extends State<SegmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Column(
+    final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0;
+
+    return SingleChildScrollView(
+      child: Column(
         children: <Widget>[
           //Title
           Container(
@@ -86,6 +88,7 @@ class _SegmentPage extends State<SegmentPage> {
                           const BorderSide(color: Colors.grey, width: 0.0),
                     ),
                   ),
+                  onTap: () => setState(() {}),
                 ),
                 IconButton(
                   key: Key("Add segment"),
@@ -169,26 +172,26 @@ class _SegmentPage extends State<SegmentPage> {
                         dispose();
                       }
                     },
-                    icon:
-                        Icon(Icons.sentiment_very_satisfied_rounded, size: 35),
+                    icon: Icon(Icons.sentiment_very_satisfied_rounded,
+                        size: 35),
                     label: Text(
                       "Finalizar",
                       style: TextStyle(fontSize: 20),
                     ),
                   )
                 : CircularProgressIndicator(),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            alignment: Alignment.bottomCenter,
+            child: AutoSizeText(
+              '* Una vez agregado un correo, deberás validar el mismo ingresando al enlace que te enviaremos',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xff8a8a8a)),
+            ),
           )
         ],
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        alignment: Alignment.bottomCenter,
-        child: AutoSizeText(
-          '* Una vez agregado un correo, deberás validar el mismo ingresando al enlace que te enviaremos',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Color(0xff8a8a8a)),
-        ),
-      )
-    ]);
+    );
   }
 }
