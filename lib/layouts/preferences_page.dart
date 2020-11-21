@@ -9,7 +9,7 @@ import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:just_talk/widgets/badget.dart';
+import 'package:just_talk/widgets/badge.dart';
 
 class Preference extends StatefulWidget {
   @override
@@ -25,7 +25,7 @@ class _PreferenceState extends State<Preference> {
 
   Future<bool> getData() async {
     userInfo = await userService.getUser(userId, true, false);
-    segments = await userService.getSegments(userId);
+    segments = await userService.getSegmentsDomains(userId);
     return true;
   }
 
@@ -101,16 +101,17 @@ class _PreferenceDataState extends State<PreferenceData> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
+            showCheckmark: false,
             padding: EdgeInsets.all(10),
             label: Text(
               segment,
               style: (widget.preferences.segments.contains(segment))
                   ? TextStyle(
                       fontFamily: "Roboto",
-                      fontWeight: FontWeight.normal,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white)
                   : TextStyle(
-                      fontFamily: "Roboto", fontWeight: FontWeight.normal),
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
             ),
             selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.segments.contains(segment),
@@ -133,16 +134,17 @@ class _PreferenceDataState extends State<PreferenceData> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
+            showCheckmark: false,
             padding: EdgeInsets.all(10),
             label: Text(multipleChoice,
                 style: (widget.preferences.genders.contains(
                         EnumToString.fromString(Gender.values, multipleChoice)))
                     ? TextStyle(
                         fontFamily: "Roboto",
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white)
                     : TextStyle(
-                        fontFamily: "Roboto", fontWeight: FontWeight.normal)),
+                        fontFamily: "Roboto", fontWeight: FontWeight.bold)),
             selectedColor: Color(0xFFB3A407),
             selected: widget.preferences.genders.contains(
                 EnumToString.fromString(Gender.values, multipleChoice)),
@@ -302,19 +304,19 @@ class _PreferenceDataState extends State<PreferenceData> {
                 SizedBox(height: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(badgets.length, (index) {
-                      return Badget(
+                    children: List.generate(badges.length, (index) {
+                      return Badge(
                           selected: widget.preferences.badgets
-                              .contains(badgets[index].item1),
-                          icon: badgets[index].item2,
-                          text: badgets[index].item1,
+                              .contains(badges[index].item1),
+                          icon: badges[index].item2,
+                          text: badges[index].item1,
                           valueChanged: (bool selected) {
                             if (selected) {
                               widget.preferences.badgets.removeWhere(
-                                  (element) => element == badgets[index].item1);
+                                  (element) => element == badges[index].item1);
                             } else {
                               widget.preferences.badgets
-                                  .add(badgets[index].item1);
+                                  .add(badges[index].item1);
                             }
                           });
                     }))

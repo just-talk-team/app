@@ -11,7 +11,9 @@ class DiscoveryService {
         .collection('discoveries')
         .doc(roomId)
         .collection('users')
-        .snapshots();
+        .snapshots()
+        .where((QuerySnapshot querySnapshot) =>
+            querySnapshot.metadata.isFromCache == false);
   }
 
   Future<void> activateUser(String roomId, String userId) async {

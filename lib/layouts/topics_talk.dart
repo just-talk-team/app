@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,13 +16,14 @@ class _TopicsTalk extends State<TopicsTalk> {
 
   FocusNode textFieldFocusNode;
   int levelClock = 6;
+  bool loading = false;
 
   List<Topic> topicsTalk;
   List<Topic> deletedTopics;
 
   String userId;
   UserService userService;
-  bool flag;
+  bool changed = false;
 
   @override
   void initState() {
@@ -32,7 +34,13 @@ class _TopicsTalk extends State<TopicsTalk> {
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     topicsTalkController = TextEditingController();
     textFieldFocusNode = FocusNode();
-    flag = false;
+    loadData();
+  }
+
+  void loadData() async {
+    topicsTalk =
+        await RepositoryProvider.of<UserService>(context).getTopicsTalk(userId);
+    setState(() {});
   }
 
   @override
@@ -55,27 +63,51 @@ class _TopicsTalk extends State<TopicsTalk> {
           },
         ),
         actions: [
-          IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.keyboard_arrow_right),
-            color: topicsTalk.length > 0
-                ? Colors.black
-                : Colors.black.withOpacity(0.5),
-            onPressed: () async {
-              if (flag) {
-                await userService.setTopicsTalk(userId, topicsTalk);
-                await userService.deleteTopicsTalk(userId, deletedTopics);
+          Builder(
+            builder: (context) => IconButton(
+              iconSize: 30,
+              icon: Icon(Icons.keyboard_arrow_right),
+              color: topicsTalk.length > 0
+                  ? Colors.black
+                  : Colors.black.withOpacity(0.5),
+              onPressed: () async {
+                if (topicsTalk.length > 0) {
+                  setState(() {
+                    loading = true;
+                  });
 
-                await userService.deleteTopicsHear(userId);
-                await userService.setTopicsHear(userId, topicsTalk);
+                  if (changed) {
+                    userService.setTopicsTalk(userId, topicsTalk);
+                    userService.deleteTopicsTalk(userId, deletedTopics);
 
-                deletedTopics.clear();          
-              }
-              List<String> segments = await userService.getSegments(userId);
-              Navigator.of(context).pushNamed('/topics_to_hear', arguments: {
-                'segments': segments,
-              });
-            },
+                    await userService.deleteTopicsHear(userId);
+                    await userService.setTopicsHear(userId, topicsTalk);
+                    deletedTopics.clear();
+                  }
+                  List<String> segments = await userService.getSegments(userId);
+
+                  await Navigator.of(context)
+                      .pushNamed('/topics_to_hear', arguments: {
+                    'segments': segments,
+                  });
+
+                  setState(() {
+                    loading = false;
+                  });
+                } else {
+                  Flushbar(
+                    backgroundColor: Color(0xFFB31048),
+                    flushbarPosition: FlushbarPosition.TOP,
+                    messageText: Text(
+                      "Defina al menos un tema de que hablar!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    duration: Duration(seconds: 3),
+                  ).show(context);
+                }
+              },
+            ),
           ),
         ],
         centerTitle: true,
@@ -86,73 +118,61 @@ class _TopicsTalk extends State<TopicsTalk> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 6,
-              child: FutureBuilder(
-                  future: RepositoryProvider.of<UserService>(context)
-                      .getTopicsTalk(userId),
-                  builder: (context, AsyncSnapshot<List<Topic>> topics) {
-                    if (topics.hasData && !flag) {
-                      topicsTalk = topics.data;
-                    }
-
-                    if (topicsTalk.length > 0) {
-                      return Container(
-                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        child: Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: Wrap(
-                                spacing: 6.0,
-                                runSpacing: 6.0,
-                                children: List<Widget>.generate(
-                                    topicsTalk.length, (int index) {
-                                  return Chip(
-                                    shape: StadiumBorder(
-                                        side: BorderSide(
-                                            width: 0.5,
-                                            color:
-                                                Colors.black.withOpacity(0.5))),
-                                    backgroundColor: Colors.transparent,
-                                    label: Text(
-                                      topicsTalk[index].topic,
-                                      style: TextStyle(
-                                          fontFamily: "Roboto",
-                                          fontWeight: FontWeight.normal),
-                                    ),
-                                    deleteIconColor: Color(0xFFB31048),
-                                    onDeleted: () {
-                                      if (!flag) {
-                                        flag = true;
-                                      }
-                                      setState(() {
-                                        deletedTopics.add(topicsTalk[index]);
-                                        topicsTalk.removeAt(index);
-                                      });
-                                    },
-                                  );
-                                }),
-                              ),
-                            )),
-                      );
-                    }
-                    return Container();
-                  }),
+              child: !loading
+                  ? Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              spacing: 6.0,
+                              runSpacing: 6.0,
+                              children: List<Widget>.generate(topicsTalk.length,
+                                  (int index) {
+                                return Chip(
+                                  shape: StadiumBorder(
+                                      side: BorderSide(
+                                          width: 0.5,
+                                          color:
+                                              Colors.black.withOpacity(0.5))),
+                                  backgroundColor: Colors.transparent,
+                                  label: Text(
+                                    topicsTalk[index].topic,
+                                    style: TextStyle(
+                                        fontFamily: "Roboto",
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                  deleteIconColor: Color(0xFFB31048),
+                                  onDeleted: () {
+                                    if (!changed) {
+                                      changed = true;
+                                    }
+                                    setState(() {
+                                      deletedTopics.add(topicsTalk[index]);
+                                      topicsTalk.removeAt(index);
+                                    });
+                                  },
+                                );
+                              }),
+                            ),
+                          )),
+                    )
+                  : Center(child: CircularProgressIndicator()),
             ),
             Expanded(
               flex: 1,
               child: Stack(alignment: Alignment.centerRight, children: <Widget>[
-                TextFormField(
+                TextField(
                   controller: topicsTalkController,
-                  focusNode: textFieldFocusNode,
                   decoration: InputDecoration(
                     hintText: 'Puedo hablar de ...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 0.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 2.0),
                     ),
                   ),
                 ),
@@ -164,12 +184,12 @@ class _TopicsTalk extends State<TopicsTalk> {
                       if (topicsTalkController.text.isEmpty) {
                         return;
                       }
-
-                      if (!flag) {
-                        flag = true;
+                      if (!changed) {
+                        changed = true;
                       }
-                      topicsTalk.add(
-                          Topic(topicsTalkController.text, DateTime.now()));
+                      topicsTalk.add(Topic(
+                          topicsTalkController.text.toLowerCase(),
+                          DateTime.now()));
                       topicsTalkController.clear();
                     });
                   },

@@ -9,11 +9,7 @@ import 'package:just_talk/widgets/date_picker.dart';
 
 // ignore: must_be_immutable
 class ConfigurationPage extends StatefulWidget {
-  ConfigurationPage({
-    this.userId,
-    this.userInfo,
-    this.userService
-  });
+  ConfigurationPage({this.userId, this.userInfo, this.userService});
 
   final String userId;
   UserInfo userInfo;
@@ -48,6 +44,11 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     nickController.text = widget.userInfo.nickname;
 
     userService = RepositoryProvider.of<UserService>(context);
+
+    userService.getSegments(widget.userId).then((value) {
+      userSegments = value;
+      setState(() {});
+    });
   }
 
   @override
@@ -89,6 +90,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
         return true;
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text('Configurar'),
           centerTitle: true,
@@ -101,8 +103,8 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             },
           ),
         ),
-        body: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,45 +143,36 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                       )),
                 ],
               ),
-              FutureBuilder<List<String>>(
-                  future: userService.getSegments(widget.userId),
-                  builder: (context, segments) {
-                    if (segments.hasData) {
-                      userSegments = segments.data;
-
-                      return Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          TextFormField(
-                            controller: segmentController,
-                            decoration: InputDecoration(
-                              labelText: 'Segmentos',
-                              hintText: 'Correo de tu organización',
-                              border: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    color: Colors.grey, width: 0.0),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            key: Key("Add segment"),
-                            icon: Icon(Icons.send),
-                            onPressed: () {
-                              FocusScope.of(context).requestFocus(FocusNode());
-                              String email = segmentController.text;
-                              if (!EmailValidator.validate(email)) {
-                                return;
-                              }
-                              setState(() {
-                                userSegments.add(email);
-                              });
-                            },
-                          ),
-                        ],
-                      );
-                    }
-                    return Container();
-                  }),
+              Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  TextFormField(
+                    controller: segmentController,
+                    decoration: InputDecoration(
+                      labelText: 'Segmentos',
+                      hintText: 'Correo de tu organización',
+                      border: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.grey, width: 0.0),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    key: Key("Add segment"),
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      String email = segmentController.text;
+                      if (!EmailValidator.validate(email)) {
+                        return;
+                      }
+                      setState(() {
+                        userSegments.add(email);
+                      });
+                    },
+                  ),
+                ],
+              ),
               Container(
                   height: MediaQuery.of(context).size.width / 3,
                   width: MediaQuery.of(context).size.width,
@@ -188,15 +181,13 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                     child: Wrap(
                       spacing: 6.0,
                       runSpacing: 6.0,
-                      children: List<Widget>.generate(
-                          userSegments.length,
+                      children: List<Widget>.generate(userSegments.length,
                           (int index) {
                         return Chip(
-                          label:
-                              Text(userSegments[index]),
+                          label: Text(userSegments[index]),
                           onDeleted: () {
                             setState(() {
-                            userSegments.removeAt(index);
+                              userSegments.removeAt(index);
                             });
                           },
                         );
@@ -212,9 +203,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   color: Color(0xFFb31020),
                   padding: EdgeInsets.all(18.0),
                   textColor: Colors.white,
-                  onPressed: () async {
-                    
-                  },
+                  onPressed: () async {},
                   icon: Icon(Icons.sentiment_satisfied, size: 18),
                   label: Text(
                     "Finalizar",

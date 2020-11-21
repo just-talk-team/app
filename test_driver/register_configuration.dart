@@ -35,7 +35,7 @@ void main() async {
 
   UserInput userInput = UserInput(
       genre: null,
-      dateTime: Timestamp.fromDate(DateTime.now()),
+      dateTime: DateTime.now(),
       nickname: null,
       segments: [],
       imgProfile: file);

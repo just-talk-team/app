@@ -17,6 +17,15 @@ Widget contactList(List<Contact> contacts) {
       color: Colors.black,
     ),
     itemBuilder: (context, index) {
+      String lastMessageTime =
+          DateFormat('dd/MM').add_jm().format(contacts[index].lastMessageTime);
+
+      if (DateTime.now().day == contacts[index].lastMessageTime.day) {
+        lastMessageTime = lastMessageTime.split(' ')[1];
+      } else {
+        lastMessageTime = lastMessageTime.split(' ')[0];
+      }
+
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: ListTile(
@@ -30,9 +39,9 @@ Widget contactList(List<Contact> contacts) {
                 ),
               ),
               Text(
-                DateFormat('HH:mm dd/MM')
-                    .format(contacts[index].lastMessageTime.toLocal()),
-                style: Theme.of(context).textTheme.subtitle2,
+                lastMessageTime,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black.withOpacity(0.5)),
               ),
             ],
           ),
@@ -43,7 +52,9 @@ Widget contactList(List<Contact> contacts) {
               style: Theme.of(context).textTheme.bodyText1,
             ),
           ),
-          leading: Icon(Icons.account_circle, size: 50),
+          leading: CircleAvatar(
+              backgroundColor: Colors.grey,
+              backgroundImage: NetworkImage(contacts[index].photo)),
         ),
       );
     },
@@ -99,15 +110,16 @@ class Search extends SearchDelegate {
     ContactsState contactState = contactCubit.state;
     if (contactState.runtimeType == ContactsResult) {
       List<Contact> contacts = (contactState as ContactsResult).contacts;
-      return contactList(
-          contacts.where((element) => validate(element.name, query)));
+      return contactList(contacts
+          .where((Contact element) => validate(element.name, query))
+          .toList());
     }
     return Container();
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
+    //  
     throw UnimplementedError();
   }
 }
@@ -165,6 +177,8 @@ class _ContactPageState extends State<ContactPage> {
       ),
       body: BlocBuilder<ContactCubit, ContactsState>(builder: (context, state) {
         switch (state.runtimeType) {
+          case ContactsLoading:
+            return Center(child: CircularProgressIndicator());
           case ContactsEmpty:
             return Container();
           case ContactsResult:
@@ -176,16 +190,17 @@ class _ContactPageState extends State<ContactPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.sentiment_very_satisfied_rounded,
-                color: Color(0xFF73000000)),
+            icon: Icon(
+              Icons.sentiment_very_satisfied_rounded,
+            ),
             label: 'Just Talk',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_rounded),
-            label: 'Amigos',      
+            label: 'Amigos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded, color: Color(0xFF73000000)),
+            icon: Icon(Icons.person_rounded),
             label: 'Mi perfil',
           ),
         ],

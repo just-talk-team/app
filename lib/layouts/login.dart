@@ -50,7 +50,7 @@ class Login extends StatelessWidget {
                       color: Colors.white,
                     ),
                     onPressed: () =>
-                        context.bloc<AuthenticationCubit>().logWithFacebook(),
+                        BlocProvider.of<AuthenticationCubit>(context).logWithFacebook(),
                     color: Colors.black,
                     padding:
                         EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),

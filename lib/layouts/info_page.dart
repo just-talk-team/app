@@ -1,6 +1,5 @@
 //INFO PAGE ======================================================================
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_input.dart';
@@ -78,25 +77,25 @@ class _InfoPage extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         //Title
         Container(
             child: Text(
               'Mis Datos',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ),
         Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
             child: AutoSizeText(
-              "Bríndanos tus datos para conversar al instante con otras personas que quieren escucharte!",
+              "Mantén conversaciones interesantes",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
-              maxLines: 5,
+              maxLines: 2,
             ),
           ),
 
@@ -104,7 +103,6 @@ class _InfoPage extends State<InfoPage> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               MyTextFieldDatePicker(
                 key: Key('DatePicker'),
@@ -113,9 +111,9 @@ class _InfoPage extends State<InfoPage> {
                 suffixIcon: Icon(Icons.arrow_drop_down),
                 lastDate: DateTime.now().add(Duration(days: 366)),
                 firstDate: DateTime(1970),
-                initialDate: widget.userI.dateTime.toDate(),
+                initialDate: widget.userI.dateTime,
                 onDateChanged: (selectedDate) {
-                  widget.userI.dateTime = Timestamp.fromDate(selectedDate);
+                  widget.userI.dateTime = selectedDate;
                   validate();
                 },
               ),
@@ -126,6 +124,7 @@ class _InfoPage extends State<InfoPage> {
                   'Sexo',
                   style: TextStyle(
                     fontSize: 20,
+                    color: Colors.black.withOpacity(0.5)
                   ),
                 ),
               ),

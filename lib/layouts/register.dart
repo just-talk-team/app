@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/layouts/avatar_page.dart';
 import 'package:just_talk/layouts/info_page.dart';
@@ -16,7 +14,7 @@ class Register extends StatefulWidget {
       : _initialPage = initialPage ?? 0,
         _user = user ??
             UserInput(
-                dateTime: Timestamp.fromDate(DateTime.now()),
+                dateTime: DateTime.now(),
                 genre: null,
                 nickname: null,
                 segments: [],
@@ -68,47 +66,43 @@ class _Register extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomPadding: true,
       body: SafeArea(
-        child: Stack(children: <Widget>[
-          PageView(key: Key("pageview"), controller: controller,
-              //physics: new NeverScrollableScrollPhysics(),
-              children: <Widget>[
-                //MyInfo(context, controller),
-                //Nickname(context),
-                InfoPage(widget._user, controller),
-                NicknamePage(widget._user, controller),
-                AvatarPage(widget._user, controller),
-                SegmentPage(widget._user, controller, widget._userService),
-              ]),
-          Container(
-            alignment: Alignment.topCenter,
-            margin: EdgeInsets.only(top: 50),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                    SmoothPageIndicator(
-                      controller: controller,
-                      count: 4,
-                      effect: JumpingDotEffect(
-                          spacing: 12.0,
-                          dotWidth: 20.0,
-                          dotHeight: 20.0,
-                          strokeWidth: 1.5,
-                          paintStyle: PaintingStyle.stroke,
-                          dotColor: Colors.black,
-                          activeDotColor: const Color(0xffb3a507)),
-                    ),
-                  ],
-                ),
-              ],
+        child: Column(children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Container(
+              margin: EdgeInsets.only(top: 50),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SmoothPageIndicator(
+                    controller: controller,
+                    count: 4,
+                    effect: JumpingDotEffect(
+                        spacing: 12.0,
+                        dotWidth: 20.0,
+                        dotHeight: 20.0,
+                        strokeWidth: 0.2,
+                        paintStyle: PaintingStyle.stroke,
+                        dotColor: Colors.black,
+                        activeDotColor: const Color(0xffb3a507)),
+                  ),
+                ],
+              ),
             ),
-          )
+          ),
+          Expanded(
+            flex: 10,
+            child: PageView(key: Key("pageview"), controller: controller,
+                //physics: new NeverScrollableScrollPhysics(),
+                children: <Widget>[
+                  InfoPage(widget._user, controller),
+                  NicknamePage(widget._user, controller),
+                  AvatarPage(widget._user, controller),
+                  SegmentPage(widget._user, controller, widget._userService),
+                ]),
+          ),
         ]),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/topic.dart';
@@ -33,10 +34,12 @@ class UserService {
     DocumentReference newUser =
         FirebaseFirestore.instance.collection("users").doc(userId);
 
+    final DateFormat formatter = DateFormat("MM/dd/yyyy");
+
     await newUser.set({
       'uid': userId,
       'avatar': url,
-      'birthdate': userI.dateTime,
+      'birthdate': formatter.format(userI.dateTime),
       'friends': {},
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
@@ -63,7 +66,7 @@ class UserService {
           .set({'email': element.item1});
     });
 
-    badgets.forEach((element) async {
+    badges.forEach((element) async {
       await newUser.collection('badgets').doc(element.item1).set({'count': 0});
     });
   }
@@ -99,9 +102,14 @@ class UserService {
               badgets: data['filters']['badgets'].cast<String>());
         }
 
-        DateTime birthdate = data['birthdate'].toDate();
+        // MM/dd/yyyy
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
+
         int age =
-            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+            (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         user = UserInfo(
             nickname: data['nickname'],
@@ -127,9 +135,26 @@ class UserService {
 
     await segmentCollection.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((element) {
-        segments.add(element.id);
+        segments.add(element.data()['email']);
       });
     });
+    return segments;
+  }
+
+  Future<List<String>> getSegmentsDomains(String id) async {
+    List<String> segments = [];
+    debugPrint("userId : " + id);
+    CollectionReference segmentCollection =
+        _firebaseFirestore.collection("users").doc(id).collection('segments');
+
+    await segmentCollection.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((element) {
+        if (element.data()['validate'] == true) {
+          segments.add(element.id);
+        }
+      });
+    });
+    debugPrint("segments size : " + segments.length.toString());
     return segments;
   }
 
@@ -208,7 +233,7 @@ class UserService {
 
   Future<List<Tuple2<UserInfo, String>>> getFilteredValidatedContacts(
       String id) async {
-    List<String> usersRoom = [];
+    List<Tuple2<String, String>> usersRoom = [];
     List<Tuple2<UserInfo, String>> contacts = [];
     Preferences filter = await getFilters(id);
 
@@ -218,33 +243,33 @@ class UserService {
         .collection('friends')
         .get()
         .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((element) {
-        usersRoom.add(element.id);
+      querySnapshot.docs.forEach((document) {
+        usersRoom
+            .add(Tuple2(document.id, document.data()['friend']));
       });
     });
 
-    for (String userRoom in usersRoom) {
-      var doc = await _firebaseFirestore
-          .collection('friends')
-          .doc(userRoom)
-          .collection('users')
-          .where((element) => element.id != id)
-          .get();
+    for (Tuple2<String, String> userRoomData in usersRoom) {
+      String roomId = userRoomData.item1;
+      String friendId = userRoomData.item2;
 
-      if (doc != null && doc.docs.length > 0) {
-        String contactId = doc.docs[0].id;
+      DocumentSnapshot documentSnapshot =
+          await _firebaseFirestore.collection('friends').doc(roomId).get();
 
-        var userInfo = await getUser(contactId, true, true);
-        var segments = await getSegments(contactId);
-        var badgets = await getBadgets(contactId);
+      List<String> friends = documentSnapshot.data()['friends'].cast<String>();
 
-        if (userInfo.age >= filter.minimunAge &&
+      if (friends.contains(friendId)) {
+        var userInfo = await getUser(friendId, false, false);
+        var segments = await getSegments(friendId);
+        var badgets = await getBadgets(friendId);
+
+        /*if (userInfo.age >= filter.minimunAge &&
             userInfo.age <= filter.maximumAge &&
             _validateSegment(filter.segments, segments) &&
             _validateBadgets(filter.badgets, badgets) &&
-            _validateGender(filter.genders, userInfo.gender)) {
-          contacts.add(Tuple2(userInfo, userRoom));
-        }
+            _validateGender(filter.genders, userInfo.gender)) {*/
+        contacts.add(Tuple2(userInfo, roomId));
+        //}
       }
     }
     return contacts;
@@ -266,6 +291,19 @@ class UserService {
         .doc(id)
         .collection('discoveries')
         .snapshots();
+  }
+
+  Future<void> deleteDiscoveries(String id) async {
+    CollectionReference discoveriesCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection("discoveries");
+
+    await discoveriesCollection.get().then((value) async {
+      for (DocumentSnapshot documentSnapshot in value.docs) {
+        await documentSnapshot.reference.delete();
+      }
+    });
   }
 
   Future<void> setTopicsTalk(String id, List<Topic> topics) async {
@@ -328,8 +366,8 @@ class UserService {
         .doc(id)
         .collection('topics_hear');
 
-    topicTalkCollection.get().then((value) async {
-      for (DocumentSnapshot documentSnapshot in value.docs){
+    await topicTalkCollection.get().then((value) async {
+      for (DocumentSnapshot documentSnapshot in value.docs) {
         await documentSnapshot.reference.delete();
       }
     });
@@ -344,6 +382,19 @@ class UserService {
     for (Topic topic in topics) {
       await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
     }
+  }
+
+  Future<Preferences> getPreferences(String id) async {
+    var user = await _firebaseFirestore.collection("users").doc(id).get();
+    var data = user.data();
+
+    return Preferences(
+        minimunAge: data['preferences']['ages'].cast<int>()[0],
+        maximumAge: data['preferences']['ages'].cast<int>()[1],
+        genders: EnumToString.fromList(
+            Gender.values, data['preferences']['genders']),
+        segments: data['preferences']['segments'].cast<String>(),
+        badgets: data['preferences']['badgets'].cast<String>());
   }
 
   Future<void> updatePreferences(String id, Preferences preferences) async {
@@ -369,6 +420,53 @@ class UserService {
         'segments': FieldValue.arrayUnion(preferences.segments),
         'badgets': FieldValue.arrayUnion(preferences.badgets)
       }
+    });
+  }
+
+  Future<void> addFriend(String userId, String friendId, String roomId) async {
+    await _firebaseFirestore
+        .collection("users")
+        .doc(userId)
+        .collection('friends')
+        .doc(roomId)
+        .set({'friend': friendId});
+
+    await _firebaseFirestore.collection("friends").doc(roomId).update({
+      'friends': FieldValue.arrayUnion([userId])
+    });
+
+    var doc = await _firebaseFirestore
+        .collection("friends")
+        .doc(roomId)
+        .collection('messages')
+        .doc('welcome')
+        .get();
+
+    if (!doc.exists) {
+      await _firebaseFirestore
+          .collection("friends")
+          .doc(roomId)
+          .collection('messages')
+          .doc('welcome')
+          .set({
+        'message': 'Inicio del chat',
+        'user': 'information',
+        'time': DateTime.now()
+      });
+    }
+  }
+
+  Future<void> deleteFriend(
+      String userId, String friendId, String roomId) async {
+    await _firebaseFirestore
+        .collection("users")
+        .doc(userId)
+        .collection('friends')
+        .doc(roomId)
+        .delete();
+
+    await _firebaseFirestore.collection("friends").doc(roomId).update({
+      'friends': FieldValue.arrayRemove([userId])
     });
   }
 }

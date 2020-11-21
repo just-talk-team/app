@@ -40,7 +40,6 @@ class _NicknamePage extends State<NicknamePage> {
   Widget build(BuildContext context) {
     return Container(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           //Title
           Container(
@@ -49,44 +48,22 @@ class _NicknamePage extends State<NicknamePage> {
                 child: Text(
                   'Nickname',
                   style:
-                      TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 )),
           ),
           Padding(
-              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-              child: Column(
-                children: [
-                  AutoSizeText(
-                    "Elige un nombre de pila!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                  ),
-                  AutoSizeText(
-                    "¿Con qué nombre quieres",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                  ),
-                  AutoSizeText(
-                    "que te conozcan?",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                  ),
-                ],
+              padding: EdgeInsets.symmetric(horizontal: 30,vertical: 80),
+              child: AutoSizeText(
+                "¿Con que nombre quieres que te conozcan?",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
               )),
           //Content
-          Padding(
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
             child: Stack(
                 alignment: Alignment.centerRight,
@@ -119,7 +96,7 @@ class _NicknamePage extends State<NicknamePage> {
                   )
                 ]),
           ),
-          SizedBox(height: 50)
+          SizedBox(height: 100)
         ],
       ),
     );

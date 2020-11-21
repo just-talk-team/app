@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:tuple/tuple.dart';
 
@@ -13,7 +12,7 @@ class UserInput {
     this.segments,
   });
 
-  Timestamp dateTime;
+  DateTime dateTime;
   File imgProfile;
   Gender genre;
   String nickname;
