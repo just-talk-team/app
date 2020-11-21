@@ -15,7 +15,7 @@ class Register extends StatefulWidget {
       : _initialPage = initialPage ?? 0,
         _user = user ??
             UserInput(
-                dateTime: Timestamp.fromDate(DateTime.now()),
+                dateTime: DateTime.now(),
                 genre: null,
                 nickname: null,
                 segments: [],

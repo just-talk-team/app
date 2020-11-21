@@ -17,32 +17,37 @@ class ContactCubit extends Cubit<ContactsState> {
   UserService _userService;
 
   void init() async {
+    emit(ContactsLoading());
     _contactsInfo = await _userService.getFilteredValidatedContacts(_userId);
 
-    for (Tuple2<UserInfo, String> contactInfo in _contactsInfo) {
-      Stream<QuerySnapshot> stream =
-          _userService.getLastMessage(contactInfo.item2);
+    if (_contactsInfo.length > 0) {
+      for (Tuple2<UserInfo, String> contactInfo in _contactsInfo) {
+        Stream<QuerySnapshot> stream =
+            _userService.getLastMessage(contactInfo.item2);
 
-      _streams.add(stream.listen((query) {
-        if (query.docs.length > 0) {
-          var doc = query.docs[0].data();
+        _streams.add(stream.listen((query) {
+          if (query.docs.length > 0) {
+            var doc = query.docs[0].data();
 
-          Contact contact = Contact(
-              id: contactInfo.item1.id,
-              name: contactInfo.item1.nickname,
-              photo: contactInfo.item1.photo,
-              roomId: contactInfo.item2,
-              lastMessage: doc['message'],
-              lastMessageTime: doc['time'].toDate());
+            Contact contact = Contact(
+                id: contactInfo.item1.id,
+                name: contactInfo.item1.nickname,
+                photo: contactInfo.item1.photo,
+                roomId: contactInfo.item2,
+                lastMessage: doc['message'],
+                lastMessageTime: doc['time'].toDate());
 
-          if (_contacts.contains(contact)) {
-            _contacts.remove(contact);
+            if (_contacts.contains(contact)) {
+              _contacts.remove(contact);
+            }
+            _contacts.add(contact);
           }
-          _contacts.add(contact);
-        }
 
-        emit(ContactsResult(_contacts.toList()));
-      }));
+          emit(ContactsResult(_contacts.toList()));
+        }));
+      }
+    } else {
+      emit(ContactsEmpty());
     }
   }
 

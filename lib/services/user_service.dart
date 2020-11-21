@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/topic.dart';
@@ -33,10 +34,12 @@ class UserService {
     DocumentReference newUser =
         FirebaseFirestore.instance.collection("users").doc(userId);
 
+    final DateFormat formatter = DateFormat("MM/dd/yyyy");
+
     await newUser.set({
       'uid': userId,
       'avatar': url,
-      'birthdate': userI.dateTime,
+      'birthdate': formatter.format(userI.dateTime),
       'friends': {},
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
@@ -99,7 +102,14 @@ class UserService {
               badgets: data['filters']['badgets'].cast<String>());
         }
 
-        DateTime birthdate = data['birthdate'].toDate();
+
+        // MM/dd/yyyy
+        String day = data['birthdate'].substring(3,5);
+        String month = data['birthdate'].substring(0,2);
+        String year = data['birthdate'].substring(6,10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
+        
+
         int age =
             (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
@@ -260,7 +270,7 @@ class UserService {
             _validateSegment(filter.segments, segments) &&
             _validateBadgets(filter.badgets, badgets) &&
             _validateGender(filter.genders, userInfo.gender)) {*/
-          contacts.add(Tuple2(userInfo, roomId));
+        contacts.add(Tuple2(userInfo, roomId));
         //}
       }
     }

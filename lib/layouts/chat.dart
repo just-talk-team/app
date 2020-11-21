@@ -82,7 +82,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     yourUserDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
-        DateTime birthdate = data['birthdate'].toDate();
+
+        // MM/dd/yyyy
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
 
         int age =
             (birthdate.difference(DateTime.now()).inDays / 365).truncate();

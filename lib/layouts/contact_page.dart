@@ -17,6 +17,15 @@ Widget contactList(List<Contact> contacts) {
       color: Colors.black,
     ),
     itemBuilder: (context, index) {
+      String lastMessageTime =
+          DateFormat('dd/MM').add_jm().format(contacts[index].lastMessageTime);
+
+      if (DateTime.now().day == contacts[index].lastMessageTime.day) {
+        lastMessageTime = lastMessageTime.split(' ')[1];
+      } else {
+        lastMessageTime = lastMessageTime.split(' ')[0];
+      }
+
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: ListTile(
@@ -30,9 +39,9 @@ Widget contactList(List<Contact> contacts) {
                 ),
               ),
               Text(
-                DateFormat('HH:mm dd/MM')
-                    .format(contacts[index].lastMessageTime.toLocal()),
-                style: Theme.of(context).textTheme.subtitle2,
+                lastMessageTime,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black.withOpacity(0.5)),
               ),
             ],
           ),
@@ -101,8 +110,9 @@ class Search extends SearchDelegate {
     ContactsState contactState = contactCubit.state;
     if (contactState.runtimeType == ContactsResult) {
       List<Contact> contacts = (contactState as ContactsResult).contacts;
-      return contactList(
-          contacts.where((element) => validate(element.name, query)));
+      return contactList(contacts
+          .where((Contact element) => validate(element.name, query))
+          .toList());
     }
     return Container();
   }
@@ -167,8 +177,10 @@ class _ContactPageState extends State<ContactPage> {
       ),
       body: BlocBuilder<ContactCubit, ContactsState>(builder: (context, state) {
         switch (state.runtimeType) {
-          case ContactsEmpty:
+          case ContactsLoading:
             return Center(child: CircularProgressIndicator());
+          case ContactsEmpty:
+            return Container();
           case ContactsResult:
             return contactList((state as ContactsResult).contacts);
           default:

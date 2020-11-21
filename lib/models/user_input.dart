@@ -13,7 +13,7 @@ class UserInput {
     this.segments,
   });
 
-  Timestamp dateTime;
+  DateTime dateTime;
   File imgProfile;
   Gender genre;
   String nickname;
