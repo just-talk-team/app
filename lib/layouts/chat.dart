@@ -90,7 +90,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         DateTime birthdate = DateTime.parse('$year-$month-$day');
 
         int age =
-            (birthdate.difference(DateTime.now()).inDays / 365).truncate();
+            (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         yourUserInfo = UserInfo(
             nickname: data['nickname'],
@@ -171,25 +171,17 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         var data = documentSnapshot.data();
         debugPrint("nickname : " + data['nickname']);
         debugPrint("photo : " + data['avatar']);
-        DateTime birthdate = data['birthdate'].toDate();
-        var formattedDate =
-            DateFormat.yMMMd().format(data['birthdate'].toDate());
-        /*
-        var year = data['birthdate'].toDate().year;
-        var month = data['birthdate'].toDate().month;
-        var day = data['birthdate'].toDate().day;
-
-        debugPrint("year : " +
-            year.toString() +
-            " - " +
-            month.toString() +
-            " - " +
-            day.toString());*/
+  
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
+ 
         int age =
             (DateTime.now().difference(birthdate).inDays / 365).truncate();
 
         debugPrint("age : " + age.toString());
-        debugPrint("birthday : " + formattedDate);
+        debugPrint("birthday : $day/$month/$year");
         debugPrint("uid : " + _currentUser.uid);
 
         userInfo = UserInfo(
