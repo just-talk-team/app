@@ -16,7 +16,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   NavbarCubit _navbarCubit;
-  
 
   @override
   void initState() {
@@ -31,13 +30,17 @@ class _HomeState extends State<Home> {
       builder: (context, state) {
         switch (state.runtimeType) {
           case HomeState:
-            return HomePage(0, _navbarCubit);
+            return RepositoryProvider.value(
+                value: RepositoryProvider.of<RemoteService>(context),
+                child: HomePage(0, _navbarCubit));
           case ContactState:
             return BlocProvider(
               create: (context) => ContactCubit(
-                userId: BlocProvider.of<AuthenticationCubit>(context).state.user.id,
-                userService: RepositoryProvider.of<UserService>(context)
-              ),
+                  userId: BlocProvider.of<AuthenticationCubit>(context)
+                      .state
+                      .user
+                      .id,
+                  userService: RepositoryProvider.of<UserService>(context)),
               child: ContactPage(1, _navbarCubit),
             );
           case ProfileState:
@@ -45,12 +48,11 @@ class _HomeState extends State<Home> {
               index: 2,
               navbarCubit: _navbarCubit,
               userService: RepositoryProvider.of<UserService>(context),
-              );
+            );
           default:
             return RepositoryProvider.value(
-              value: RepositoryProvider.of<RemoteService>(context),
-              child: HomePage(0, _navbarCubit)
-              );
+                value: RepositoryProvider.of<RemoteService>(context),
+                child: HomePage(0, _navbarCubit));
         }
       },
     );

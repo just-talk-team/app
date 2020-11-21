@@ -112,9 +112,9 @@ class _InfoPage extends State<InfoPage> {
                 suffixIcon: Icon(Icons.arrow_drop_down),
                 lastDate: DateTime.now().add(Duration(days: 366)),
                 firstDate: DateTime(1970),
-                initialDate: widget.userI.dateTime.toDate(),
+                initialDate: widget.userI.dateTime,
                 onDateChanged: (selectedDate) {
-                  widget.userI.dateTime = Timestamp.fromDate(selectedDate);
+                  widget.userI.dateTime = selectedDate;
                   validate();
                 },
               ),

@@ -12,7 +12,7 @@ const List<Tuple2<String, IconData>> extraBadges = [
   Tuple2('Buen conversador', Icons.mood),
   Tuple2('Divertido', Icons.sentiment_very_satisfied_rounded),
    Tuple2('El Mejor', Icons.star_border),
-  Tuple2('Interesante', Icons.mood),
-  Tuple2('Ayudente', Icons.support_outlined),
+  Tuple2('Interesante', Icons.thumb_up_alt_outlined),
+  Tuple2('Ayudante', Icons.support_outlined),
 
 ];

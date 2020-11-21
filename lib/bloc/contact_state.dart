@@ -21,3 +21,10 @@ class ContactsEmpty extends ContactsState {
   @override
   List<Object> get props => [];
 }
+
+class ContactsLoading extends ContactsState {
+  ContactsLoading();
+
+  @override
+  List<Object> get props => [];
+}

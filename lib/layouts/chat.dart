@@ -14,6 +14,8 @@ import 'package:just_talk/utils/enums.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
 import 'dart:async';
 
+enum MessageType { CurrentUser, Friend, Information }
+
 class Chat extends StatefulWidget {
   @override
   _Chat createState() => _Chat();
@@ -80,7 +82,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     yourUserDoc.get().then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         var data = documentSnapshot.data();
-        DateTime birthdate = data['birthdate'].toDate();
+
+        // MM/dd/yyyy
+        String day = data['birthdate'].substring(3, 5);
+        String month = data['birthdate'].substring(0, 2);
+        String year = data['birthdate'].substring(6, 10);
+        DateTime birthdate = DateTime.parse('$year-$month-$day');
 
         int age =
             (birthdate.difference(DateTime.now()).inDays / 365).truncate();
@@ -249,8 +256,19 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               shrinkWrap: true,
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
-                return CustomText(snapshot.data.docs[index].data()["message"],
-                    snapshot.data.docs[index].data()["user"], _currentUser.uid);
+                String userId = snapshot.data.docs[index].data()["user"];
+                MessageType messageType;
+
+                if (userId == userId1) {
+                  messageType = MessageType.CurrentUser;
+                } else if (userId == userId2) {
+                  messageType = MessageType.Friend;
+                } else {
+                  messageType = MessageType.Information;
+                }
+
+                return CustomText(
+                    snapshot.data.docs[index].data()["message"], messageType);
               });
         });
   }
@@ -293,32 +311,27 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             finishChat();
                             //Navigator.pushReplacementNamed(context, '/home');
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                            child: Text(
-                              'ACEPTAR',
-                              style: TextStyle(
-                                  letterSpacing: 2,
-                                  color: Color(0xffff3f82),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                          child: Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
+                        SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context, true);
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
-                            child: Text(
-                              'CANCELAR',
-                              style: TextStyle(
-                                  letterSpacing: 2,
-                                  color: Color(0xffff3f82),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                          child: Text(
+                            'CANCELAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Color(0xffff3f82),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
                           ),
                         )
                       ],
@@ -339,36 +352,22 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Center(
-            child: Container(
-                width: MediaQuery.of(context).size.width - 50,
-                height: MediaQuery.of(context).size.height / 3,
-                child: Material(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Builder(builder: (context) {
-                      int randomNumber =
-                          int.parse(remoteConfig.getString('BadgesView'));
+          return Builder(builder: (context) {
+            int randomNumber = int.parse(remoteConfig.getString('BadgesView'));
 
-                      print("[RESULTS]: $randomNumber");
+            print("[RESULTS]: $randomNumber");
 
-                      switch (randomNumber) {
-                        case 1:
-                          return Results(
-                              roomId: roomId, userId: _currentUser.uid);
-                        case 2:
-                          return Results2(
-                              roomId: roomId, userId: _currentUser.uid);
-                        case 3:
-                          return Results3(
-                              roomId: roomId, userId: _currentUser.uid);
-                        default:
-                          return Results(
-                              roomId: roomId, userId: _currentUser.uid);
-                      }
-                    }))),
-          );
+            switch (randomNumber) {
+              case 1:
+                return Results(roomId: roomId, userId: _currentUser.uid);
+              case 2:
+                return Results2(roomId: roomId, userId: _currentUser.uid);
+              case 3:
+                return Results3(roomId: roomId, userId: _currentUser.uid);
+              default:
+                return Results(roomId: roomId, userId: _currentUser.uid);
+            }
+          });
         });
   }
 
@@ -384,7 +383,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .collection("messages")
         .add(message);
 
-    messages.add(CustomText(text, type, _currentUser.uid));
+    messages.add(CustomText(text, MessageType.CurrentUser));
   }
 
   addFriend() {
@@ -675,38 +674,54 @@ class Countdown extends AnimatedWidget {
 // ignore: must_be_immutable
 class CustomText extends StatelessWidget {
   String text;
-  String type;
+  MessageType type;
+
   //Loaded by sharedPreferences
-  String userId;
-  CustomText(this.text, this.type, this.userId);
+  CustomText(this.text, this.type);
   double maxW;
 
   @override
   Widget build(BuildContext context) {
     maxW = ((MediaQuery.of(context).size.width) * 0.75).roundToDouble();
 
+    MainAxisAlignment mainAxis;
+    Color color;
+    BoxDecoration boxDecoration;
+
+    switch (this.type) {
+      case MessageType.CurrentUser:
+        mainAxis = MainAxisAlignment.end;
+        color = Color(0xff959595);
+        boxDecoration = BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(width: 1, color: color));
+        break;
+
+      case MessageType.Friend:
+        mainAxis = MainAxisAlignment.start;
+        color = Color(0xffb3a407);
+        boxDecoration = BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(width: 1, color: color));
+        break;
+
+      case MessageType.Information:
+        mainAxis = MainAxisAlignment.center;
+        color = Colors.black.withOpacity(0.5);
+        boxDecoration = null;
+    }
+
     return Row(
-      mainAxisAlignment: (this.type != userId)
-          ? MainAxisAlignment.start
-          : MainAxisAlignment.end,
+      mainAxisAlignment: mainAxis,
       children: [
         Container(
             constraints: BoxConstraints(maxWidth: maxW),
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             margin: EdgeInsets.symmetric(vertical: 3),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                    width: 1,
-                    color: this.type == userId
-                        ? Color(0xff959595)
-                        : Color(0xffb3a407))),
+            decoration: boxDecoration,
             child: Text(
               text,
-              style: TextStyle(
-                  color: this.type == userId
-                      ? Color(0xff959595)
-                      : Color(0xffb3a407)),
+              style: TextStyle(color: color),
             )),
       ],
     );
