@@ -51,7 +51,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   bool _isFriend = false;
   bool _hasData = false;
 
-
   ScrollController _scrollController;
   RemoteConfig remoteConfig;
 
@@ -111,11 +110,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .collection("users")
         .doc(userId1)
         .collection("friends")
-        .where('roomId', isEqualTo: roomId)
+        .doc(roomId)
         .get();
 
     findFriendOnList.then((value) {
-      if (value.docs.isNotEmpty) {
+      if (value.exists) {
         _isFriend = true;
       }
     });
@@ -384,9 +383,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     UserService userService = RepositoryProvider.of<UserService>(context);
     if (!_isFriend) {
       await userService.addFriend(userId1, userId2, roomId);
+      _isFriend = true;
     } else {
       await userService.deleteFriend(userId1, userId2, roomId);
+      _isFriend = false;
     }
+    setState(() {});
   }
 
   @override

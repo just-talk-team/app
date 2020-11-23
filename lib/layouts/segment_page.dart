@@ -71,7 +71,6 @@ class _SegmentPage extends State<SegmentPage> {
               maxLines: 2,
             ),
           ),
-
           //Content
           Padding(
             padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
@@ -139,7 +138,6 @@ class _SegmentPage extends State<SegmentPage> {
                   ),
                 )),
           ),
-
           StatefulBuilder(
             builder: (context, setStateInner) => !finished
                 ? RaisedButton.icon(
