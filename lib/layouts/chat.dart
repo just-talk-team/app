@@ -119,14 +119,14 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     } else {
       chatCol = "friends";
     }
-
     recoverChatInfo();
-   
   }
 
   @override
   void dispose() {
-    _controller.stop();
+    if (widget._chatType == ChatType.DiscoveryChat) {
+      _controller.stop();
+    }
     super.dispose();
   }
 
@@ -398,37 +398,39 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   child: Container(
                       child: Column(
                 children: [
-                  (widget._chatType == ChatType.DiscoveryChat) ? Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            leaveChat();
-                            //finishChat();
-                          },
-                          child: Icon(Icons.clear_rounded,
-                              size: 30, color: Color(0xffb31049)),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                  width: 2,
-                                  color: Colors.black.withOpacity(0.5))),
-                          child: Countdown(
-                            animation: StepTween(
-                              begin: levelClock,
-                              end: 0,
-                            ).animate(_controller),
+                  (widget._chatType == ChatType.DiscoveryChat)
+                      ? Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  leaveChat();
+                                  //finishChat();
+                                },
+                                child: Icon(Icons.clear_rounded,
+                                    size: 30, color: Color(0xffb31049)),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 1),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                        width: 2,
+                                        color: Colors.black.withOpacity(0.5))),
+                                child: Countdown(
+                                  animation: StepTween(
+                                    begin: levelClock,
+                                    end: 0,
+                                  ).animate(_controller),
+                                ),
+                              )
+                            ],
                           ),
                         )
-                      ],
-                    ),
-                  ): Container(),
+                      : Container(),
                   Expanded(
                       child: roomId != "" ? chatMessagesList() : Container())
                 ],

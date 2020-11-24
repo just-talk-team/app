@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/contact_state.dart';
 import 'package:just_talk/models/contact.dart';
@@ -13,7 +12,7 @@ class ContactCubit extends Cubit<ContactsState> {
   String _userId;
   List<StreamSubscription<QuerySnapshot>> _streams;
   List<Tuple2<UserInfo, String>> _contactsInfo;
-  PriorityQueue<Contact> _contacts;
+  List<Contact> _contacts;
   UserService _userService;
 
   void init() async {
@@ -44,8 +43,10 @@ class ContactCubit extends Cubit<ContactsState> {
             _contacts.add(contact);
           }
 
-          emit(ContactsResult(_contacts.toList()));
-          _contacts.clear();
+          _contacts
+              .sort((a, b) => a.lastMessageTime.compareTo(b.lastMessageTime));
+          emit(ContactsResult(contacts: _contacts));
+          //_contacts.clear();
         }));
       }
     } else {
@@ -55,12 +56,10 @@ class ContactCubit extends Cubit<ContactsState> {
 
   ContactCubit({String userId, UserService userService})
       : super(ContactsEmpty()) {
-    Comparator<Contact> comparator =
-        (a, b) => a.lastMessageTime.compareTo(b.lastMessageTime);
     _userId = userId;
     _streams = [];
     _userService = userService;
-    _contacts = PriorityQueue(comparator);
+    _contacts = [];
   }
 
   @override
