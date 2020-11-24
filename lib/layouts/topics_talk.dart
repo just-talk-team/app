@@ -75,15 +75,17 @@ class _TopicsTalk extends State<TopicsTalk> {
                   setState(() {
                     loading = true;
                   });
+                  await userService.deleteTopicsHear(userId);
 
                   if (changed) {
-                    userService.setTopicsTalk(userId, topicsTalk);
-                    userService.deleteTopicsTalk(userId, deletedTopics);
-
-                    await userService.deleteTopicsHear(userId);
                     await userService.setTopicsHear(userId, topicsTalk);
+                    if (deletedTopics.length > 0) {
+                      await userService.deleteTopicsTalk(userId, deletedTopics);
+                    }
+                    userService.setTopicsTalk(userId, topicsTalk);
                     deletedTopics.clear();
                   }
+
                   List<String> segments = await userService.getSegments(userId);
 
                   await Navigator.of(context)

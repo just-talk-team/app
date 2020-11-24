@@ -48,9 +48,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     userService = RepositoryProvider.of<UserService>(context);
     discoveryService = DiscoveryService();
     initCubit();
+    initTimer();
+  }
 
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      userService.setTopicsHear(id, checkList);
+  void initTimer() {
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      List<Topic> aux = List.from(checkList);
+      await userService.setTopicsHear(id, aux);
     });
   }
 
