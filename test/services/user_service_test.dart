@@ -36,14 +36,13 @@ void main() {
     await firebaseFirestore
         .collection('users')
         .doc('test_user')
+        .collection('topics_hear')
         .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      var data = documentSnapshot.data();
+        .then((QuerySnapshot documentSnapshot) {
+      var docs = documentSnapshot.docs;
 
-      Map<String, dynamic> topics = data['topics_hear'];
-
-      topics.forEach((key, value) {
-        results.add(Topic(key, value['time'].toDate()));
+      docs.forEach((element) {
+        results.add(Topic(element.id, element.data()['time'].toDate()));
       });
     });
 
@@ -64,9 +63,7 @@ void main() {
         .doc('test_user')
         .collection('discoveries')
         .doc('test_discovery')
-        .set({
-          'field':0
-        });
+        .set({'field': 0});
     //verify
   });
 }
