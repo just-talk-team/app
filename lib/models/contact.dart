@@ -18,5 +18,5 @@ class Contact extends Equatable {
   final DateTime lastMessageTime;
 
   @override
-  List<Object> get props => [id];
+  List<Object> get props => [id, lastMessage, lastMessageTime];
 }

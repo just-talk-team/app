@@ -115,12 +115,13 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
     if (widget._chatType == ChatType.DiscoveryChat) {
       chatCol = "discoveries";
+      _startClock();
     } else {
       chatCol = "friends";
     }
 
     recoverChatInfo();
-    _startClock();
+   
   }
 
   @override

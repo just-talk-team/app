@@ -11,7 +11,7 @@ import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/utils/enums.dart';
 
 Widget contactList(List<Contact> contacts) {
-  return ListView.separated(
+  return ListView.  separated(
     shrinkWrap: true,
     separatorBuilder: (BuildContext context, int index) => Divider(
       thickness: 1,
@@ -153,13 +153,21 @@ class _ContactPageState extends State<ContactPage> {
   List<Message> messages = [];
   UserService userService;
   String userId;
+  ContactCubit contactCubit;
 
   @override
   void initState() {
     super.initState();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
-    BlocProvider.of<ContactCubit>(context).init();
+    contactCubit = ContactCubit(userId: userId, userService: userService);
+    contactCubit.init();
+  }
+
+  @override
+  void dispose() {
+    contactCubit.close();
+    super.dispose();
   }
 
   @override
@@ -181,7 +189,7 @@ class _ContactPageState extends State<ContactPage> {
               onPressed: () {
                 showSearch(
                     context: context,
-                    delegate: Search(BlocProvider.of<ContactCubit>(context)));
+                    delegate: Search(contactCubit));
               }),
           IconButton(
             icon: const Icon(Icons.build),
@@ -191,18 +199,20 @@ class _ContactPageState extends State<ContactPage> {
           ),
         ],
       ),
-      body: BlocBuilder<ContactCubit, ContactsState>(builder: (context, state) {
-        switch (state.runtimeType) {
-          case ContactsLoading:
-            return Center(child: CircularProgressIndicator());
-          case ContactsEmpty:
-            return Container();
-          case ContactsResult:
-            return contactList((state as ContactsResult).contacts);
-          default:
-            return Container();
-        }
-      }),
+      body: BlocBuilder<ContactCubit, ContactsState>(
+          cubit: contactCubit,
+          builder: (context, state) {
+            switch (state.runtimeType) {
+              case ContactsLoading:
+                return Center(child: CircularProgressIndicator());
+              case ContactsEmpty:
+                return Container();
+              case ContactsResult:
+                return contactList((state as ContactsResult).contacts);
+              default:
+                return Container();
+            }
+          }),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

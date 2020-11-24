@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:just_talk/models/contact.dart';
 
-
 class ContactsState extends Equatable {
   @override
   List<Object> get props => [];
