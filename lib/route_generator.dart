@@ -57,7 +57,10 @@ class RouterGenerator {
             settings: RouteSettings(name: '/filters'));
       case '/chat':
         return MaterialPageRoute(
-            builder: (context) => Chat(),
+            builder: (context) => Chat(
+                  roomId: arg['roomId'],
+                  chatType: arg['chatType'],
+                ),
             settings: RouteSettings(name: '/chat'));
     }
 

@@ -45,8 +45,6 @@ class _SegmentPage extends State<SegmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0;
-
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -71,7 +69,6 @@ class _SegmentPage extends State<SegmentPage> {
               maxLines: 2,
             ),
           ),
-
           //Content
           Padding(
             padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
@@ -139,7 +136,6 @@ class _SegmentPage extends State<SegmentPage> {
                   ),
                 )),
           ),
-
           StatefulBuilder(
             builder: (context, setStateInner) => !finished
                 ? RaisedButton.icon(

@@ -8,6 +8,7 @@ import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/models/contact.dart';
 import 'package:just_talk/models/message.dart';
 import 'package:just_talk/services/user_service.dart';
+import 'package:just_talk/utils/enums.dart';
 
 Widget contactList(List<Contact> contacts) {
   return ListView.separated(
@@ -29,7 +30,12 @@ Widget contactList(List<Contact> contacts) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: ListTile(
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).pushNamed('/chat', arguments: {
+              'roomId': contacts[index].roomId,
+              'chatType': ChatType.FriendChat,
+            });
+          },
           title: Row(
             children: [
               Expanded(
@@ -67,11 +73,14 @@ class Search extends SearchDelegate {
   ContactCubit contactCubit;
 
   bool validate(String element, String query) {
-    if (element.length < query.length) {
+    String elementAux = element.toLowerCase();
+    String queryAux = element.toLowerCase();
+
+    if (elementAux.length < queryAux.length) {
       return false;
     }
-    for (int i = 0; i < query.length; ++i) {
-      if (query[i] != element[i]) {
+    for (int i = 0; i < queryAux.length; ++i) {
+      if (queryAux[i] != elementAux[i]) {
         return false;
       }
     }
@@ -119,8 +128,15 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    //  
-    throw UnimplementedError();
+    ContactsState contactState = contactCubit.state;
+    if (contactState.runtimeType == ContactsResult) {
+      List<Contact> contacts = (contactState as ContactsResult).contacts;
+      return contactList(contacts
+          .where((Contact element) =>
+              element.name.toLowerCase() == query.toLowerCase())
+          .toList());
+    }
+    return Container();
   }
 }
 
