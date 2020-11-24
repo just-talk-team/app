@@ -20,6 +20,7 @@ class TopicsService {
       List<Tuple2<Topic, bool>> topics = [];
       event.docChanges.forEach((DocumentChange documentChange) {
         DateTime docDate = documentChange.doc.data()['time'].toDate();
+        //TODO: TEST
         //if (DateTime.now().difference(docDate).inMinutes <= 5) {
         Topic topic = Topic(documentChange.doc.id, docDate);
         bool flag = false;

@@ -45,8 +45,6 @@ class _SegmentPage extends State<SegmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0;
-
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[

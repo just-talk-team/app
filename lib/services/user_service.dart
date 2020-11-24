@@ -24,9 +24,9 @@ class UserService {
   Future<void> registrateUser(UserInput userI, String userId) async {
     final StorageReference postImageRef =
         _firebaseStorage.ref().child("UserProfile");
-    var timeKey = DateTime.now();
+
     final StorageUploadTask uploadTask = postImageRef
-        .child(timeKey.toString() + ".jpg")
+        .child(userId + ".jpg")
         .putFile(userI.imgProfile);
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     String url = imageUrl.toString();
@@ -263,6 +263,7 @@ class UserService {
         var segments = await getSegments(friendId);
         var badgets = await getBadgets(friendId);
 
+        //TODO: TEST
         /*if (userInfo.age >= filter.minimunAge &&
             userInfo.age <= filter.maximumAge &&
             _validateSegment(filter.segments, segments) &&
@@ -469,4 +470,6 @@ class UserService {
       'friends': FieldValue.arrayRemove([userId])
     });
   }
+
+  
 }
