@@ -76,9 +76,9 @@ class _TopicsTalk extends State<TopicsTalk> {
                     loading = true;
                   });
                   await userService.deleteTopicsHear(userId);
+                  await userService.setTopicsHear(userId, topicsTalk);
 
-                  if (changed) {
-                    await userService.setTopicsHear(userId, topicsTalk);
+                  if (changed) {         
                     if (deletedTopics.length > 0) {
                       await userService.deleteTopicsTalk(userId, deletedTopics);
                     }
