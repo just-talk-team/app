@@ -457,7 +457,7 @@ class UserService {
           .set({
         'message': 'Inicio del chat',
         'user': 'information',
-        'time': DateTime.now()
+        'time': DateTime.now().microsecondsSinceEpoch
       });
     }
   }

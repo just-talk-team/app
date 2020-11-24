@@ -120,7 +120,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     }
 
     recoverChatInfo();
-    _startClock();
+
+    if (widget._chatType == ChatType.DiscoveryChat) {
+      _startClock();
+    }
   }
 
   @override
@@ -393,45 +396,45 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(
-                  child: Container(
-                      child: Column(
+              Column(
                 children: [
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            leaveChat();
-                            //finishChat();
-                          },
-                          child: Icon(Icons.clear_rounded,
-                              size: 30, color: Color(0xffb31049)),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                  width: 2,
-                                  color: Colors.black.withOpacity(0.5))),
-                          child: Countdown(
-                            animation: StepTween(
-                              begin: levelClock,
-                              end: 0,
-                            ).animate(_controller),
+                  (widget._chatType == ChatType.DiscoveryChat)
+                      ? Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  leaveChat();
+                                  //finishChat();
+                                },
+                                child: Icon(Icons.clear_rounded,
+                                    size: 30, color: Color(0xffb31049)),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 1),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    border: Border.all(
+                                        width: 2,
+                                        color: Colors.black.withOpacity(0.5))),
+                                child: Countdown(
+                                  animation: StepTween(
+                                    begin: levelClock,
+                                    end: 0,
+                                  ).animate(_controller),
+                                ),
+                              ),
+                            ],
                           ),
                         )
-                      ],
-                    ),
-                  ),
+                      : Container(),
                   Expanded(
                       child: roomId != "" ? chatMessagesList() : Container())
                 ],
-              ))),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                 child: Row(
