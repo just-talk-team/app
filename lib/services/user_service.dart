@@ -428,9 +428,18 @@ class UserService {
         .doc(roomId)
         .set({'friend': friendId});
 
-    await _firebaseFirestore.collection("friends").doc(roomId).update({
-      'friends': FieldValue.arrayUnion([userId])
-    });
+    var friendDoc =
+        await _firebaseFirestore.collection("friends").doc(roomId).get();
+
+    if (!friendDoc.exists) {
+      await _firebaseFirestore.collection("friends").doc(roomId).set({
+        'friends': FieldValue.arrayUnion([userId])
+      });
+    } else {
+      await _firebaseFirestore.collection("friends").doc(roomId).update({
+        'friends': FieldValue.arrayUnion([userId])
+      });
+    }
 
     var doc = await _firebaseFirestore
         .collection("friends")
