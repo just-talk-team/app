@@ -25,9 +25,8 @@ class UserService {
     final StorageReference postImageRef =
         _firebaseStorage.ref().child("UserProfile");
 
-    final StorageUploadTask uploadTask = postImageRef
-        .child(userId + ".jpg")
-        .putFile(userI.imgProfile);
+    final StorageUploadTask uploadTask =
+        postImageRef.child(userId + ".jpg").putFile(userI.imgProfile);
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     String url = imageUrl.toString();
 
@@ -173,15 +172,13 @@ class UserService {
   }
 
   Future setTopicsToHear(List<Topic> topics, String id) async {
-    DocumentReference user = _firebaseFirestore.collection("users").doc(id);
+    CollectionReference user = _firebaseFirestore
+        .collection("users")
+        .doc(id)
+        .collection('topics_hear');
 
-    Map<String, dynamic> topicsMap = Map();
     for (Topic topic in topics) {
-      topicsMap[topic.topic] = {'time': DateTime.now()};
-    }
-
-    if (topicsMap.length > 0) {
-      await user.update({'topics_hear': topicsMap});
+      await user.doc(topic.topic).set({'time': topic.time});
     }
   }
 
@@ -244,8 +241,7 @@ class UserService {
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((document) {
-        usersRoom
-            .add(Tuple2(document.id, document.data()['friend']));
+        usersRoom.add(Tuple2(document.id, document.data()['friend']));
       });
     });
 
@@ -470,6 +466,4 @@ class UserService {
       'friends': FieldValue.arrayRemove([userId])
     });
   }
-
-  
 }
