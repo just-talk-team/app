@@ -397,7 +397,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   child: Container(
                       child: Column(
                 children: [
-                  Container(
+                  (widget._chatType == ChatType.DiscoveryChat) ? Container(
                     margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -427,7 +427,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         )
                       ],
                     ),
-                  ),
+                  ): Container(),
                   Expanded(
                       child: roomId != "" ? chatMessagesList() : Container())
                 ],

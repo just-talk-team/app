@@ -277,7 +277,7 @@ class UserService {
         .collection('friends')
         .doc(roomId)
         .collection('messages')
-        .orderBy('time')
+        .orderBy('time', descending: true)
         .limit(1)
         .snapshots();
   }
@@ -457,7 +457,7 @@ class UserService {
           .set({
         'message': 'Inicio del chat',
         'user': 'information',
-        'time': DateTime.now().microsecondsSinceEpoch
+        'time': DateTime.now().millisecondsSinceEpoch
       });
     }
   }
