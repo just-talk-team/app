@@ -35,7 +35,7 @@ class ContactCubit extends Cubit<ContactsState> {
                 photo: contactInfo.item1.photo,
                 roomId: contactInfo.item2,
                 lastMessage: doc['message'],
-                lastMessageTime: doc['time'].toDate());
+                lastMessageTime: DateTime.fromMillisecondsSinceEpoch(doc['time']));
 
             if (_contacts.contains(contact)) {
               _contacts.remove(contact);
