@@ -171,7 +171,7 @@ class UserService {
     return badgets;
   }
 
-  Future setTopicsToHear(List<Topic> topics, String id) async {
+  Future<void> setTopicsToHear(List<Topic> topics, String id) async {
     CollectionReference user = _firebaseFirestore
         .collection("users")
         .doc(id)

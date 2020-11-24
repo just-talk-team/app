@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/custom_text.dart';
@@ -110,6 +111,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _scrollController = ScrollController();
     remoteConfig = RepositoryProvider.of<RemoteService>(context).remoteConfig;
     userService = RepositoryProvider.of<UserService>(context);
+    userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
 
     if (widget._chatType == ChatType.DiscoveryChat) {
       chatCol = "discoveries";
