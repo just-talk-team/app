@@ -66,7 +66,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     //load your data (check if userId its in friendList)====================================================================
     userInfo = await userService.getUser(userId, false, false);
     //Search frieden on user friend list===============================================
-
+    //
     var findFriendOnList = FirebaseFirestore.instance
         .collection("users")
         .doc(userId)
