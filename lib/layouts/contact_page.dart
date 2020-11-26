@@ -55,7 +55,7 @@ Widget contactList(List<Contact> contacts) {
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: Text(
               contacts[index].lastMessage,
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.subtitle1,
             ),
           ),
           leading: CircleAvatar(

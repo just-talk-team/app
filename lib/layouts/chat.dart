@@ -311,56 +311,62 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         title: Builder(
           builder: (BuildContext context) {
             if (_hasData) {
-              return Row(
-                children: [
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1.5,
-                            blurRadius: 1.5,
-                            offset: Offset(0, 3))
-                      ],
-                      shape: BoxShape.circle,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .pushNamed('/chat_profile', arguments: {'userId': friendId});
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 1.5,
+                              blurRadius: 1.5,
+                              offset: Offset(0, 3))
+                        ],
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 25,
+                        backgroundImage: NetworkImage(friendInfo.photo),
+                      ),
                     ),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      radius: 25,
-                      backgroundImage: NetworkImage(friendInfo.photo),
-                    ),
-                  ),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        new Text(
-                          friendInfo.nickname,
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              describeEnum(friendInfo.gender),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                            Text(' | '),
-                            Text(
-                              friendInfo.age.toString() + " años",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                            SizedBox(width: 10)
-                          ],
-                        ),
-                      ]),
-                ],
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          new Text(
+                            friendInfo.nickname,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                describeEnum(friendInfo.gender),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                              Text(' | '),
+                              Text(
+                                friendInfo.age.toString() + " años",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                              SizedBox(width: 10)
+                            ],
+                          ),
+                        ]),
+                  ],
+                ),
               );
             } else {
               return Container();
