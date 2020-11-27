@@ -64,7 +64,17 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
-            label: Text(multipleChoice),
+            showCheckmark: false,
+            label: Text(
+              multipleChoice,
+              style: (_multipleSelected.contains(multipleChoice))
+                  ? TextStyle(
+                      fontFamily: "Roboto",
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)
+                  : TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
+            ),
             selectedColor: Color(0xffb3a407),
             selected: _multipleSelected.contains(multipleChoice),
             onSelected: (bool selected) {
@@ -194,23 +204,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                       }),
                     ),
                   )),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: RaisedButton.icon(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      side: BorderSide(color: Colors.red)),
-                  color: Color(0xFFb31020),
-                  padding: EdgeInsets.all(18.0),
-                  textColor: Colors.white,
-                  onPressed: () async {},
-                  icon: Icon(Icons.sentiment_satisfied, size: 18),
-                  label: Text(
-                    "Finalizar",
-                    style: TextStyle(fontSize: 25),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

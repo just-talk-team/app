@@ -48,14 +48,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          iconSize: 30,
-          icon: Icon(Icons.keyboard_arrow_left),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: Text(
           'Mi perfil',
         ),
@@ -80,14 +72,14 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: loaded
           ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                        margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
                         child: CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.grey,
@@ -116,12 +108,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Wrap(
                         spacing: 6.0,
-                        runSpacing: 6.0,
+                        runSpacing: 1.0,
                         children:
                             List<Widget>.generate(segments.length, (int index) {
                           return Chip(
@@ -174,7 +166,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: List<Widget>.generate(topicsHear.length,
                             (int index) {
                           return Chip(
-                            label: Text(topicsHear[index].topic),
+                               label: Text(
+                                topicsHear[index].topic,
+                                style: TextStyle(),
+                              ),
+                              shape: StadiumBorder(
+                                  side: BorderSide(
+                                      width: 0.5,
+                                      color: Colors.black.withOpacity(0.5))),
+                              backgroundColor: Colors.transparent,
                           );
                         }),
                       ),

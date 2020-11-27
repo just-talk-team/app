@@ -47,27 +47,27 @@ class _Profile extends State<Profile> {
         appBar: AppBar(
             centerTitle: true,
             leading: IconButton(
-          iconSize: 30,
-          icon: Icon(Icons.keyboard_arrow_left),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+              iconSize: 30,
+              icon: Icon(Icons.keyboard_arrow_left),
+              color: Colors.black,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
             title: Text(
               'Perfil',
             )),
         body: loaded
             ? Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
                       children: [
                         Container(
-                          margin: EdgeInsets.fromLTRB(10, 0, 20, 0),
+                          margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
                           child: CircleAvatar(
                             radius: 30,
                             backgroundColor: Colors.grey,
@@ -97,51 +97,52 @@ class _Profile extends State<Profile> {
                     ),
                     Container(
                       margin:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
                           spacing: 6.0,
-                          runSpacing: 6.0,
+                          runSpacing: 1.0,
                           children: List<Widget>.generate(segments.length,
                               (int index) {
                             return Chip(
-                              label: Text(segments[index]),
-                            );
+                                label: Text(segments[index],
+                                    style: TextStyle(
+                                        fontFamily: "Roboto",
+                                        fontWeight: FontWeight.normal)));
                           }),
                         ),
                       ),
                     ),
                     Container(
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      margin: EdgeInsets.symmetric(vertical: 20),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
-                        spacing: 10,
-                        children: [
-                          Badge(
-                            selected: true,
-                            icon: Icons.hearing,
-                            text: 'Buen oyente',
-                            valueChanged: (state) {},
-                            active: false,
-                          ),
-                          Badge(
-                            selected: true,
-                            icon: Icons.mood,
-                            text: 'Buen conversador',
-                            valueChanged: (state) {},
-                            active: false,
-                          ),
-                          Badge(
-                            selected: true,
-                            icon: Icons.sentiment_very_satisfied,
-                            text: 'Divertido',
-                            valueChanged: (state) {},
-                            active: false,
-                          ),
-                        ],
+                          spacing: 10.0,
+                          children: [
+                            Badge(
+                              selected: true,
+                              icon: Icons.hearing,
+                              text: 'Buen oyente',
+                              valueChanged: (state) {},
+                              active: false,
+                            ),
+                            Badge(
+                              selected: true,
+                              icon: Icons.mood,
+                              text: 'Buen conversador',
+                              valueChanged: (state) {},
+                              active: false,
+                            ),
+                            Badge(
+                              selected: true,
+                              icon: Icons.sentiment_very_satisfied,
+                              text: 'Divertido',
+                              valueChanged: (state) {},
+                              active: false,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -156,7 +157,15 @@ class _Profile extends State<Profile> {
                           children: List<Widget>.generate(topicsHear.length,
                               (int index) {
                             return Chip(
-                              label: Text(topicsHear[index].topic),
+                              label: Text(topicsHear[index].topic,
+                                  style: TextStyle(
+                                      fontFamily: "Roboto",
+                                      fontWeight: FontWeight.normal)),
+                              shape: StadiumBorder(
+                                  side: BorderSide(
+                                      width: 0.5,
+                                      color: Colors.black.withOpacity(0.5))),
+                              backgroundColor: Colors.transparent,
                             );
                           }),
                         ),
