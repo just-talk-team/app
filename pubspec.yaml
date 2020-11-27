@@ -51,6 +51,8 @@ dependencies:
   cupertino_icons: ^1.0.0
   #shared_preferences: ^0.5.12+4
   firebase_remote_config: ^0.4.2
+  firebase_performance: ^0.4.2
+
 
 dev_dependencies:
   flutter_test:
