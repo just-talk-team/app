@@ -77,7 +77,7 @@ class Results extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     badgeService.registerBadges(flags, _roomId, _userId);
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.of(context).popUntil((route) => (route.settings.name == '/home'));
                   },
                   child: Text(
                     'FINALIZAR',
