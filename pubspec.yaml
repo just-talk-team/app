@@ -52,6 +52,7 @@ dependencies:
   #shared_preferences: ^0.5.12+4
   firebase_remote_config: ^0.4.2
   firebase_performance: ^0.4.2
+  flutter_holo_date_picker: ^0.2.3
 
 
 dev_dependencies:

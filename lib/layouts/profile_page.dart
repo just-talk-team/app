@@ -36,12 +36,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> loadData() async {
-    userInfo = await widget.userService.getUser(userId, false, false);
-    segments = await widget.userService.getSegments(userId);
-    topicsHear = await widget.userService.getTopicsHear(userId);
-    setState(() {
-      loaded = true;
-    });
+    try {
+      userInfo = await widget.userService.getUser(userId, false, false);
+      segments = await widget.userService.getSegments(userId);
+      topicsHear = await widget.userService.getTopicsHear(userId);
+      setState(() {
+        loaded = true;
+      });
+    } catch (exception) {
+      print(exception);
+    }
   }
 
   @override
@@ -54,18 +58,22 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: <Widget>[
           IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
+              onPressed: () async {
                 if (userInfo != null) {
-                  Navigator.pushNamed(context, '/configuration', arguments: {
-                    'userId': BlocProvider.of<AuthenticationCubit>(context)
-                        .state
-                        .user
-                        .id,
-                    'userInfo': userInfo,
-                    'userService': widget.userService,
-                  }).then((value) {
-                    setState(() {});
-                  });
+                  final change = await Navigator.pushNamed(
+                      context, '/configuration',
+                      arguments: {
+                        'userId': BlocProvider.of<AuthenticationCubit>(context)
+                            .state
+                            .user
+                            .id,
+                        'userInfo': userInfo,
+                        'userService': widget.userService,
+                      });
+
+                  if (change) {
+                    loadData();
+                  }
                 }
               }),
         ],
@@ -166,15 +174,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: List<Widget>.generate(topicsHear.length,
                             (int index) {
                           return Chip(
-                               label: Text(
-                                topicsHear[index].topic,
-                                style: TextStyle(),
-                              ),
-                              shape: StadiumBorder(
-                                  side: BorderSide(
-                                      width: 0.5,
-                                      color: Colors.black.withOpacity(0.5))),
-                              backgroundColor: Colors.transparent,
+                            label: Text(
+                              topicsHear[index].topic,
+                              style: TextStyle(),
+                            ),
+                            shape: StadiumBorder(
+                                side: BorderSide(
+                                    width: 0.5,
+                                    color: Colors.black.withOpacity(0.5))),
+                            backgroundColor: Colors.transparent,
                           );
                         }),
                       ),

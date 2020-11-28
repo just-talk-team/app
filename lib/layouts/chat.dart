@@ -301,191 +301,202 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
       }
     });
 
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        elevation: 4,
-        toolbarHeight: 80,
-        automaticallyImplyLeading: false,
-        title: Builder(
-          builder: (BuildContext context) {
-            if (_hasData) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.of(context)
-                      .pushNamed('/chat_profile', arguments: {'userId': friendId});
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 1.5,
-                              blurRadius: 1.5,
-                              offset: Offset(0, 3))
-                        ],
-                        shape: BoxShape.circle,
+    return WillPopScope(
+      onWillPop: () async {
+        if (widget._chatType == ChatType.FriendChat) {
+          Navigator.of(context).pop();
+          return true;
+        }
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          elevation: 4,
+          toolbarHeight: 80,
+          automaticallyImplyLeading: false,
+          title: Builder(
+            builder: (BuildContext context) {
+              if (_hasData) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/chat_profile',
+                        arguments: {'userId': friendId});
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1.5,
+                                blurRadius: 1.5,
+                                offset: Offset(0, 3))
+                          ],
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          radius: 25,
+                          backgroundImage: NetworkImage(friendInfo.photo),
+                        ),
                       ),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 25,
-                        backgroundImage: NetworkImage(friendInfo.photo),
-                      ),
-                    ),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          new Text(
-                            friendInfo.nickname,
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                describeEnum(friendInfo.gender),
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                              ),
-                              Text(' | '),
-                              Text(
-                                friendInfo.age.toString() + " años",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                              ),
-                              SizedBox(width: 10)
-                            ],
-                          ),
-                        ]),
-                  ],
-                ),
-              );
-            } else {
-              return Container();
-            }
-          },
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            new Text(
+                              friendInfo.nickname,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  describeEnum(friendInfo.gender),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                ),
+                                Text(' | '),
+                                Text(
+                                  friendInfo.age.toString() + " años",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black),
+                                ),
+                                SizedBox(width: 10)
+                              ],
+                            ),
+                          ]),
+                    ],
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      addFriend();
+                    },
+                    icon: _isFriend
+                        ? Icon(Icons.star_rounded)
+                        : Icon(Icons.star_border_rounded),
+                    iconSize: 30,
+                    color: Color(0xffb31049),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+        body: Container(
+            margin: EdgeInsets.all(10),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  onPressed: () {
-                    addFriend();
-                  },
-                  icon: _isFriend
-                      ? Icon(Icons.star_rounded)
-                      : Icon(Icons.star_border_rounded),
-                  iconSize: 30,
-                  color: Color(0xffb31049),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-      body: Container(
-          margin: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                  child: Container(
-                      child: Column(
-                children: [
-                  (widget._chatType == ChatType.DiscoveryChat)
-                      ? Container(
-                          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  leaveChat();
-                                  //finishChat();
-                                },
-                                child: Icon(Icons.clear_rounded,
-                                    size: 30, color: Color(0xffb31049)),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 1),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    border: Border.all(
-                                        width: 2,
-                                        color: Colors.black.withOpacity(0.5))),
-                                child: Countdown(
-                                  animation: StepTween(
-                                    begin: levelClock,
-                                    end: 0,
-                                  ).animate(_controller),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      : Container(),
-                  Expanded(
-                      child: roomId != "" ? chatMessagesList() : Container())
-                ],
-              ))),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child: Row(
+                Expanded(
+                    child: Container(
+                        child: Column(
                   children: [
-                    Expanded(
-                      flex: 8,
-                      child: Container(
-                        height: 50.0,
-                        child: TextField(
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 2.0),
+                    (widget._chatType == ChatType.DiscoveryChat)
+                        ? Container(
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    leaveChat();
+                                    //finishChat();
+                                  },
+                                  child: Icon(Icons.clear_rounded,
+                                      size: 30, color: Color(0xffb31049)),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 1),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(
+                                          width: 2,
+                                          color:
+                                              Colors.black.withOpacity(0.5))),
+                                  child: Countdown(
+                                    animation: StepTween(
+                                      begin: levelClock,
+                                      end: 0,
+                                    ).animate(_controller),
+                                  ),
+                                )
+                              ],
                             ),
-                            hintText: 'Escribe aqui el mensaje...',
-                            contentPadding: EdgeInsets.all(10.0),
+                          )
+                        : Container(),
+                    Expanded(
+                        child: roomId != "" ? chatMessagesList() : Container())
+                  ],
+                ))),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 8,
+                        child: Container(
+                          height: 50.0,
+                          child: TextField(
+                            controller: _messageController,
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 2.0),
+                              ),
+                              hintText: 'Escribe aqui el mensaje...',
+                              contentPadding: EdgeInsets.all(10.0),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (_messageController.text.length > 0) {
-                            await sendMessage(_messageController.text, userId);
-                            _messageController.clear();
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            _scrollController.animateTo(
-                              _scrollController.position.maxScrollExtent,
-                              curve: Curves.easeOut,
-                              duration: const Duration(milliseconds: 400),
-                            );
-                          }
-                        },
-                        child: Icon(Icons.send_rounded,
-                            size: 30, color: Color(0xffb31049)),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            ],
-          )),
+                      Expanded(
+                        flex: 2,
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (_messageController.text.length > 0) {
+                              await sendMessage(
+                                  _messageController.text, userId);
+                              _messageController.clear();
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                curve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 400),
+                              );
+                            }
+                          },
+                          child: Icon(Icons.send_rounded,
+                              size: 30, color: Color(0xffb31049)),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            )),
+      ),
     );
   }
 }

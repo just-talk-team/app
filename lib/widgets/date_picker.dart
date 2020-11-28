@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'package:intl/intl.dart';
 
 class MyTextFieldDatePicker extends StatefulWidget {
@@ -55,13 +56,12 @@ class _MyTextFieldDatePicker extends State<MyTextFieldDatePicker> {
     }
 
     _selectedDate = widget.initialDate;
-
     _controllerDate = TextEditingController();
-    _controllerDate.text = _dateFormat.format(_selectedDate);
   }
 
   @override
   Widget build(BuildContext context) {
+    _controllerDate.text = _dateFormat.format(_selectedDate);
     return TextField(
       focusNode: widget.focusNode,
       controller: _controllerDate,
@@ -72,7 +72,14 @@ class _MyTextFieldDatePicker extends State<MyTextFieldDatePicker> {
         suffixIcon: widget.suffixIcon,
         labelText: widget.labelText,
       ),
-      onTap: () => _selectDate(context),
+      onTap: () async {
+        var result = await showDate(context);
+        if (result != null) {
+          widget.onDateChanged(result);
+          _selectedDate = result;
+          setState(() {});
+        }
+      },
       readOnly: true,
     );
   }
@@ -83,22 +90,58 @@ class _MyTextFieldDatePicker extends State<MyTextFieldDatePicker> {
     super.dispose();
   }
 
-  Future<Null> _selectDate(BuildContext context) async {
-    final DateTime pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: widget.firstDate,
-      lastDate: widget.lastDate,
+  Future<DateTime> showDate(BuildContext context) {
+    DateTime _selectedDateAux = widget.initialDate;
+
+    List<Widget> listButtonActions = [
+      FlatButton(
+        textColor: Color(0xffff3f82),
+        child: Text(
+          'ACEPTAR',
+          style: TextStyle(
+              letterSpacing: 2, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        onPressed: () {
+          Navigator.pop(context, _selectedDateAux);
+        },
+      ),
+      FlatButton(
+        textColor: Color(0xffff3f82),
+        child: Text(
+          'CANCELAR',
+          style: TextStyle(
+              letterSpacing: 2, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      )
+    ];
+
+    var dialog = AlertDialog(
+      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 14),
+      content: Container(
+        width: 300,
+        child: DatePickerWidget(
+          firstDate: widget.firstDate,
+          lastDate: widget.lastDate,
+          initialDate: widget.initialDate,
+          pickerTheme: DateTimePickerTheme(
+            backgroundColor: Colors.white,
+            itemTextStyle: TextStyle(color: Colors.black),
+          ),
+          onChange: ((DateTime date, list) {
+            _selectedDateAux = date;
+          }),
+          looping: true,
+        ),
+      ),
+      actions: listButtonActions,
     );
 
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      _selectedDate = pickedDate;
-      _controllerDate.text = _dateFormat.format(_selectedDate);
-      widget.onDateChanged(_selectedDate);
-    }
-
-    if (widget.focusNode != null) {
-      widget.focusNode.nextFocus();
-    }
+    return showDialog(
+        useRootNavigator: false,
+        context: context,
+        builder: (context) => dialog);
   }
 }

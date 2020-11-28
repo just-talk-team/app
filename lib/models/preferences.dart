@@ -24,6 +24,13 @@ class Preferences extends Equatable {
         segments = [],
         badgets = [];
 
+   Preferences.fromChange(PreferencesChange preferencesChange)
+      : minimunAge = preferencesChange.minimunAge,
+        maximumAge = preferencesChange.maximumAge,
+        genders = List.from(preferencesChange.genders),
+        segments = List.from(preferencesChange.segments),
+        badgets = List.from(preferencesChange.badgets);
+
   @override
   List<Object> get props =>
       [maximumAge, minimunAge, genders, segments, badgets];

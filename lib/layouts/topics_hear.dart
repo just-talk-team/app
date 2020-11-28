@@ -234,7 +234,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             textAlign: TextAlign.center,
           ),
         ),
-        body: Column(
+        body: ListView(
           children: [
             BlocBuilder<TopicHearCubit, TopicHearState>(
                 cubit: topicHearCubit,
