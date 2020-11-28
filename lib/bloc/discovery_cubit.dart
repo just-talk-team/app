@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/discovery_state.dart';
 import 'package:just_talk/services/discovery_service.dart';
@@ -45,7 +46,13 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       bool flag = true;
 
       querySnapshot.docs.forEach((element) {
-        logger.i("Stream ${element.id} - ${element.data()['activated']}");
+        try {
+          logger.i("Stream ${element.id} - ${element.data()['activated']}");
+          throw 'error_example';
+        } catch (e, s) {
+          FirebaseCrashlytics.instance
+              .recordError(e, s, reason: 'as an example');
+        }
       });
 
       querySnapshot.docs.forEach((element) {
