@@ -176,7 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           return Chip(
                             label: Text(
                               topicsHear[index].topic,
-                              style: TextStyle(),
                             ),
                             shape: StadiumBorder(
                                 side: BorderSide(

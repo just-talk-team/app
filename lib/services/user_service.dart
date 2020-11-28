@@ -43,13 +43,13 @@ class UserService {
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
       'preferences': {
-        'ages': [16, 99],
+        'ages': [18, 99],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
       'filters': {
-        'ages': [16, 99],
+        'ages': [18, 99],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),

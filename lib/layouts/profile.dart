@@ -105,11 +105,7 @@ class _Profile extends State<Profile> {
                           runSpacing: 1.0,
                           children: List<Widget>.generate(segments.length,
                               (int index) {
-                            return Chip(
-                                label: Text(segments[index],
-                                    style: TextStyle(
-                                        fontFamily: "Roboto",
-                                        fontWeight: FontWeight.normal)));
+                            return Chip(label: Text(segments[index])); 
                           }),
                         ),
                       ),
@@ -157,10 +153,9 @@ class _Profile extends State<Profile> {
                           children: List<Widget>.generate(topicsHear.length,
                               (int index) {
                             return Chip(
-                              label: Text(topicsHear[index].topic,
-                                  style: TextStyle(
-                                      fontFamily: "Roboto",
-                                      fontWeight: FontWeight.normal)),
+                              label: Text(
+                                topicsHear[index].topic,
+                              ),
                               shape: StadiumBorder(
                                   side: BorderSide(
                                       width: 0.5,
