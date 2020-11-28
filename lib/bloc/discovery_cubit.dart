@@ -4,10 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/discovery_state.dart';
 import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/user_service.dart';
+import 'package:logger/logger.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
-      : super(DiscoveryNotFound());
+      : super(DiscoveryNotFound()) {
+    logger = Logger(
+      filter: null, // Use the default LogFilter (-> only log in debug mode)
+      printer: PrettyPrinter(), // Use the PrettyPrinter to format and print log
+      output: null, // Use the default LogOutput (-> send everything to console)
+    );
+  }
 
   Future<void> reset() async {
     rooms.cancel();
@@ -33,15 +40,12 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   void _validateRoom(String roomId) {
     discoveries.cancel();
-
-    roomStream = discoveryService.getRoom(roomId);
-
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
       bool flag = true;
 
       querySnapshot.docs.forEach((element) {
-        print("Stream ${element.id} - ${element.data()['activated']}");
+        logger.i("Stream ${element.id} - ${element.data()['activated']}");
       });
 
       querySnapshot.docs.forEach((element) {
@@ -60,12 +64,13 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   void _getDiscoveries(QuerySnapshot querySnapshot) {
-    if (querySnapshot.docChanges.length > 0) {
+    if (querySnapshot.docs.length > 0) {
       List<DocumentChange> documents = [];
 
       querySnapshot.docChanges.forEach((element) {
         if (element.type == DocumentChangeType.added) {
           documents.add(element);
+          logger.i("Document ID - ${element.doc.id}");
         }
       });
 
@@ -86,7 +91,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   final DiscoveryService discoveryService;
   final UserService userService;
 
-  Stream<QuerySnapshot> roomStream;
   StreamSubscription<QuerySnapshot> discoveries;
   StreamSubscription<QuerySnapshot> rooms;
+  Logger logger;
 }

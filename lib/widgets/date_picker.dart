@@ -52,7 +52,7 @@ class _MyTextFieldDatePicker extends State<MyTextFieldDatePicker> {
     if (widget.dateFormat != null) {
       _dateFormat = widget.dateFormat;
     } else {
-      _dateFormat = DateFormat.MMMEd();
+      _dateFormat = DateFormat('dd-MM-yyyy');
     }
 
     _selectedDate = widget.initialDate;

@@ -106,7 +106,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             Animation secondAnimation) {
           return WillPopScope(
             onWillPop: () async {
-              return true;
+              return false;
             },
             child: Center(
               child: Container(
