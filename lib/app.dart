@@ -69,7 +69,7 @@ class _AppViewState extends State<AppView> {
                 case AuthenticationStatus.authenticated:
                   bool result = await register(state.user.id);
                   if (result) {
-                    _navigator.pushReplacementNamed('/home');
+                    _navigator.pushReplacementNamed('/register');
                     break;
                   }
                   _navigator.pushReplacementNamed('/register');
