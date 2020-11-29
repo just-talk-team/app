@@ -242,7 +242,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                   if (topicHearState.runtimeType == TopicHearResult) {
                     topicsToHear = getTopics(
                         (topicHearState as TopicHearResult).topics, checkList);
-
                     return Container(
                       alignment: Alignment.center,
                       margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
