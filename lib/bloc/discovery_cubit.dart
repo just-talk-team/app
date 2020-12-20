@@ -47,7 +47,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
       querySnapshot.docs.forEach((element) {
         try {
-          logger.i("Stream ${element.id} - ${element.data()['activated']}");
+          logger.i(
+              "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId");
           throw 'error_example';
         } catch (e, s) {
           FirebaseCrashlytics.instance
