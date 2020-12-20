@@ -1,21 +1,20 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
+import 'package:just_talk/utils/enums.dart';
 import 'package:just_talk/widgets/date_picker.dart';
 
-// ignore: must_be_immutable
 class ConfigurationPage extends StatefulWidget {
   ConfigurationPage({this.userId, this.userInfo, this.userService});
 
   final String userId;
-  UserInfo userInfo;
-  UserService userService;
-
-  final List<String> multipleChoices = ['Masculino', 'Femenino'];
+  final UserInfo userInfo;
+  final UserService userService;
 
   @override
   _ConfigurationPageState createState() => _ConfigurationPageState();
@@ -26,21 +25,30 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
 
   TextEditingController nickController;
   TextEditingController segmentController;
-
   FocusNode textFieldFocusNode;
-  List<String> _multipleSelected;
 
+  DateTime userBirthdate;
+  Gender userGender;
+
+  List<Gender> multipleChoices;
   UserService userService;
+  bool segmentFlag;
 
   @override
   void initState() {
     super.initState();
+
+    userGender = widget.userInfo.gender;
     userSegments = [];
+    userBirthdate = widget.userInfo.birthdate;
+
+    segmentFlag = false;
+
     nickController = TextEditingController();
     segmentController = TextEditingController();
     textFieldFocusNode = FocusNode();
+    multipleChoices = Gender.values;
 
-    _multipleSelected = [describeEnum(widget.userInfo.gender)];
     nickController.text = widget.userInfo.nickname;
 
     userService = RepositoryProvider.of<UserService>(context);
@@ -60,23 +68,26 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   }
 
   Iterable<Widget> get companyWidgets sync* {
-    for (String multipleChoice in widget.multipleChoices) {
+    for (Gender gender in multipleChoices) {
       yield Padding(
         padding: const EdgeInsets.all(6.0),
         child: FilterChip(
-            label: Text(multipleChoice),
+            showCheckmark: false,
+            label: Text(
+              describeEnum(gender),
+              style: (userGender == gender)
+                  ? TextStyle(
+                      fontFamily: "Roboto",
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)
+                  : TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
+            ),
             selectedColor: Color(0xffb3a407),
-            selected: _multipleSelected.contains(multipleChoice),
+            selected: userGender == gender,
             onSelected: (bool selected) {
-              setState(() {
-                if (selected) {
-                  _multipleSelected.add(multipleChoice);
-                } else {
-                  _multipleSelected.removeWhere((String name) {
-                    return name == multipleChoice;
-                  });
-                }
-              });
+              userGender = gender;
+              setState(() {});
             }),
       );
     }
@@ -86,7 +97,21 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.of(context).pop(widget.userInfo);
+        bool flag = false;
+
+        if (nickController.text != widget.userInfo.nickname ||
+            userGender != widget.userInfo.gender ||
+            userBirthdate != widget.userInfo.birthdate) {
+          flag = true;
+          await userService.updateUserConfiguration(
+              widget.userId, nickController.text, userGender, userBirthdate);
+        }
+        if (segmentFlag) {
+          flag = true;
+          await userService.updateSegments(widget.userId, userSegments);
+        }
+
+        Navigator.of(context).pop(flag);
         return true;
       },
       child: Scaffold(
@@ -98,118 +123,150 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             iconSize: 30,
             icon: Icon(Icons.keyboard_arrow_left),
             color: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop();
+            onPressed: () async {
+              bool flag = false;
+
+              if (nickController.text != widget.userInfo.nickname ||
+                  userGender != widget.userInfo.gender ||
+                  userBirthdate != widget.userInfo.birthdate) {
+                flag = true;
+                await userService.updateUserConfiguration(widget.userId,
+                    nickController.text, userGender, userBirthdate);
+              }
+              if (segmentFlag) {
+                flag = true;
+                await userService.updateSegments(widget.userId, userSegments);
+              }
+
+              Navigator.of(context).pop(flag);
             },
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: nickController,
-                focusNode: textFieldFocusNode,
-                decoration: InputDecoration(
-                  labelText: 'Nickname',
-                  border: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 0.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: TextFormField(
+                  controller: nickController,
+                  focusNode: textFieldFocusNode,
+                  decoration: InputDecoration(
+                    labelText: 'Nickname',
+                    border: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 0.0),
+                    ),
                   ),
                 ),
               ),
-              MyTextFieldDatePicker(
-                  labelText: "Fecha de nacimiento",
-                  suffixIcon: Icon(Icons.date_range),
-                  lastDate: DateTime.now().add(Duration(days: 366)),
-                  firstDate: DateTime(1970),
-                  initialDate: widget.userInfo.birthdate,
-                  onDateChanged: (selectedDate) {}),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AutoSizeText('Sexo',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Color(0xff666666),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)),
-                  Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Wrap(
-                        children: companyWidgets.toList(),
-                      )),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: MyTextFieldDatePicker(
+                    labelText: "Fecha de nacimiento",
+                    suffixIcon: Icon(Icons.date_range),
+                    lastDate: DateTime.now().add(Duration(days: 366)),
+                    firstDate: DateTime(1970),
+                    initialDate: userBirthdate,
+                    onDateChanged: (selectedDate) {
+                      userBirthdate = selectedDate;
+                    }),
               ),
-              Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  TextFormField(
-                    controller: segmentController,
-                    decoration: InputDecoration(
-                      labelText: 'Segmentos',
-                      hintText: 'Correo de tu organización',
-                      border: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.grey, width: 0.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText('Sexo',
+                        style: TextStyle(
+                            color: Color(0xff666666),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
+                    Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Wrap(
+                          children: companyWidgets.toList(),
+                        )),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText('Segmentos',
+                        style: TextStyle(
+                            color: Color(0xff666666),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          TextFormField(
+                            controller: segmentController,
+                            decoration: InputDecoration(
+                              hintText: 'Correo de tu organización',
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 0.0),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            key: Key("Add segment"),
+                            icon: Icon(Icons.send),
+                            onPressed: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              String email = segmentController.text;
+                              if (!EmailValidator.validate(email)) {
+                                return;
+                              }
+                              setState(() {
+                                userSegments.add(email);
+                                segmentFlag = true;
+                              });
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  IconButton(
-                    key: Key("Add segment"),
-                    icon: Icon(Icons.send),
-                    onPressed: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      String email = segmentController.text;
-                      if (!EmailValidator.validate(email)) {
-                        return;
-                      }
-                      setState(() {
-                        userSegments.add(email);
-                      });
-                    },
-                  ),
-                ],
-              ),
-              Container(
-                  height: MediaQuery.of(context).size.width / 3,
-                  width: MediaQuery.of(context).size.width,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Wrap(
-                      spacing: 6.0,
-                      runSpacing: 6.0,
-                      children: List<Widget>.generate(userSegments.length,
-                          (int index) {
-                        return Chip(
-                          label: Text(userSegments[index]),
-                          onDeleted: () {
-                            setState(() {
-                              userSegments.removeAt(index);
-                            });
-                          },
-                        );
-                      }),
-                    ),
-                  )),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: RaisedButton.icon(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      side: BorderSide(color: Colors.red)),
-                  color: Color(0xFFb31020),
-                  padding: EdgeInsets.all(18.0),
-                  textColor: Colors.white,
-                  onPressed: () async {},
-                  icon: Icon(Icons.sentiment_satisfied, size: 18),
-                  label: Text(
-                    "Finalizar",
-                    style: TextStyle(fontSize: 25),
-                  ),
+                  ],
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Container(
+                    height: MediaQuery.of(context).size.width / 3,
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: List<Widget>.generate(userSegments.length,
+                            (int index) {
+                          return Chip(
+                            label: Text(userSegments[index]),
+                            shape: StadiumBorder(
+                                side: BorderSide(
+                                    width: 0.5,
+                                    color: Colors.black.withOpacity(0.5))),
+                            deleteIconColor: Color(0xFFB31048),
+                            backgroundColor: Colors.transparent,
+                            onDeleted: () {
+                              setState(() {
+                                userSegments.removeAt(index);
+                                segmentFlag = true;
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    )),
               ),
             ],
           ),

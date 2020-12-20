@@ -4,6 +4,7 @@ import 'package:just_talk/layouts/friend_filter.dart';
 import 'package:just_talk/layouts/home.dart';
 import 'package:just_talk/layouts/login.dart';
 import 'package:just_talk/layouts/preferences_page.dart';
+import 'package:just_talk/layouts/profile.dart';
 import 'package:just_talk/layouts/register.dart';
 import 'package:just_talk/layouts/splash.dart';
 import 'package:just_talk/layouts/topics_hear.dart';
@@ -62,6 +63,10 @@ class RouterGenerator {
                   chatType: arg['chatType'],
                 ),
             settings: RouteSettings(name: '/chat'));
+      case '/chat_profile':
+        return MaterialPageRoute(builder: (context) => Profile(
+          userId: arg['userId'],
+        ),);
     }
 
     return _errorRoute();

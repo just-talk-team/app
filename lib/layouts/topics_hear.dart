@@ -48,9 +48,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     userService = RepositoryProvider.of<UserService>(context);
     discoveryService = DiscoveryService();
     initCubit();
+    initTimer();
+  }
 
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      userService.setTopicsHear(id, checkList);
+  void initTimer() {
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      List<Topic> aux = List.from(checkList);
+      await userService.setTopicsHear(id, aux);
     });
   }
 
@@ -102,7 +106,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             Animation secondAnimation) {
           return WillPopScope(
             onWillPop: () async {
-              return true;
+              return false;
             },
             child: Center(
               child: Container(
@@ -230,7 +234,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             textAlign: TextAlign.center,
           ),
         ),
-        body: Column(
+        body: ListView(
           children: [
             BlocBuilder<TopicHearCubit, TopicHearState>(
                 cubit: topicHearCubit,
@@ -238,7 +242,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                   if (topicHearState.runtimeType == TopicHearResult) {
                     topicsToHear = getTopics(
                         (topicHearState as TopicHearResult).topics, checkList);
-
                     return Container(
                       alignment: Alignment.center,
                       margin: EdgeInsets.fromLTRB(10, 10, 10, 10),

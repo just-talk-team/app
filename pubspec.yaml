@@ -44,13 +44,18 @@ dependencies:
   path_provider: ^1.6.21
   intl: ^0.16.1
   enum_to_string: ^1.0.13
-  collection: ^1.14.13
+  #collection: ^1.14.13
   flushbar: ^1.10.4
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
   #shared_preferences: ^0.5.12+4
   firebase_remote_config: ^0.4.2
+  firebase_performance: ^0.4.2
+  flutter_holo_date_picker: ^0.2.3
+  logger: ^0.9.4
+  firebase_crashlytics: ^0.2.3+1
+
 
 dev_dependencies:
   flutter_test:
@@ -70,7 +75,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/icon/logo.png"
   adaptive_icon_background: "#000000"
   adaptive_icon_foreground: "assets/icon/icon.png"
 

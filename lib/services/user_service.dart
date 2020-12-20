@@ -43,13 +43,13 @@ class UserService {
       'gender': describeEnum(userI.genre),
       'nickname': userI.nickname,
       'preferences': {
-        'ages': [16, 99],
+        'ages': [18, 99],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
       'filters': {
-        'ages': [16, 99],
+        'ages': [18, 99],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
@@ -67,6 +67,19 @@ class UserService {
 
     badges.forEach((element) async {
       await newUser.collection('badgets').doc(element.item1).set({'count': 0});
+    });
+  }
+
+  Future<void> updateUserConfiguration(
+      String id, String nickname, Gender gender, DateTime birthdate) async {
+    DocumentReference user =
+        FirebaseFirestore.instance.collection("users").doc(id);
+
+    final DateFormat formatter = DateFormat("MM/dd/yyyy");
+    await user.update({
+      'nickname': nickname,
+      'gender': describeEnum(gender),
+      'birthdate': formatter.format(birthdate)
     });
   }
 
@@ -126,6 +139,20 @@ class UserService {
     });
   }
 
+  Future<void> updateSegments(String id, List<String> segments) async {
+    CollectionReference userSegments = FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection('segments');
+
+    var futures = <Future>[];
+    for (String segment in segments) {
+      String domain = segment.split('@')[1];
+      futures.add(userSegments.doc(domain).set({'email': segment}));
+    }
+    await Future.wait(futures);
+  }
+
   Future<List<String>> getSegments(String id) async {
     List<String> segments = [];
 
@@ -171,15 +198,17 @@ class UserService {
     return badgets;
   }
 
-  Future setTopicsToHear(List<Topic> topics, String id) async {
+  Future<void> setTopicsToHear(List<Topic> topics, String id) async {
     CollectionReference user = _firebaseFirestore
         .collection("users")
         .doc(id)
         .collection('topics_hear');
 
+    List<Future> futures = [];
     for (Topic topic in topics) {
-      await user.doc(topic.topic).set({'time': topic.time});
+      futures.add(user.doc(topic.topic).set({'time': topic.time}));
     }
+    Future.wait(futures);
   }
 
   bool _validateSegment(List<String> preferenceSegment, List<String> segments) {
@@ -255,9 +284,14 @@ class UserService {
       List<String> friends = documentSnapshot.data()['friends'].cast<String>();
 
       if (friends.contains(friendId)) {
-        var userInfo = await getUser(friendId, false, false);
-        var segments = await getSegments(friendId);
-        var badgets = await getBadgets(friendId);
+        List<dynamic> results = await Future.wait<dynamic>([
+          getUser(friendId, false, false),
+          getSegments(friendId),
+          getBadgets(friendId)
+        ]);
+        var userInfo = results[0];
+        var segments = results[1];
+        var badgets = results[2];
 
         //TODO: TEST
         /*if (userInfo.age >= filter.minimunAge &&
@@ -277,7 +311,7 @@ class UserService {
         .collection('friends')
         .doc(roomId)
         .collection('messages')
-        .orderBy('time')
+        .orderBy('time', descending: true)
         .limit(1)
         .snapshots();
   }
@@ -296,11 +330,13 @@ class UserService {
         .doc(id)
         .collection("discoveries");
 
-    await discoveriesCollection.get().then((value) async {
-      for (DocumentSnapshot documentSnapshot in value.docs) {
-        await documentSnapshot.reference.delete();
-      }
-    });
+    QuerySnapshot querySnapshot = await discoveriesCollection.get();
+
+    List<Future> futures = [];
+    for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      futures.add(documentSnapshot.reference.delete());
+    }
+    Future.wait(futures);
   }
 
   Future<void> setTopicsTalk(String id, List<Topic> topics) async {
@@ -309,9 +345,12 @@ class UserService {
         .doc(id)
         .collection('topics_talk');
 
+    List<Future> futures = [];
     for (Topic topic in topics) {
-      await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
+      futures
+          .add(topicTalkCollection.doc(topic.topic).set({'time': topic.time}));
     }
+    Future.wait(futures);
   }
 
   Future<List<Topic>> getTopicsTalk(String id) async {
@@ -336,9 +375,12 @@ class UserService {
         .doc(id)
         .collection('topics_talk');
 
+    List<Future> futures = [];
+
     for (Topic topic in topics) {
-      await topicTalkCollection.doc(topic.topic).delete();
+      futures.add(topicTalkCollection.doc(topic.topic).delete());
     }
+    Future.wait(futures);
   }
 
   Future<List<Topic>> getTopicsHear(String id) async {
@@ -363,11 +405,13 @@ class UserService {
         .doc(id)
         .collection('topics_hear');
 
-    await topicTalkCollection.get().then((value) async {
-      for (DocumentSnapshot documentSnapshot in value.docs) {
-        await documentSnapshot.reference.delete();
-      }
-    });
+    List<Future> futures = [];
+    QuerySnapshot querySnapshot = await topicTalkCollection.get();
+
+    for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      futures.add(documentSnapshot.reference.delete());
+    }
+    Future.wait(futures);
   }
 
   Future<void> setTopicsHear(String id, List<Topic> topics) async {
@@ -376,9 +420,12 @@ class UserService {
         .doc(id)
         .collection('topics_hear');
 
+    List<Future> futures = [];
     for (Topic topic in topics) {
-      await topicTalkCollection.doc(topic.topic).set({'time': topic.time});
+      futures
+          .add(topicTalkCollection.doc(topic.topic).set({'time': topic.time}));
     }
+    Future.wait(futures);
   }
 
   Future<Preferences> getPreferences(String id) async {
@@ -428,9 +475,18 @@ class UserService {
         .doc(roomId)
         .set({'friend': friendId});
 
-    await _firebaseFirestore.collection("friends").doc(roomId).update({
-      'friends': FieldValue.arrayUnion([userId])
-    });
+    var friendDoc =
+        await _firebaseFirestore.collection("friends").doc(roomId).get();
+
+    if (!friendDoc.exists) {
+      await _firebaseFirestore.collection("friends").doc(roomId).set({
+        'friends': FieldValue.arrayUnion([userId])
+      });
+    } else {
+      await _firebaseFirestore.collection("friends").doc(roomId).update({
+        'friends': FieldValue.arrayUnion([userId])
+      });
+    }
 
     var doc = await _firebaseFirestore
         .collection("friends")
@@ -448,7 +504,7 @@ class UserService {
           .set({
         'message': 'Inicio del chat',
         'user': 'information',
-        'time': DateTime.now()
+        'time': DateTime.now().millisecondsSinceEpoch
       });
     }
   }

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:just_talk/models/contact.dart';
-
 
 class ContactsState extends Equatable {
   @override
@@ -8,11 +8,16 @@ class ContactsState extends Equatable {
 }
 
 class ContactsResult extends ContactsState {
-  ContactsResult(this.contacts);
+  ContactsResult({@required List<Contact> contacts})
+      : assert(contacts != null),
+        this.contacts = contacts,
+        this.date = DateTime.now();
+
   final List<Contact> contacts;
+  final DateTime date;
 
   @override
-  List<Object> get props => [contacts];
+  List<Object> get props => [contacts, date];
 }
 
 class ContactsEmpty extends ContactsState {

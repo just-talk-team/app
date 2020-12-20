@@ -9,7 +9,8 @@ class Badge extends StatefulWidget {
       @required Function(bool) valueChanged,
       double iconSize = 30,
       double textSize = 14,
-      Color selectedColor = const Color(0xffb3a407)})
+      Color selectedColor = const Color(0xffb3a407),
+      bool active = true})
       : assert(selected != null),
         assert(icon != null),
         assert(text != null),
@@ -20,7 +21,8 @@ class Badge extends StatefulWidget {
         _text = text,
         _iconSize = iconSize,
         _textSize = textSize,
-        _selectedColor = selectedColor;
+        _selectedColor = selectedColor,
+        _active = active;
 
   final bool _selected;
   final IconData _icon;
@@ -29,6 +31,7 @@ class Badge extends StatefulWidget {
   final double _iconSize;
   final double _textSize;
   final Color _selectedColor;
+  final bool _active;
 
   @override
   _BadgeState createState() => _BadgeState();
@@ -47,10 +50,12 @@ class _BadgeState extends State<Badge> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          widget._valueChanged(selected);
-          selected = !selected;
-        });
+        if (widget._active) {
+          setState(() {
+            widget._valueChanged(selected);
+            selected = !selected;
+          });
+        }
       },
       child: Column(
         children: [

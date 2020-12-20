@@ -169,7 +169,7 @@ class _PreferenceDataState extends State<PreferenceData> {
     double min = widget.preferences.minimunAge.toDouble();
     double max = widget.preferences.maximumAge.toDouble();
 
-    interval = widget.preferences.minimunAge.toString() +
+    interval = widget.preferences.minimunAge.toString() + 
         " - " +
         widget.preferences.maximumAge.toString();
     currentRangeValues = RangeValues(min, max);
@@ -250,7 +250,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                           activeColor: Color(0xFFB3A407),
                           inactiveColor: Color(0xFFB3A407),
                           values: currentRangeValues,
-                          min: 16,
+                          min: 18,
                           max: 99,
                           divisions: 100,
                           labels: RangeLabels(
