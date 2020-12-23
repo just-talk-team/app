@@ -1,3 +1,4 @@
+import 'package:f_logs/f_logs.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,28 @@ void main() async {
   SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
   await Firebase.initializeApp();
+  init();
   runApp(App(
     authenticationService: AuthenticationService(),
   ));
+}
+
+init() {
+  LogsConfig config = FLog.getDefaultConfigurations()
+    ..isDevelopmentDebuggingEnabled = true
+    ..timestampFormat = TimestampFormat.TIME_FORMAT_FULL_3
+    ..formatType = FormatType.FORMAT_CUSTOM
+    ..fieldOrderFormatCustom = [
+      FieldName.TIMESTAMP,
+      FieldName.LOG_LEVEL,
+      FieldName.CLASSNAME,
+      FieldName.METHOD_NAME,
+      FieldName.TEXT,
+      FieldName.EXCEPTION,
+      FieldName.STACKTRACE
+    ]
+    ..customOpeningDivider = "|"
+    ..customClosingDivider = "|";
+
+  FLog.applyConfigurations(config);
 }

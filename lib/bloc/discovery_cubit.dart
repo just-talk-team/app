@@ -1,21 +1,14 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:f_logs/model/flog/flog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/bloc/discovery_state.dart';
 import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/user_service.dart';
-import 'package:logger/logger.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
-      : super(DiscoveryNotFound()) {
-    logger = Logger(
-      filter: null, // Use the default LogFilter (-> only log in debug mode)
-      printer: PrettyPrinter(), // Use the PrettyPrinter to format and print log
-      output: null, // Use the default LogOutput (-> send everything to console)
-    );
-  }
+      : super(DiscoveryNotFound()) {}
 
   Future<void> reset() async {
     rooms.cancel();
@@ -46,17 +39,9 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       bool flag = true;
 
       querySnapshot.docs.forEach((element) {
-        try {
-          logger.i(
-              "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId");
-          throw 'error_example';
-        } catch (e, s) {
-          FirebaseCrashlytics.instance
-              .recordError(e, s, reason: 'as an example');
-        }
-      });
-
-      querySnapshot.docs.forEach((element) {
+        FLog.info(
+            text:
+                "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId");
         if (!element.data()['activated']) {
           flag = false;
           return;
@@ -78,7 +63,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
       querySnapshot.docChanges.forEach((element) {
         if (element.type == DocumentChangeType.added) {
           documents.add(element);
-          logger.i("Document ID - ${element.doc.id}");
         }
       });
 
@@ -101,5 +85,4 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   StreamSubscription<QuerySnapshot> discoveries;
   StreamSubscription<QuerySnapshot> rooms;
-  Logger logger;
 }

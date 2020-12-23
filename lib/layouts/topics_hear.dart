@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:logger/logger.dart';
 
 class TopicsHear extends StatefulWidget {
   TopicsHear(this.segments);
@@ -38,20 +38,12 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   String id;
   bool accept;
 
-  Logger logger;
-
   @override
   void initState() {
     super.initState();
     accept = false;
     topicsToHear = [];
     checkList = [];
-
-    logger = Logger(
-      filter: null, // Use the default LogFilter (-> only log in debug mode)
-      printer: PrettyPrinter(), // Use the PrettyPrinter to format and print log
-      output: null, // Use the default LogOutput (-> send everything to console)
-    );
 
     id = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
     userService = RepositoryProvider.of<UserService>(context);
@@ -87,9 +79,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         case DiscoveryReady:
           _controller.stop();
           Navigator.of(context).pop();
-          
+
           String roomId = (discoveryState as DiscoveryReady).room;
-          logger.i("Stream $roomId");
+          FLog.info(text: "Room $roomId");
           Navigator.pushReplacementNamed(context, '/chat', arguments: {
             'roomId': roomId,
             'chatType': ChatType.DiscoveryChat,

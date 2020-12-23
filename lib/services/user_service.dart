@@ -11,6 +11,7 @@ import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:tuple/tuple.dart';
+import 'package:image/image.dart';
 
 class UserService {
   UserService(
@@ -25,8 +26,15 @@ class UserService {
     final StorageReference postImageRef =
         _firebaseStorage.ref().child("UserProfile");
 
-    final StorageUploadTask uploadTask =
-        postImageRef.child(userId + ".jpg").putFile(userI.imgProfile);
+    var image = decodeImage(userI.imgProfile.readAsBytesSync());
+    var thumbnail = copyResize(image, width: 120);
+
+    
+
+    final StorageUploadTask uploadTask = postImageRef
+        .child(userId + ".png")
+        .putData(
+            encodePng(thumbnail), StorageMetadata(contentType: "png"));
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     String url = imageUrl.toString();
 

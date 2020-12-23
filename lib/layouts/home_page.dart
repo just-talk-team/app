@@ -1,3 +1,4 @@
+import 'package:f_logs/f_logs.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/models/preferences.dart';
+import 'package:just_talk/services/email_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,10 +21,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool loading;
+  EmailService emailService;
 
   @override
   void initState() {
     super.initState();
+    emailService = EmailService();
     loading = false;
   }
 
@@ -31,6 +35,13 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => SystemNavigator.pop(),
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(0xFFB31048),
+          child: Icon(Icons.help),
+          onPressed: (){
+            emailService.sendLogs();
+          },
+        ),
         appBar: AppBar(
           title: Text(
             'JustTalk',
@@ -93,6 +104,7 @@ class _HomePageState extends State<HomePage> {
                         .state
                         .user
                         .id;
+
                     List<String> segments =
                         await RepositoryProvider.of<UserService>(context)
                             .getSegments(id);
@@ -160,4 +172,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  //permission methods:---------------------------------------------------------
+
 }

@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
-import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/custom_text.dart';
 import 'package:just_talk/widgets/results.dart';
@@ -49,7 +47,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   bool _hasData = false;
 
   ScrollController _scrollController;
-  RemoteConfig remoteConfig;
 
   UserService userService;
 
@@ -109,7 +106,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     super.initState();
 
     _scrollController = ScrollController();
-    remoteConfig = RepositoryProvider.of<RemoteService>(context).remoteConfig;
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
 
@@ -241,22 +237,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Builder(builder: (context) {
-            int randomNumber = int.parse(remoteConfig.getString('BadgesView'));
-
-            print("[RESULTS]: $randomNumber");
-
-            switch (randomNumber) {
-              case 1:
-                return Results(roomId: roomId, userId: userId);
-              case 2:
-                return Results2(roomId: roomId, userId: userId);
-              case 3:
-                return Results3(roomId: roomId, userId: userId);
-              default:
-                return Results(roomId: roomId, userId: userId);
-            }
-          });
+          return Results(roomId: roomId, userId: userId);
         });
   }
 

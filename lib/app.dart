@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/authentication.dart';
 import 'package:just_talk/route_generator.dart';
 import 'package:just_talk/services/authentication_service.dart';
-import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class App extends StatelessWidget {
@@ -24,9 +23,7 @@ class App extends StatelessWidget {
           child: MultiRepositoryProvider(
             providers: [
               RepositoryProvider<UserService>(
-                  create: (context) => UserService()),
-              RepositoryProvider<RemoteService>(
-                  create: (context) => RemoteService()),
+                  create: (context) => UserService())
             ],
             child: AppView(),
           )),
