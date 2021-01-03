@@ -40,8 +40,12 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
       querySnapshot.docs.forEach((element) {
         FLog.info(
-            text:
-                "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId");
+          text:
+              "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId",
+          methodName: "validateRoom",
+          className: "DiscoveryCubit",
+        );
+
         if (!element.data()['activated']) {
           flag = false;
           return;

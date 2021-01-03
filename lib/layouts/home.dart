@@ -23,7 +23,7 @@ class _HomeState extends State<Home> {
   Future<void> requestPermission(PermissionGroup permission) async {
     final List<PermissionGroup> permissions = <PermissionGroup>[permission];
     final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
-        await PermissionHandler().requestPermissions(permissions);
+        await PermissionHandler().requestPermissions(permissions); 
   }
 
   @override

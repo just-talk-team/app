@@ -1,7 +1,4 @@
 import 'dart:developer';
-
-import 'package:f_logs/f_logs.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/models/preferences.dart';
-import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/email_service.dart';
 import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
@@ -36,7 +32,8 @@ class _HomePageState extends State<HomePage> {
     remoteService = RepositoryProvider.of<RemoteService>(context);
     loading = true;
     log(BlocProvider.of<AuthenticationCubit>(context).state.user.id);
-    getRemote();
+    //getRemote();
+    loading = false;
   }
 
   Future<void> getRemote() async {

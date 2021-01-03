@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/custom_text.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:just_talk/models/user_info.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'dart:async';
 
@@ -49,6 +49,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   ScrollController _scrollController;
 
   UserService userService;
+  TopicsService topicsService;
 
   Future<void> recoverChatInfo() async {
     roomId = widget._roomId;
@@ -108,6 +109,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     _scrollController = ScrollController();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    topicsService = TopicsService();
 
     if (widget._chatType == ChatType.DiscoveryChat) {
       chatCol = "discoveries";
@@ -301,9 +303,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             builder: (BuildContext context) {
               if (_hasData) {
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    List<String> topics =
+                        await topicsService.getChatTopics(userId, friendId);
                     Navigator.of(context).pushNamed('/chat_profile',
-                        arguments: {'userId': friendId});
+                        arguments: {'userId': friendId, 'topics': topics});
                   },
                   child: Row(
                     children: [
@@ -328,7 +332,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            new Text(
+                            Text(
                               friendInfo.nickname,
                               maxLines: 2,
                               textAlign: TextAlign.center,

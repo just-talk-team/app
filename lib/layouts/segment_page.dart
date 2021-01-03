@@ -2,14 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
-import 'package:just_talk/utils/constants.dart';
 import 'package:tuple/tuple.dart';
-
-import '../authentication/bloc/authentication_cubit.dart';
 
 // ignore: must_be_immutable
 class SegmentPage extends StatefulWidget {

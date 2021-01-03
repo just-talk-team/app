@@ -8,13 +8,13 @@ class TopicsService {
   TopicsService({FirebaseFirestore firebaseFirestore})
       : _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance;
 
-
   Stream<List<Tuple2<Topic, bool>>> getTopicsToHear(String segment) {
     CollectionReference segmentCollection =
         _firebaseFirestore.collection("segments");
     return segmentCollection
         .doc(segment)
         .collection('topics')
+        .orderBy('time', descending: true)
         .snapshots()
         .map<List<Tuple2<Topic, bool>>>((event) {
       List<Tuple2<Topic, bool>> topics = [];
@@ -33,5 +33,27 @@ class TopicsService {
       });
       return topics;
     });
+  }
+
+  Future<List<String>> getChatTopics(String user1, String user2) async {
+    CollectionReference user1Topics = _firebaseFirestore
+        .collection('users')
+        .doc(user1)
+        .collection('topics_hear');
+    CollectionReference user2Topics = _firebaseFirestore
+        .collection('user')
+        .doc(user2)
+        .collection('topics_talk');
+
+    List<QuerySnapshot> collections =
+        await Future.wait([user1Topics.get(), user2Topics.get()]);
+
+    List<String> topics = [];
+    collections[0].docs.forEach((QueryDocumentSnapshot document) {
+      if (collections[1].docs.any((element) => element.id == document.id)) {
+        topics.add(document.id);
+      }
+    });
+    return topics;
   }
 }

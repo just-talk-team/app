@@ -54,6 +54,7 @@ dependencies:
   flutter_mailer: ^1.0.1
   image: ^2.1.19
   firebase_remote_config: ^0.4.2
+  badges: ^1.1.6
 
 
 

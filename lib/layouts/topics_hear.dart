@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:badges/badges.dart';
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -237,54 +238,129 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             textAlign: TextAlign.center,
           ),
         ),
-        body: ListView(
-          children: [
-            BlocBuilder<TopicHearCubit, TopicHearState>(
-                cubit: topicHearCubit,
-                builder: (context, TopicHearState topicHearState) {
-                  if (topicHearState.runtimeType == TopicHearResult) {
-                    topicsToHear = getTopics(
-                        (topicHearState as TopicHearResult).topics, checkList);
-                    return Container(
-                      alignment: Alignment.center,
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      child: Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Wrap(
-                              spacing: 6.0,
-                              runSpacing: 6.0,
-                              children: List<Widget>.generate(
-                                  topicsToHear.length, (int index) {
-                                return ActionChip(
-                                  shape: StadiumBorder(
-                                      side: BorderSide(
-                                          width: 0.5,
-                                          color:
-                                              Colors.black.withOpacity(0.5))),
-                                  backgroundColor: Colors.transparent,
-                                  label: Text(
-                                    topicsToHear[index].topic,
-                                    style: TextStyle(
-                                        fontFamily: "Roboto",
-                                        fontWeight: FontWeight.normal),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      checkList.add(topicsToHear[index]);
-                                    });
-                                  },
-                                );
-                              }),
+        body: BlocBuilder<TopicHearCubit, TopicHearState>(
+            cubit: topicHearCubit,
+            builder: (context, TopicHearState topicHearState) {
+              if (topicHearState.runtimeType == TopicHearResult) {
+                topicsToHear = getTopics(
+                    (topicHearState as TopicHearResult).topics, checkList);
+              }
+
+              return Column(
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: Builder(builder: (context) {
+                      return Container(
+                        alignment: Alignment.topLeft,
+                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 6.0,
+                            runSpacing: 6.0,
+                            children: List<Widget>.generate(topicsToHear.length,
+                                (int index) {
+                              return TopicChip(
+                                  label: topicsToHear[index].topic,
+                                  callback: () => setState(() {
+                                        checkList.add(topicsToHear[index]);
+                                      }));
+                            }),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  Expanded(
+                      flex: 1,
+                      child: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: Color(0xFFB31048),
+                                width: 1.0,
+                              ),
                             ),
-                          )),
-                    );
-                  }
-                  return Container();
-                }),
-          ],
-        ));
+                          ),
+                          child: Builder(
+                            builder: (context) {
+                              int size = topicsToHear.length > 3
+                                  ? 3
+                                  : topicsToHear.length;
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Wrap(
+                                          spacing: 6.0,
+                                          runSpacing: 1.0,
+                                          children: List<Widget>.generate(size,
+                                              (int index) {
+                                            return TopicChip(
+                                                label:
+                                                    topicsToHear[index].topic,
+                                                callback: () => setState(() {
+                                                      checkList.add(
+                                                          topicsToHear[index]);
+                                                    }));
+                                          }),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                      child: Badge(
+                                        badgeColor: Color(0xFFB31048),
+                                        badgeContent: Text(
+                                          topicsToHear.length.toString(),
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        child: Icon(
+                                          Icons.skip_next_rounded,
+                                          color: Color(0xFFB31048),
+                                        ),
+                                        animationType: BadgeAnimationType.slide,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          ))),
+                ],
+              );
+            }));
+  }
+}
+
+class TopicChip extends StatelessWidget {
+  TopicChip({String label, Function callback})
+      : assert(label != null),
+        this.label = label,
+        this.callback = callback;
+
+  final String label;
+  final Function callback;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+        shape: StadiumBorder(
+            side: BorderSide(width: 0.5, color: Colors.black.withOpacity(0.5))),
+        backgroundColor: Colors.transparent,
+        label: Text(
+          label,
+          style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.normal),
+        ),
+        onPressed: callback);
   }
 }
 

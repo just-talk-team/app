@@ -40,6 +40,10 @@ class UserService {
 
     final DateFormat formatter = DateFormat("MM/dd/yyyy");
 
+    int userAge = userI.age;
+    int minAge = userAge == MIN_AGE ? MIN_AGE : (userAge - 3);
+    int maxAge = userAge + 3;
+
     await newUser.set({
       'uid': userI.id,
       'avatar': url,
@@ -48,13 +52,13 @@ class UserService {
       'gender': describeEnum(userI.gender),
       'nickname': userI.nickname,
       'preferences': {
-        'ages': [18, 99],
+        'ages': [minAge, maxAge],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
       },
       'filters': {
-        'ages': [18, 99],
+        'ages': [minAge, maxAge],
         'segments': FieldValue.arrayUnion([]),
         'genders': FieldValue.arrayUnion([]),
         'badgets': FieldValue.arrayUnion([]),
@@ -383,6 +387,8 @@ class UserService {
     }
     Future.wait(futures);
   }
+
+  
 
   Future<List<Topic>> getTopicsHear(String id) async {
     List<Topic> topics = [];

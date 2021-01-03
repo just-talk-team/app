@@ -66,6 +66,7 @@ class RouterGenerator {
       case '/chat_profile':
         return MaterialPageRoute(builder: (context) => Profile(
           userId: arg['userId'],
+          topics: arg['topics'],
         ));
     }
 
