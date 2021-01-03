@@ -53,6 +53,8 @@ dependencies:
   f_logs: ^1.2.2
   flutter_mailer: ^1.0.1
   image: ^2.1.19
+  firebase_remote_config: ^0.4.2
+
 
 
 dev_dependencies:

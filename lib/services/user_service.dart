@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:just_talk/models/preferences.dart';
 import 'package:just_talk/models/topic.dart';
 import 'package:just_talk/models/user_info.dart';
-import 'package:just_talk/models/user_input.dart';
 import 'package:just_talk/utils/constants.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'package:tuple/tuple.dart';
@@ -22,33 +21,31 @@ class UserService {
   FirebaseFirestore _firebaseFirestore;
   FirebaseStorage _firebaseStorage;
 
-  Future<void> registrateUser(UserInput userI, String userId) async {
+  Future<void> registrateUser(
+      UserInfoChange userI, List<Tuple2<String, String>> segments) async {
     final StorageReference postImageRef =
         _firebaseStorage.ref().child("UserProfile");
 
-    var image = decodeImage(userI.imgProfile.readAsBytesSync());
+    var image = decodeImage(userI.photo.readAsBytesSync());
     var thumbnail = copyResize(image, width: 120);
 
-    
-
     final StorageUploadTask uploadTask = postImageRef
-        .child(userId + ".png")
-        .putData(
-            encodePng(thumbnail), StorageMetadata(contentType: "png"));
+        .child(userI.id + ".png")
+        .putData(encodePng(thumbnail), StorageMetadata(contentType: "png"));
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
     String url = imageUrl.toString();
 
     DocumentReference newUser =
-        FirebaseFirestore.instance.collection("users").doc(userId);
+        FirebaseFirestore.instance.collection("users").doc(userI.id);
 
     final DateFormat formatter = DateFormat("MM/dd/yyyy");
 
     await newUser.set({
-      'uid': userId,
+      'uid': userI.id,
       'avatar': url,
-      'birthdate': formatter.format(userI.dateTime),
+      'birthdate': formatter.format(userI.birthdate),
       'friends': {},
-      'gender': describeEnum(userI.genre),
+      'gender': describeEnum(userI.gender),
       'nickname': userI.nickname,
       'preferences': {
         'ages': [18, 99],
@@ -66,7 +63,7 @@ class UserService {
       'user_type': 'premiun',
     });
 
-    userI.segments.forEach((element) async {
+    segments.forEach((element) async {
       await newUser
           .collection('segments')
           .doc(element.item2)
@@ -128,15 +125,11 @@ class UserService {
         String year = data['birthdate'].substring(6, 10);
         DateTime birthdate = DateTime.parse('$year-$month-$day');
 
-        int age =
-            (DateTime.now().difference(birthdate).inDays / 365).truncate();
-
         user = UserInfo(
             nickname: data['nickname'],
             photo: data['avatar'],
             preferences: preferences,
             gender: EnumToString.fromString(Gender.values, data['gender']),
-            age: age,
             birthdate: birthdate,
             filters: filters,
             id: id);

@@ -1,4 +1,0 @@
-dart test_driver/register_info/register_info_test.dart
-dart test_driver/register_nickname/register_nickname_test.dart
-dart test_driver/register_segment/register_segment_test.dart
-dart test_driver/register_configuration/register_configuration_test.dart

@@ -4,12 +4,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/models/user_info.dart';
 
 // ignore: must_be_immutable
 class AvatarPage extends StatefulWidget {
   PageController pageController;
-  UserInput userI;
+  UserInfoChange userI;
   AvatarPage(this.userI, this.pageController);
   @override
   _AvatarPage createState() => _AvatarPage();
@@ -22,7 +22,7 @@ class _AvatarPage extends State<AvatarPage> {
 
   void validate() {
     debugPrint("PASSED TO");
-    if (widget.userI.imgProfile != null) {
+    if (widget.userI.photo != null) {
       widget.pageController
           .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
@@ -56,7 +56,7 @@ class _AvatarPage extends State<AvatarPage> {
         ),
 
         //Content
-        widget.userI.imgProfile == null
+        widget.userI.photo == null
             ? SizedBox(
                 height: 100,
                 width: 100,
@@ -73,7 +73,7 @@ class _AvatarPage extends State<AvatarPage> {
                 onTap: getImage,
                 child: ClipOval(
                   child: Image.file(
-                    widget.userI.imgProfile,
+                    widget.userI.photo,
                     height: 200.0,
                     width: 200.0,
                   ),
@@ -86,7 +86,7 @@ class _AvatarPage extends State<AvatarPage> {
   Future getImage() async {
     var tempImage = await imagePicker.getImage(source: ImageSource.gallery);
     setState(() {
-      widget.userI.imgProfile = File(tempImage.path);
+      widget.userI.photo = File(tempImage.path);
       validate();
     });
   }

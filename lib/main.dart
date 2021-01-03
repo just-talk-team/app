@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_talk/app.dart';
 import 'package:just_talk/services/authentication_service.dart';
+import 'package:just_talk/services/remote_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,8 +12,13 @@ void main() async {
 
   await Firebase.initializeApp();
   init();
+
+  RemoteService remoteService = RemoteService();
+  await remoteService.init();
+
   runApp(App(
     authenticationService: AuthenticationService(),
+    remoteService: remoteService,
   ));
 }
 
