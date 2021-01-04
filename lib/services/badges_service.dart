@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:just_talk/utils/constants.dart';
@@ -17,9 +16,6 @@ class BadgeService {
 
   Future<void> registerBadges(
       List<bool> badgetsFlags, String roomID, String userID) async {
-    var analytics = FirebaseAnalytics();
-
-    analytics.logEvent(name: 'finish_chat', parameters: null);
 
     List<String> data = [];
 
@@ -30,9 +26,6 @@ class BadgeService {
     }
 
     if (data.length > 0) {
-      analytics.logEvent(
-          name: "give_badges", parameters: {'numBadges': data.length});
-
       await _firebaseFirestore
           .collection('discoveries')
           .doc(roomID)

@@ -1,29 +1,25 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/layouts/avatar_page.dart';
 import 'package:just_talk/layouts/info_page.dart';
 import 'package:just_talk/layouts/nickname_page.dart';
 import 'package:just_talk/layouts/segment_page.dart';
-import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // ignore: must_be_immutable
 class Register extends StatefulWidget {
-  Register({initialPage, user, userService})
+  Register({initialPage, userService})
       : _initialPage = initialPage ?? 0,
-        _user = user ??
-            UserInput(
-                dateTime: DateTime.now(),
-                genre: null,
-                nickname: null,
-                segments: [],
-                imgProfile: null),
+        _user = UserInfoChange.defaultUser(),
         _userService = userService ?? UserService();
 
   final int _initialPage;
   final UserService _userService;
-  UserInput _user;
+  UserInfoChange _user;
 
   @override
   _Register createState() => _Register();
@@ -49,6 +45,9 @@ class _Register extends State<Register> {
   @override
   initState() {
     super.initState();
+    widget._user.id =
+        BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    ;
     controller =
         PageController(viewportFraction: 1, initialPage: widget._initialPage);
   }

@@ -1,12 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:just_talk/models/user_input.dart';
+import 'package:just_talk/models/user_info.dart';
 
 // ignore: must_be_immutable
 class NicknamePage extends StatefulWidget {
   PageController pageController;
-  UserInput userI;
+  UserInfoChange userI;
   NicknamePage(this.userI, this.pageController);
   @override
   _NicknamePage createState() => _NicknamePage();

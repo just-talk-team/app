@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/bloc/navbar_cubit.dart';
 import 'package:just_talk/models/preferences.dart';
+import 'package:just_talk/services/email_service.dart';
+import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,11 +22,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool loading;
+  EmailService emailService;
+  RemoteService remoteService;
 
   @override
   void initState() {
     super.initState();
+    emailService = EmailService();
+    remoteService = RepositoryProvider.of<RemoteService>(context);
+    loading = true;
+    log(BlocProvider.of<AuthenticationCubit>(context).state.user.id);
+    //getRemote();
     loading = false;
+  }
+
+  Future<void> getRemote() async {
+    await remoteService.getRemoteData();
+    loading = false;
+    setState(() {});
   }
 
   @override
@@ -31,6 +47,13 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => SystemNavigator.pop(),
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(0xFFB31048),
+          child: Icon(Icons.help),
+          onPressed: () {
+            emailService.sendLogs();
+          },
+        ),
         appBar: AppBar(
           title: Text(
             'JustTalk',
@@ -84,42 +107,48 @@ class _HomePageState extends State<HomePage> {
                   ),
                   icon: Icon(Icons.sentiment_very_satisfied_rounded,
                       color: Colors.white, size: 35),
-                  onPressed: () async {
-                    setState(() {
-                      loading = true;
-                    });
+                  onPressed: remoteService.remoteConfig.getBool('available')
+                      ? () async {
+                          setState(() {
+                            loading = true;
+                          });
 
-                    String id = BlocProvider.of<AuthenticationCubit>(context)
-                        .state
-                        .user
-                        .id;
-                    List<String> segments =
-                        await RepositoryProvider.of<UserService>(context)
-                            .getSegments(id);
+                          String id =
+                              BlocProvider.of<AuthenticationCubit>(context)
+                                  .state
+                                  .user
+                                  .id;
 
-                    Preferences preferences =
-                        await RepositoryProvider.of<UserService>(context)
-                            .getPreferences(id);
+                          List<String> segments =
+                              await RepositoryProvider.of<UserService>(context)
+                                  .getSegments(id);
 
-                    if (preferences.segments.length > 0) {
-                      await Navigator.of(context).pushNamed('/topics_talk',
-                          arguments: {'segments': segments});
-                    } else {
-                      Flushbar(
-                        backgroundColor: Color(0xFFB31048),
-                        flushbarPosition: FlushbarPosition.TOP,
-                        messageText: Text(
-                          'Debes de seleccionar al menos un segmento!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        duration: Duration(seconds: 3),
-                      ).show(context);
-                    }
-                    setState(() {
-                      loading = false;
-                    });
-                  },
+                          Preferences preferences =
+                              await RepositoryProvider.of<UserService>(context)
+                                  .getPreferences(id);
+
+                          if (preferences.segments.length > 0) {
+                            await Navigator.of(context).pushNamed(
+                                '/topics_talk',
+                                arguments: {'segments': segments});
+                          } else {
+                            Flushbar(
+                              backgroundColor: Color(0xFFB31048),
+                              flushbarPosition: FlushbarPosition.TOP,
+                              messageText: Text(
+                                'Debes de seleccionar al menos un segmento!',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                              duration: Duration(seconds: 3),
+                            ).show(context);
+                          }
+                          setState(() {
+                            loading = false;
+                          });
+                        }
+                      : null,
                 );
               } else {
                 return CircularProgressIndicator();
@@ -160,4 +189,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  //permission methods:---------------------------------------------------------
+
 }

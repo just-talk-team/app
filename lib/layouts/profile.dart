@@ -8,10 +8,13 @@ import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/badge.dart';
 
 class Profile extends StatefulWidget {
-  Profile({String userId})
+  Profile({String userId, List<String> topics})
       : assert(userId != null),
-        _userId = userId;
+        _userId = userId,
+        _topics = topics;
+
   final String _userId;
+  final List<String> _topics;
 
   @override
   _Profile createState() => _Profile();
@@ -21,7 +24,7 @@ class _Profile extends State<Profile> {
   UserService userService;
   UserInfo userInfo;
   List<String> segments;
-  List<Topic> topicsHear;
+  List<Topic> topicsTalk;
   bool loaded;
 
   @override
@@ -35,7 +38,7 @@ class _Profile extends State<Profile> {
   Future<void> loadData() async {
     userInfo = await userService.getUser(widget._userId, false, false);
     segments = await userService.getSegments(widget._userId);
-    topicsHear = await userService.getTopicsHear(widget._userId);
+    topicsTalk = await userService.getTopicsTalk(widget._userId);
     setState(() {
       loaded = true;
     });
@@ -105,7 +108,7 @@ class _Profile extends State<Profile> {
                           runSpacing: 1.0,
                           children: List<Widget>.generate(segments.length,
                               (int index) {
-                            return Chip(label: Text(segments[index])); 
+                            return Chip(label: Text(segments[index]));
                           }),
                         ),
                       ),
@@ -150,17 +153,21 @@ class _Profile extends State<Profile> {
                         child: Wrap(
                           spacing: 6.0,
                           runSpacing: 6.0,
-                          children: List<Widget>.generate(topicsHear.length,
+                          children: List<Widget>.generate(topicsTalk.length,
                               (int index) {
                             return Chip(
                               label: Text(
-                                topicsHear[index].topic,
+                                topicsTalk[index].topic,
                               ),
                               shape: StadiumBorder(
                                   side: BorderSide(
                                       width: 0.5,
                                       color: Colors.black.withOpacity(0.5))),
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: widget._topics.length > 0 &&
+                                      widget._topics
+                                          .contains(topicsTalk[index].topic)
+                                  ? Colors.amber
+                                  : Colors.transparent,
                             );
                           }),
                         ),

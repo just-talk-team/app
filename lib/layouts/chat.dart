@@ -1,16 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
-import 'package:just_talk/services/remote_service.dart';
+import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/custom_text.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:just_talk/models/user_info.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:just_talk/utils/enums.dart';
 import 'dart:async';
 
@@ -49,9 +47,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   bool _hasData = false;
 
   ScrollController _scrollController;
-  RemoteConfig remoteConfig;
 
   UserService userService;
+  TopicsService topicsService;
 
   Future<void> recoverChatInfo() async {
     roomId = widget._roomId;
@@ -109,9 +107,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     super.initState();
 
     _scrollController = ScrollController();
-    remoteConfig = RepositoryProvider.of<RemoteService>(context).remoteConfig;
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
+    topicsService = TopicsService();
 
     if (widget._chatType == ChatType.DiscoveryChat) {
       chatCol = "discoveries";
@@ -241,22 +239,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Builder(builder: (context) {
-            int randomNumber = int.parse(remoteConfig.getString('BadgesView'));
-
-            print("[RESULTS]: $randomNumber");
-
-            switch (randomNumber) {
-              case 1:
-                return Results(roomId: roomId, userId: userId);
-              case 2:
-                return Results2(roomId: roomId, userId: userId);
-              case 3:
-                return Results3(roomId: roomId, userId: userId);
-              default:
-                return Results(roomId: roomId, userId: userId);
-            }
-          });
+          return Results(roomId: roomId, userId: userId);
         });
   }
 
@@ -320,9 +303,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             builder: (BuildContext context) {
               if (_hasData) {
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    List<String> topics =
+                        await topicsService.getChatTopics(userId, friendId);
                     Navigator.of(context).pushNamed('/chat_profile',
-                        arguments: {'userId': friendId});
+                        arguments: {'userId': friendId, 'topics': topics});
                   },
                   child: Row(
                     children: [
@@ -347,7 +332,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            new Text(
+                            Text(
                               friendInfo.nickname,
                               maxLines: 2,
                               textAlign: TextAlign.center,

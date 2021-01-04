@@ -70,7 +70,8 @@ class _PreferenceState extends State<Preference> {
                 if (snapshot.hasData) {
                   preferencesChange =
                       PreferencesChange.fromPreference(userInfo.preferences);
-                  return PreferenceData(segments, preferencesChange);
+                  return PreferenceData(
+                      segments, preferencesChange, userInfo.age);
                 }
                 return Container();
               })
@@ -82,10 +83,11 @@ class _PreferenceState extends State<Preference> {
 
 // ignore: must_be_immutable
 class PreferenceData extends StatefulWidget {
-  PreferenceData(this.userSegments, this.preferences);
+  PreferenceData(this.userSegments, this.preferences, this.age);
 
   List<String> userSegments;
   PreferencesChange preferences;
+  int age;
 
   @override
   _PreferenceDataState createState() => _PreferenceDataState();
@@ -95,6 +97,8 @@ class _PreferenceDataState extends State<PreferenceData> {
   List<String> _multipleChoices = ['Masculino', 'Femenino'];
   String interval = "";
   RangeValues currentRangeValues;
+  double minAge;
+  double maxAge;
 
   Iterable<Widget> get segmentsMultipleChip sync* {
     for (String segment in widget.userSegments) {
@@ -166,13 +170,14 @@ class _PreferenceDataState extends State<PreferenceData> {
   @override
   void initState() {
     super.initState();
-    double min = widget.preferences.minimunAge.toDouble();
-    double max = widget.preferences.maximumAge.toDouble();
 
-    interval = widget.preferences.minimunAge.toString() + 
+    minAge = widget.age == MIN_AGE ? MIN_AGE : (widget.age - 3).toDouble();
+    maxAge = (widget.age + 3).toDouble();
+
+    interval = widget.preferences.minimunAge.toString() +
         " - " +
         widget.preferences.maximumAge.toString();
-    currentRangeValues = RangeValues(min, max);
+    currentRangeValues = RangeValues(minAge, maxAge);
   }
 
   @override
@@ -250,8 +255,8 @@ class _PreferenceDataState extends State<PreferenceData> {
                           activeColor: Color(0xFFB3A407),
                           inactiveColor: Color(0xFFB3A407),
                           values: currentRangeValues,
-                          min: 18,
-                          max: 99,
+                          min: minAge,
+                          max: maxAge,
                           divisions: 100,
                           labels: RangeLabels(
                             currentRangeValues.start.round().toString(),

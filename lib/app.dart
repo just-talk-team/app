@@ -8,11 +8,16 @@ import 'package:just_talk/services/remote_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class App extends StatelessWidget {
-  App({Key key, @required this.authenticationService})
+  App(
+      {Key key,
+      @required this.authenticationService,
+      @required this.remoteService})
       : assert(authenticationService != null),
+        assert(remoteService != null),
         super(key: key);
 
   final AuthenticationService authenticationService;
+  final RemoteService remoteService;
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +30,7 @@ class App extends StatelessWidget {
             providers: [
               RepositoryProvider<UserService>(
                   create: (context) => UserService()),
-              RepositoryProvider<RemoteService>(
-                  create: (context) => RemoteService()),
+              RepositoryProvider<RemoteService>.value(value: remoteService)
             ],
             child: AppView(),
           )),
