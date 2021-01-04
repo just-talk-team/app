@@ -8,7 +8,7 @@ import 'package:just_talk/services/user_service.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
-      : super(DiscoveryNotFound()) {}
+      : super(DiscoveryNotFound());
 
   Future<void> reset() async {
     rooms.cancel();
