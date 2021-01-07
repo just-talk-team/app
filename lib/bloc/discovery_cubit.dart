@@ -33,7 +33,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   void _validateRoom(String roomId) {
-    discoveries.cancel();
+   
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
       bool flag = true;
@@ -62,6 +62,8 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   void _getDiscoveries(QuerySnapshot querySnapshot) {
     if (querySnapshot.docs.length > 0) {
+      discoveries.cancel();
+
       List<DocumentChange> documents = [];
 
       querySnapshot.docChanges.forEach((element) {
@@ -76,6 +78,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
           DateTime bDate = b.doc.data()['time'].toDate();
           return aDate.compareTo(bDate);
         });
+        
 
         emit(DiscoveryFound(room: documents[0].doc.id));
         _validateRoom(documents[0].doc.id);

@@ -253,8 +253,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                     child: Builder(builder: (context) {
                       return Container(
                         alignment: Alignment.topLeft,
-                        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: Wrap(

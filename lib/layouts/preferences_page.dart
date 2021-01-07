@@ -177,7 +177,9 @@ class _PreferenceDataState extends State<PreferenceData> {
     interval = widget.preferences.minimunAge.toString() +
         " - " +
         widget.preferences.maximumAge.toString();
-    currentRangeValues = RangeValues(minAge, maxAge);
+
+    currentRangeValues = RangeValues(widget.preferences.minimunAge.toDouble(),
+        widget.preferences.minimunAge.toDouble());
   }
 
   @override
