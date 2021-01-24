@@ -7,6 +7,8 @@ import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
+  bool connected;
+
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
       : super(DiscoveryNotFound());
 
@@ -16,8 +18,9 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   Future<void> init() async {
+    connected = false;
     await userService.deleteDiscoveries(userId);
-    discoveries = userService.getDiscoveries(userId).listen(
+    discoveries = userService.getDiscoveries(userId, sorted: true).listen(
         (QuerySnapshot querySnapshot) => _getDiscoveries(querySnapshot));
   }
 
@@ -34,50 +37,53 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   void _validateRoom(String roomId) {
     discoveries.cancel();
+    discoveryService.connectUser(roomId, userId);
+    Timer timer = Timer(Duration(seconds: 5), () => reset());
+
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
-      bool flag = true;
+      if (!connected) {
+        querySnapshot.docs.forEach((element) {
+          if (!element.data()['connected']) {
+            return;
+          }
+          timer.cancel();
+          connected = true;
+          emit(DiscoveryFound(room: roomId));
+        });
+      } else {
+        bool flag = true;
+        querySnapshot.docs.forEach((element) {
+          FLog.info(
+            text:
+                "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId",
+            methodName: "validateRoom",
+            className: "DiscoveryCubit",
+          );
 
-      querySnapshot.docs.forEach((element) {
-        FLog.info(
-          text:
-              "Stream ${element.id} ${element.data()['activated']} - RoomId: $roomId",
-          methodName: "validateRoom",
-          className: "DiscoveryCubit",
-        );
+          if (!element.data()['activated']) {
+            flag = false;
+            return;
+          }
+        });
 
-        if (!element.data()['activated']) {
-          flag = false;
-          return;
+        if (flag) {
+          emit(DiscoveryReady(room: roomId));
+          rooms.cancel();
         }
-      });
-
-      if (flag) {
-        emit(DiscoveryReady(room: roomId));
-        rooms.cancel();
+        return;
       }
-      return;
     });
   }
 
   void _getDiscoveries(QuerySnapshot querySnapshot) {
-    if (querySnapshot.docs.length > 0) {
-      List<DocumentChange> documents = [];
-
-      querySnapshot.docChanges.forEach((element) {
+    if (querySnapshot.docChanges.length > 0) {
+      List<DocumentChange> documents = querySnapshot.docChanges.map((element) {
         if (element.type == DocumentChangeType.added) {
-          documents.add(element);
+          return element;
         }
       });
-
       if (documents.length > 0) {
-        documents.sort((DocumentChange a, DocumentChange b) {
-          DateTime aDate = a.doc.data()['time'].toDate();
-          DateTime bDate = b.doc.data()['time'].toDate();
-          return aDate.compareTo(bDate);
-        });
-
-        emit(DiscoveryFound(room: documents[0].doc.id));
         _validateRoom(documents[0].doc.id);
       }
     }

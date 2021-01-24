@@ -41,7 +41,7 @@ class RouterGenerator {
             builder: (context) => TopicsTalk(),
             settings: RouteSettings(name: '/topics_talk'));
       case '/configuration':
-        return MaterialPageRoute(
+        return MaterialPageRoute<bool>(
             builder: (context) => ConfigurationPage(
                   userId: arg['userId'],
                   userInfo: arg['userInfo'],
@@ -64,10 +64,12 @@ class RouterGenerator {
                 ),
             settings: RouteSettings(name: '/chat'));
       case '/chat_profile':
-        return MaterialPageRoute(builder: (context) => Profile(
-          userId: arg['userId'],
-          topics: arg['topics'],
-        ));
+        return MaterialPageRoute(
+            builder: (context) => Profile(
+                  userId: arg['userId'],
+                  topics: arg['topics'],
+                ),
+            settings: RouteSettings(name: '/chat_profile'));
     }
 
     return _errorRoute();

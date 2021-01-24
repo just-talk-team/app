@@ -7,8 +7,10 @@ import 'package:just_talk/services/authentication_service.dart';
 import 'package:just_talk/services/remote_service.dart';
 
 void main() async {
+  SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
   await Firebase.initializeApp();
   init();

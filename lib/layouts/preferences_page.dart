@@ -117,7 +117,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                   : TextStyle(
                       fontFamily: "Roboto", fontWeight: FontWeight.bold),
             ),
-            selectedColor: Color(0xFFB3A407),
+            selectedColor: Theme.of(context).accentColor,
             selected: widget.preferences.segments.contains(segment),
             onSelected: (bool selected) {
               setState(() {
@@ -149,7 +149,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                         color: Colors.white)
                     : TextStyle(
                         fontFamily: "Roboto", fontWeight: FontWeight.bold)),
-            selectedColor: Color(0xFFB3A407),
+            selectedColor: Theme.of(context).accentColor,
             selected: widget.preferences.genders.contains(
                 EnumToString.fromString(Gender.values, multipleChoice)),
             onSelected: (bool selected) {
@@ -174,10 +174,13 @@ class _PreferenceDataState extends State<PreferenceData> {
     minAge = widget.age == MIN_AGE ? MIN_AGE : (widget.age - 3).toDouble();
     maxAge = (widget.age + 3).toDouble();
 
+    double currentMin = widget.preferences.minimunAge.toDouble();
+    double currentMax = widget.preferences.maximumAge.toDouble();
+
     interval = widget.preferences.minimunAge.toString() +
         " - " +
         widget.preferences.maximumAge.toString();
-    currentRangeValues = RangeValues(minAge, maxAge);
+    currentRangeValues = RangeValues(currentMin, currentMax);
   }
 
   @override
@@ -250,10 +253,9 @@ class _PreferenceDataState extends State<PreferenceData> {
                   children: <Widget>[
                     Container(
                         width: 200,
-                        child: Material(
-                            child: RangeSlider(
-                          activeColor: Color(0xFFB3A407),
-                          inactiveColor: Color(0xFFB3A407),
+                        child: RangeSlider(
+                          activeColor: Theme.of(context).accentColor,
+                          inactiveColor: Theme.of(context).accentColor,
                           values: currentRangeValues,
                           min: minAge,
                           max: maxAge,
@@ -276,7 +278,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                                   values.end.round().toString();
                             });
                           },
-                        ))),
+                        )),
                     Container(
                       child: Center(
                         child: AutoSizeText(
@@ -311,6 +313,7 @@ class _PreferenceDataState extends State<PreferenceData> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(badges.length, (index) {
                       return Badge(
+                          selectedColor: Theme.of(context).accentColor,
                           selected: widget.preferences.badgets
                               .contains(badges[index].item1),
                           icon: badges[index].item2,

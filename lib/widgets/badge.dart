@@ -9,7 +9,7 @@ class Badge extends StatefulWidget {
       @required Function(bool) valueChanged,
       double iconSize = 30,
       double textSize = 14,
-      Color selectedColor = const Color(0xffb3a407),
+      Color selectedColor,
       bool active = true})
       : assert(selected != null),
         assert(icon != null),

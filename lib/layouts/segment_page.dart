@@ -112,7 +112,7 @@ class _SegmentPage extends State<SegmentPage> {
                                 color: Colors.black.withOpacity(0.5))),
                         backgroundColor: Colors.transparent,
                         label: Text(segments[index].item1),
-                        deleteIconColor: Color(0xFFB31048),
+                        deleteIconColor: Theme.of(context).primaryColor,
                         onDeleted: () {
                           setState(() {
                             segments.removeAt(index);
@@ -130,7 +130,7 @@ class _SegmentPage extends State<SegmentPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    color: Color(0xFFB31048),
+                    color: Theme.of(context).primaryColor,
                     padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
                     textColor: Colors.white,
                     onPressed: () async {

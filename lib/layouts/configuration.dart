@@ -4,10 +4,11 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/utils/enums.dart';
-import 'package:just_talk/widgets/date_picker.dart';
+import 'package:just_talk/widgets/confirm_dialog.dart';
 
 class ConfigurationPage extends StatefulWidget {
   ConfigurationPage({this.userId, this.userInfo, this.userService});
@@ -27,9 +28,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   TextEditingController segmentController;
   FocusNode textFieldFocusNode;
 
-  DateTime userBirthdate;
-  Gender userGender;
-
   List<Gender> multipleChoices;
   UserService userService;
   bool segmentFlag;
@@ -38,10 +36,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   void initState() {
     super.initState();
 
-    userGender = widget.userInfo.gender;
     userSegments = [];
-    userBirthdate = widget.userInfo.birthdate;
-
     segmentFlag = false;
 
     nickController = TextEditingController();
@@ -67,44 +62,16 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     textFieldFocusNode.dispose();
   }
 
-  Iterable<Widget> get companyWidgets sync* {
-    for (Gender gender in multipleChoices) {
-      yield Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: FilterChip(
-            showCheckmark: false,
-            label: Text(
-              describeEnum(gender),
-              style: (userGender == gender)
-                  ? TextStyle(
-                      fontFamily: "Roboto",
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)
-                  : TextStyle(
-                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
-            ),
-            selectedColor: Color(0xffb3a407),
-            selected: userGender == gender,
-            onSelected: (bool selected) {
-              userGender = gender;
-              setState(() {});
-            }),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         bool flag = false;
 
-        if (nickController.text != widget.userInfo.nickname ||
-            userGender != widget.userInfo.gender ||
-            userBirthdate != widget.userInfo.birthdate) {
+        if (nickController.text != widget.userInfo.nickname) {
           flag = true;
           await userService.updateUserConfiguration(
-              widget.userId, nickController.text, userGender, userBirthdate);
+              widget.userId, nickController.text);
         }
         if (segmentFlag) {
           flag = true;
@@ -126,12 +93,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             onPressed: () async {
               bool flag = false;
 
-              if (nickController.text != widget.userInfo.nickname ||
-                  userGender != widget.userInfo.gender ||
-                  userBirthdate != widget.userInfo.birthdate) {
+              if (nickController.text != widget.userInfo.nickname) {
                 flag = true;
-                await userService.updateUserConfiguration(widget.userId,
-                    nickController.text, userGender, userBirthdate);
+                await userService.updateUserConfiguration(
+                    widget.userId, nickController.text);
               }
               if (segmentFlag) {
                 flag = true;
@@ -159,36 +124,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                           const BorderSide(color: Colors.grey, width: 0.0),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: MyTextFieldDatePicker(
-                    labelText: "Fecha de nacimiento",
-                    suffixIcon: Icon(Icons.date_range),
-                    lastDate: DateTime.now().add(Duration(days: 366)),
-                    firstDate: DateTime(1970),
-                    initialDate: userBirthdate,
-                    onDateChanged: (selectedDate) {
-                      userBirthdate = selectedDate;
-                    }),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText('Sexo',
-                        style: TextStyle(
-                            color: Color(0xff666666),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: Wrap(
-                          children: companyWidgets.toList(),
-                        )),
-                  ],
                 ),
               ),
               Padding(
@@ -255,7 +190,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                                 side: BorderSide(
                                     width: 0.5,
                                     color: Colors.black.withOpacity(0.5))),
-                            deleteIconColor: Color(0xFFB31048),
+                            deleteIconColor: Theme.of(context).primaryColor,
                             backgroundColor: Colors.transparent,
                             onDeleted: () {
                               setState(() {
@@ -268,6 +203,36 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                       ),
                     )),
               ),
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  child: RaisedButton(
+                    key: Key('Finalizar'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    color: Theme.of(context).primaryColor,
+                    padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
+                    textColor: Colors.white,
+                    onPressed: () async {
+                      bool result = await showDialog(
+                          builder: (BuildContext context) {
+                            return ConfirmDialog(
+                                color: Theme.of(context).accentColor,
+                               title: "Confirmar accion", 
+                                message: "Desea eliminar su cuenta");
+                          },
+                          context: context);
+
+                      if (result) {
+                        await userService.deleteUser(widget.userId);
+                        BlocProvider.of<AuthenticationCubit>(context).logOut();
+                      }
+                    },
+                    child: Text(
+                      "Eliminar cuenta",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ))
             ],
           ),
         ),

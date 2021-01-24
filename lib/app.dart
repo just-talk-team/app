@@ -54,10 +54,7 @@ class _AppViewState extends State<AppView> {
     var querySnapshot =
         await doc.limit(1).where('uid', isEqualTo: userId).get();
 
-    querySnapshot.docs.forEach((element) {
-      result = element.exists;
-    });
-
+    result = (querySnapshot.docs.length == 1);
     return result;
   }
 
@@ -65,6 +62,7 @@ class _AppViewState extends State<AppView> {
   Widget build(BuildContext context) {
     return MaterialApp(
         navigatorKey: _navigatorKey,
+        initialRoute: '/',
         onGenerateRoute: RouterGenerator.generateRoute,
         builder: (context, child) {
           return BlocListener<AuthenticationCubit, AuthenticationState>(
@@ -79,7 +77,8 @@ class _AppViewState extends State<AppView> {
                   _navigator.pushReplacementNamed('/register');
                   break;
                 case AuthenticationStatus.unauthenticated:
-                  _navigator.pushReplacementNamed('/login');
+                  _navigator.pushNamedAndRemoveUntil(
+                      '/login', ModalRoute.withName('/'));
                   break;
                 default:
                   break;
@@ -89,15 +88,18 @@ class _AppViewState extends State<AppView> {
           );
         },
         theme: ThemeData(
-            primaryColor: Colors.black,
+            primaryColor: Color(0xffff2424),
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'ArialRounded',
-            accentColor: Color(0xffff3f82),
+            accentColor: Color(0xffff2424).withOpacity(0.7),
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                unselectedIconTheme: IconThemeData(color: Color(0xFF73000000)),
-                selectedIconTheme: IconThemeData(color: Colors.black),
-                selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold)),
+              unselectedIconTheme:
+                  IconThemeData(color: Colors.black.withOpacity(0.5)),
+              selectedIconTheme: IconThemeData(color: Colors.black),
+              selectedItemColor: Colors.black,
+            ),
             appBarTheme: AppBarTheme(
+                brightness: Brightness.light,
                 elevation: 0,
                 color: Colors.white,
                 iconTheme: IconThemeData(color: Colors.black),

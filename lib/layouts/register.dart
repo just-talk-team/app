@@ -66,44 +66,42 @@ class _Register extends State<Register> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
-      body: SafeArea(
-        child: Column(children: <Widget>[
-          Expanded(
-            flex: 2,
-            child: Container(
-              margin: EdgeInsets.only(top: 50),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SmoothPageIndicator(
-                    controller: controller,
-                    count: 4,
-                    effect: JumpingDotEffect(
-                        spacing: 12.0,
-                        dotWidth: 20.0,
-                        dotHeight: 20.0,
-                        strokeWidth: 0.2,
-                        paintStyle: PaintingStyle.stroke,
-                        dotColor: Colors.black,
-                        activeDotColor: const Color(0xffb3a507)),
-                  ),
-                ],
-              ),
+      body: Column(children: <Widget>[
+        Expanded(
+          flex: 2,
+          child: Container(
+            margin: EdgeInsets.only(top: 50),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SmoothPageIndicator(
+                  controller: controller,
+                  count: 4,
+                  effect: JumpingDotEffect(
+                      spacing: 12.0,
+                      dotWidth: 20.0,
+                      dotHeight: 20.0,
+                      strokeWidth: 0.2,
+                      paintStyle: PaintingStyle.stroke,
+                      dotColor: Colors.black,
+                      activeDotColor: Theme.of(context).accentColor),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            flex: 10,
-            child: PageView(key: Key("pageview"), controller: controller,
-                //physics: new NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  InfoPage(widget._user, controller),
-                  NicknamePage(widget._user, controller),
-                  AvatarPage(widget._user, controller),
-                  SegmentPage(widget._user, controller, widget._userService),
-                ]),
-          ),
-        ]),
-      ),
+        ),
+        Expanded(
+          flex: 10,
+          child: PageView(key: Key("pageview"), controller: controller,
+              //physics: new NeverScrollableScrollPhysics(),
+              children: <Widget>[
+                InfoPage(widget._user, controller),
+                NicknamePage(widget._user, controller, widget._userService),
+                AvatarPage(widget._user, controller),
+                SegmentPage(widget._user, controller, widget._userService),
+              ]),
+        ),
+      ]),
     );
   }
 }
