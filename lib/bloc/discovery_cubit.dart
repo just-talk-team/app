@@ -82,7 +82,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
         if (element.type == DocumentChangeType.added) {
           return element;
         }
-      });
+      }).toList();
       if (documents.length > 0) {
         _validateRoom(documents[0].doc.id);
       }
