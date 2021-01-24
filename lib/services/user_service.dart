@@ -79,17 +79,26 @@ class UserService {
     });
   }
 
-  Future<void> updateUserConfiguration(
-      String id, String nickname, Gender gender, DateTime birthdate) async {
+  Future<void> updateUserConfiguration(String id, String nickname) async {
     DocumentReference user =
         FirebaseFirestore.instance.collection("users").doc(id);
 
     final DateFormat formatter = DateFormat("MM/dd/yyyy");
     await user.update({
       'nickname': nickname,
-      'gender': describeEnum(gender),
-      'birthdate': formatter.format(birthdate)
     });
+  }
+
+  Future<bool> validateNickname(String nickname) async {
+    QuerySnapshot querySnapshot =
+        await _firebaseFirestore.collection("users").get();
+
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      if (doc.data()["nickname"] == nickname) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<UserInfo> getUser(
@@ -142,6 +151,12 @@ class UserService {
       }
       return UserInfo.empty();
     });
+  }
+
+  Future<void> deleteUser(String id) async {
+    DocumentReference userDoc = _firebaseFirestore.collection("users").doc(id);
+    userDoc.delete();
+    return;
   }
 
   Future<void> updateSegments(String id, List<String> segments) async {
@@ -321,7 +336,17 @@ class UserService {
         .snapshots();
   }
 
-  Stream<QuerySnapshot> getDiscoveries(String id) {
+  Stream<QuerySnapshot> getDiscoveries(String id, {bool sorted = false}) {
+    if (sorted) {
+      return _firebaseFirestore
+          .collection('users')
+          .doc(id)
+          .collection('discoveries')
+          .orderBy('time', descending: true)
+          .snapshots();
+          
+      ;
+    }
     return _firebaseFirestore
         .collection('users')
         .doc(id)
@@ -387,8 +412,6 @@ class UserService {
     }
     Future.wait(futures);
   }
-
-  
 
   Future<List<Topic>> getTopicsHear(String id) async {
     List<Topic> topics = [];

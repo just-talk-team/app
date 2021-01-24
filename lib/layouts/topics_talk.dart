@@ -78,7 +78,7 @@ class _TopicsTalk extends State<TopicsTalk> {
                   await userService.deleteTopicsHear(userId);
                   await userService.setTopicsHear(userId, topicsTalk);
 
-                  if (changed) {         
+                  if (changed) {
                     if (deletedTopics.length > 0) {
                       await userService.deleteTopicsTalk(userId, deletedTopics);
                     }
@@ -98,7 +98,7 @@ class _TopicsTalk extends State<TopicsTalk> {
                   });
                 } else {
                   Flushbar(
-                    backgroundColor: Color(0xFFB31048),
+                    backgroundColor: Theme.of(context).primaryColor,
                     flushbarPosition: FlushbarPosition.TOP,
                     messageText: Text(
                       "Defina al menos un tema de que hablar!",
@@ -149,7 +149,8 @@ class _TopicsTalk extends State<TopicsTalk> {
                                         fontFamily: "Roboto",
                                         fontWeight: FontWeight.normal),
                                   ),
-                                  deleteIconColor: Color(0xFFB31048),
+                                  deleteIconColor:
+                                      Theme.of(context).primaryColor,
                                   onDeleted: () {
                                     if (!changed) {
                                       changed = true;
@@ -170,16 +171,24 @@ class _TopicsTalk extends State<TopicsTalk> {
               flex: 1,
               child: Stack(alignment: Alignment.centerRight, children: <Widget>[
                 TextField(
+                  maxLength: 50,
                   controller: topicsTalkController,
                   decoration: InputDecoration(
+                    counterText: '',
                     hintText: 'Puedo hablar de ...',
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 2.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 2.0,
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send_rounded),
+                  icon: Icon(
+                    Icons.send_rounded,
+                    color: Theme.of(context).primaryColor,
+                  ),
                   onPressed: () {
                     FocusScope.of(context).requestFocus(FocusNode());
                     setState(() {

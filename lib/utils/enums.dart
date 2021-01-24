@@ -1,5 +1,5 @@
 enum Gender { Femenino, Masculino, None }
 
-enum MessageType { CurrentUser, Friend, Information }
+enum MessageType { Message, Information }
 
 enum ChatType { FriendChat, DiscoveryChat }

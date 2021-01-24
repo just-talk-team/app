@@ -27,7 +27,7 @@ class _InfoPage extends State<InfoPage> {
   bool validateAge() {
     if (widget.userI.age < MIN_AGE) {
       Flushbar(
-        backgroundColor: Color(0xFFB31048),
+        backgroundColor: Theme.of(context).primaryColor,
         flushbarPosition: FlushbarPosition.BOTTOM,
         messageText: Text(
           'La edad minima son 15 años',
@@ -42,8 +42,8 @@ class _InfoPage extends State<InfoPage> {
   }
 
   void validate() {
-    if(validateAge() && widget.userI.gender != null){
-        widget.pageController
+    if (validateAge() && widget.userI.gender != null) {
+      widget.pageController
           .nextPage(duration: Duration(seconds: 1), curve: Curves.easeOutCubic);
     }
   }
@@ -79,7 +79,7 @@ class _InfoPage extends State<InfoPage> {
                               fontWeight: FontWeight.normal),
                     ),
                     selected: (index == _defaultChoiceIndex),
-                    selectedColor: Color(0xFFB3A407),
+                    selectedColor: Theme.of(context).accentColor,
                     onSelected: (bool selected) {
                       setState(() {
                         widget.userI.gender = _choices[index];
@@ -125,7 +125,7 @@ class _InfoPage extends State<InfoPage> {
               MyTextFieldDatePicker(
                 key: Key('DatePicker'),
                 labelText: "Fecha de Nacimiento",
-                prefixIcon: Icon(Icons.date_range),
+                prefixIcon: Icon(Icons.date_range, color: Theme.of(context).primaryColor,),
                 suffixIcon: Icon(Icons.arrow_drop_down),
                 lastDate: DateTime.now().add(Duration(days: 366)),
                 firstDate: DateTime(1970),

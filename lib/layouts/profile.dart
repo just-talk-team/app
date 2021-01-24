@@ -121,6 +121,7 @@ class _Profile extends State<Profile> {
                           spacing: 10.0,
                           children: [
                             Badge(
+                              selectedColor: Theme.of(context).accentColor,
                               selected: true,
                               icon: Icons.hearing,
                               text: 'Buen oyente',
@@ -128,6 +129,7 @@ class _Profile extends State<Profile> {
                               active: false,
                             ),
                             Badge(
+                              selectedColor: Theme.of(context).accentColor,
                               selected: true,
                               icon: Icons.mood,
                               text: 'Buen conversador',
@@ -136,6 +138,7 @@ class _Profile extends State<Profile> {
                             ),
                             Badge(
                               selected: true,
+                              selectedColor: Theme.of(context).accentColor,
                               icon: Icons.sentiment_very_satisfied,
                               text: 'Divertido',
                               valueChanged: (state) {},
@@ -166,7 +169,7 @@ class _Profile extends State<Profile> {
                               backgroundColor: widget._topics.length > 0 &&
                                       widget._topics
                                           .contains(topicsTalk[index].topic)
-                                  ? Colors.amber
+                                  ? Theme.of(context).primaryColor
                                   : Colors.transparent,
                             );
                           }),

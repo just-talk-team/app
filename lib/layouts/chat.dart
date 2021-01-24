@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
+import 'package:just_talk/widgets/confirm_dialog.dart';
 import 'package:just_talk/widgets/custom_text.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:just_talk/models/user_info.dart';
@@ -34,7 +36,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   String roomId = "";
   String chatCol = "";
 
-  List<CustomText> messages = [];
+  List<MessageText> messages = [];
   AnimationController _controller;
   int levelClock = 301;
 
@@ -146,89 +148,38 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                 String senderId = snapshot.data.docs[index].data()["user"];
                 MessageType messageType;
 
-                if (senderId == userId) {
-                  messageType = MessageType.CurrentUser;
-                } else if (senderId == friendId) {
-                  messageType = MessageType.Friend;
+                if (senderId == userId || senderId == friendId) {
+                  Color color = senderId == userId
+                      ? Colors.black.withOpacity(0.7)
+                      : Color(0xffff2424).withOpacity(0.7);
+
+                  messageType = MessageType.Message;
+                  return MessageText(
+                      text: snapshot.data.docs[index].data()["message"],
+                      type: messageType,
+                      color: color);
                 } else {
                   messageType = MessageType.Information;
+                  return MessageText(
+                      text: snapshot.data.docs[index].data()["message"],
+                      type: messageType);
                 }
-
-                return CustomText(
-                    snapshot.data.docs[index].data()["message"], messageType);
               });
         });
   }
 
-  Future<dynamic> leaveChat() {
-    return showGeneralDialog(
-        barrierColor: Colors.black45,
-        transitionDuration: const Duration(milliseconds: 200),
-        context: context,
-        pageBuilder: (BuildContext context, Animation animation,
-            Animation secondAnimation) {
-          return Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width - 120,
-              height: MediaQuery.of(context).size.height / 5,
-              child: Material(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        '¿Esta seguro de que quiere abandonar el chat?',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontFamily: 'Roboto'),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            finishChat();
-                            //Navigator.pushReplacementNamed(context, '/home');
-                          },
-                          child: Text(
-                            'ACEPTAR',
-                            style: TextStyle(
-                                letterSpacing: 2,
-                                color: Color(0xffff3f82),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context, true);
-                          },
-                          child: Text(
-                            'CANCELAR',
-                            style: TextStyle(
-                                letterSpacing: 2,
-                                color: Color(0xffff3f82),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+  Future<dynamic> leaveChat() async {
+    bool result = await showDialog(
+        builder: (BuildContext context) {
+          return ConfirmDialog(
+              color: Theme.of(context).accentColor,
+              message: "Esta seguro que quiere abandonar el chat");
+        },
+        context: context);
+
+    if (result) {
+      finishChat();
+    }
   }
 
   Future<dynamic> finishChat() {
@@ -254,7 +205,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .doc(roomId)
         .collection("messages")
         .add(message);
-    messages.add(CustomText(text, MessageType.CurrentUser));
+    messages.add(MessageText(
+        text: text,
+        type: MessageType.Message,
+        color: Colors.black.withOpacity(0.7)));
   }
 
   void addFriend() async {
@@ -380,7 +334,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         ? Icon(Icons.star_rounded)
                         : Icon(Icons.star_border_rounded),
                     iconSize: 30,
-                    color: Color(0xffb31049),
+                    color: Theme.of(context).primaryColor,
                   ),
                 ],
               ),
@@ -388,6 +342,12 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
           ],
         ),
         body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/background.png"),
+                fit: BoxFit.cover,
+              ),
+            ),
             margin: EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -405,11 +365,17 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               children: [
                                 GestureDetector(
                                   onTap: () {
+                                    FLog.info(
+                                      text: "Finish chat",
+                                      methodName: "leaveChat",
+                                      className: "Chat",
+                                    );
                                     leaveChat();
                                     //finishChat();
                                   },
                                   child: Icon(Icons.clear_rounded,
-                                      size: 30, color: Color(0xffb31049)),
+                                      size: 30,
+                                      color: Theme.of(context).primaryColor),
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(

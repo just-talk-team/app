@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: const Icon(Icons.settings),
               onPressed: () async {
                 if (userInfo != null) {
-                  final change = await Navigator.pushNamed(
+                  bool change = await Navigator.pushNamed(
                       context, '/configuration',
                       arguments: {
                         'userId': BlocProvider.of<AuthenticationCubit>(context)
@@ -139,6 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         spacing: 10.0,
                         children: [
                           Badge(
+                            selectedColor: Theme.of(context).accentColor,
                             selected: true,
                             icon: Icons.hearing,
                             text: 'Buen oyente',
@@ -146,6 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             active: false,
                           ),
                           Badge(
+                            selectedColor: Theme.of(context).accentColor,
                             selected: true,
                             icon: Icons.mood,
                             text: 'Buen conversador',
@@ -153,6 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             active: false,
                           ),
                           Badge(
+                            selectedColor: Theme.of(context).accentColor,
                             selected: true,
                             icon: Icons.sentiment_very_satisfied,
                             text: 'Divertido',

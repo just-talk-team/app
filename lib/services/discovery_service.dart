@@ -24,4 +24,13 @@ class DiscoveryService {
         .doc(userId)
         .update({'activated': true});
   }
+
+  Future<void> connectUser(String roomId, String userId) async {
+    await _firebaseFirestore
+        .collection('discoveries')
+        .doc(roomId)
+        .collection('users')
+        .doc(userId)
+        .update({'connected': true});
+  }
 }

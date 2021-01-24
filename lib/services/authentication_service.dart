@@ -31,7 +31,7 @@ class AuthenticationService {
     }
     return firebaseAuthPackage.FacebookAuthProvider.credential(
         result.accessToken.token);
-  }
+  } 
 
   Future<void> logInWithCredentials(
       firebaseAuthPackage.AuthCredential authCredential) async {

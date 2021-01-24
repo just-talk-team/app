@@ -61,7 +61,7 @@ class _AvatarPage extends State<AvatarPage> {
                 height: 100,
                 width: 100,
                 child: FloatingActionButton(
-                  backgroundColor: Color(0xFFB31048),
+                  backgroundColor: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50.0),
                   ),

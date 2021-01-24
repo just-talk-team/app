@@ -26,23 +26,29 @@ class TopicsHear extends StatefulWidget {
 
 class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   AnimationController _controller;
+  AnimationController _topicController;
+
   UserService userService;
   TopicsService topicsService;
   DiscoveryService discoveryService;
   DiscoveryCubit discoveryCubit;
   TopicHearCubit topicHearCubit;
-  int levelClock = 20;
+  final levelClock = 20;
+  final topicClock = 10;
 
   List<Topic> topicsToHear;
   List<Topic> checkList;
   Timer _timer;
   String id;
   bool accept;
+  bool visible;
 
   @override
   void initState() {
     super.initState();
     accept = false;
+    visible = true;
+
     topicsToHear = [];
     checkList = [];
 
@@ -51,6 +57,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     discoveryService = DiscoveryService();
     initCubit();
     initTimer();
+    initTopicAnimation();
   }
 
   void initTimer() {
@@ -72,17 +79,23 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     await discoveryCubit.init();
 
     discoveryCubit.listen((DiscoveryState discoveryState) {
+      String roomId = (discoveryState as DiscoveryReady).room;
       switch (discoveryState.runtimeType) {
         case DiscoveryFound:
+          FLog.info(
+              className: "TopicsHear",
+              methodName: "initCubit",
+              text: "Room $roomId found");
           chatReady((discoveryState as DiscoveryFound).room);
           _startClock();
           break;
         case DiscoveryReady:
           _controller.stop();
           Navigator.of(context).pop();
-
-          String roomId = (discoveryState as DiscoveryReady).room;
-          FLog.info(text: "Room $roomId");
+          FLog.info(
+              className: "TopicsHear",
+              methodName: "initCubit",
+              text: "Room $roomId ready");
           Navigator.pushReplacementNamed(context, '/chat', arguments: {
             'roomId': roomId,
             'chatType': ChatType.DiscoveryChat,
@@ -134,12 +147,13 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(25),
                                     border: Border.all(
-                                        width: 2, color: Color(0xff959595))),
+                                        width: 2,
+                                        color: Colors.black.withOpacity(0.8))),
                                 child: Countdown(
                                   animation: StepTween(
                                     begin: levelClock,
                                     end: 0,
-                                  ).animate(_controller),
+                                  ).animate(_topicController),
                                 ),
                               )
                             ],
@@ -167,7 +181,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                                   'ACEPTAR',
                                   style: TextStyle(
                                       letterSpacing: 2,
-                                      color: Color(0xffff3f82),
+                                      color: Theme.of(context).accentColor,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold),
                                 )),
@@ -182,6 +196,28 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
             ),
           );
         });
+  }
+
+  void initTopicAnimation() {
+    _topicController = AnimationController(
+        vsync: this, duration: Duration(seconds: topicClock));
+    _topicController.forward();
+    _topicController.addStatusListener((status) async {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          visible = false;
+        });
+
+        Timer(Duration(milliseconds: 500), () {
+          topicHearCubit.shuffle();
+          _topicController.reset();
+          _topicController.forward();
+          setState(() {
+            visible = true;
+          });
+        });
+      }
+    });
   }
 
   void _startClock() {
@@ -247,15 +283,33 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
               }
 
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          border:
+                              Border.all(width: 2, color: Color(0xff959595))),
+                      child: Countdown(
+                        animation: StepTween(
+                          begin: topicClock,
+                          end: 0,
+                        ).animate(_topicController),
+                      ),
+                    ),
+                  ),
                   Expanded(
-                    flex: 11,
-                    child: Builder(builder: (context) {
-                      return Container(
-                        alignment: Alignment.topLeft,
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
+                    child: AnimatedOpacity(
+                      opacity: visible ? 1.0 : 0.0,
+                      duration: Duration(milliseconds: 500),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Wrap(
                             spacing: 6.0,
                             runSpacing: 6.0,
@@ -269,71 +323,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                             }),
                           ),
                         ),
-                      );
-                    }),
+                      ),
+                    ),
                   ),
-                  Expanded(
-                      flex: 1,
-                      child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(
-                                color: Color(0xFFB31048),
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                          child: Builder(
-                            builder: (context) {
-                              int size = topicsToHear.length > 3
-                                  ? 3
-                                  : topicsToHear.length;
-
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: Wrap(
-                                          spacing: 6.0,
-                                          runSpacing: 1.0,
-                                          children: List<Widget>.generate(size,
-                                              (int index) {
-                                            return TopicChip(
-                                                label:
-                                                    topicsToHear[index].topic,
-                                                callback: () => setState(() {
-                                                      checkList.add(
-                                                          topicsToHear[index]);
-                                                    }));
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      child: Badge(
-                                        badgeColor: Color(0xFFB31048),
-                                        badgeContent: Text(
-                                          topicsToHear.length.toString(),
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        child: Icon(
-                                          Icons.skip_next_rounded,
-                                          color: Color(0xFFB31048),
-                                        ),
-                                        animationType: BadgeAnimationType.slide,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              );
-                            },
-                          ))),
                 ],
               );
             }));
@@ -352,12 +344,13 @@ class TopicChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-        shape: StadiumBorder(
-            side: BorderSide(width: 0.5, color: Colors.black.withOpacity(0.5))),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).primaryColor,
         label: Text(
           label,
-          style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.normal),
+          style: TextStyle(
+              fontFamily: "Roboto",
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
         onPressed: callback);
   }

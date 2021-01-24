@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
       onWillPop: () => SystemNavigator.pop(),
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(0xFFB31048),
+          backgroundColor: Theme.of(context).primaryColor,
           child: Icon(Icons.help),
           onPressed: () {
             emailService.sendLogs();
@@ -72,8 +72,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: SafeArea(
-            child: Column(
+        body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
@@ -97,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                  color: Color(0xFFB31048),
+                  color: Theme.of(context).primaryColor,
                   label: Text(
                     'Just Talk',
                     style: TextStyle(
@@ -155,7 +154,7 @@ class _HomePageState extends State<HomePage> {
               }
             })
           ],
-        )),
+        ),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
