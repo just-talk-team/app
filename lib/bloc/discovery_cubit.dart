@@ -7,8 +7,6 @@ import 'package:just_talk/services/discovery_service.dart';
 import 'package:just_talk/services/user_service.dart';
 
 class DiscoveryCubit extends Cubit<DiscoveryState> {
-  bool connected;
-
   DiscoveryCubit({this.discoveryService, this.userService, this.userId})
       : super(DiscoveryNotFound());
 
@@ -18,7 +16,6 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   Future<void> init() async {
-    connected = false;
     await userService.deleteDiscoveries(userId);
     discoveries = userService.getDiscoveries(userId, sorted: true).listen(
         (QuerySnapshot querySnapshot) => _getDiscoveries(querySnapshot));
@@ -36,7 +33,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   }
 
   void _validateRoom(String roomId) {
-    discoveries.cancel();
+    bool connected = false;
     discoveryService.connectUser(roomId, userId);
     //Timer timer = Timer(Duration(seconds: 5), () => reset());
 
@@ -47,9 +44,9 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
           if (!element.data()['connected']) {
             return;
           }
+          emit(DiscoveryFound(room: roomId));
           //timer.cancel();
           connected = true;
-          emit(DiscoveryFound(room: roomId));
         });
       } else {
         bool flag = true;
@@ -78,15 +75,19 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
 
   void _getDiscoveries(QuerySnapshot querySnapshot) {
     if (querySnapshot.docChanges.length > 0) {
-      List<DocumentChange> documents = querySnapshot.docChanges.map((element) {
-        if (element.type == DocumentChangeType.added) {
-          return element;
-        }
-      }).toList();
+      List<DocumentChange> documents = querySnapshot.docChanges
+          .where((element) => element.type == DocumentChangeType.added)
+          .toList();
+          
       if (documents.length > 0) {
+        discoveries.cancel();
         _validateRoom(documents[0].doc.id);
       }
     }
+  }
+
+  void test() {
+    emit(DiscoveryFound(room: ''));
   }
 
   final String userId;

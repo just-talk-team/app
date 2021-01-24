@@ -79,9 +79,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     await discoveryCubit.init();
 
     discoveryCubit.listen((DiscoveryState discoveryState) {
-      String roomId = (discoveryState as DiscoveryReady).room;
       switch (discoveryState.runtimeType) {
         case DiscoveryFound:
+          String roomId = (discoveryState as DiscoveryFound).room;
           FLog.info(
               className: "TopicsHear",
               methodName: "initCubit",
@@ -90,6 +90,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           _startClock();
           break;
         case DiscoveryReady:
+          String roomId = (discoveryState as DiscoveryReady).room;
           _controller.stop();
           Navigator.of(context).pop();
           FLog.info(
@@ -105,6 +106,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         // Send to chat
       }
     });
+
   }
 
   @override
