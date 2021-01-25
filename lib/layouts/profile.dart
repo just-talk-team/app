@@ -158,17 +158,23 @@ class _Profile extends State<Profile> {
                           runSpacing: 6.0,
                           children: List<Widget>.generate(topicsTalk.length,
                               (int index) {
+                            bool flag = widget._topics.length > 0 &&
+                                widget._topics
+                                    .contains(topicsTalk[index].topic);
+
                             return Chip(
+                              shape: !flag
+                                  ? StadiumBorder(
+                                      side: BorderSide(
+                                          width: 0.5,
+                                          color: Colors.black.withOpacity(0.5)))
+                                  : null,
                               label: Text(
                                 topicsTalk[index].topic,
+                                style: TextStyle(
+                                    color: flag ? Colors.white : Colors.black),
                               ),
-                              shape: StadiumBorder(
-                                  side: BorderSide(
-                                      width: 0.5,
-                                      color: Colors.black.withOpacity(0.5))),
-                              backgroundColor: widget._topics.length > 0 &&
-                                      widget._topics
-                                          .contains(topicsTalk[index].topic)
+                              backgroundColor: flag
                                   ? Theme.of(context).primaryColor
                                   : Colors.transparent,
                             );

@@ -5,35 +5,38 @@ class MessageText extends StatelessWidget {
   final String _text;
   final MessageType _type;
   final Color _color;
+  final MainAxisAlignment _alignment;
 
-  MessageText({String text, MessageType type, Color color})
+  MessageText(
+      {String text, MessageType type, Color color, MainAxisAlignment alignment})
       : assert(text != null),
         assert(type != null),
-        assert(type != MessageType.Information || color != null ),
+        assert(type != MessageType.Information || color != null),
+        assert(type != MessageType.Information || alignment != null),
         _text = text,
         _type = type,
-        _color = color;
+        _color = color,
+        _alignment = alignment;
 
   @override
   Widget build(BuildContext context) {
     double maxW = ((MediaQuery.of(context).size.width) * 0.75).roundToDouble();
 
     MainAxisAlignment mainAxis;
-    Color color;
+    Color textColor;
     BoxDecoration boxDecoration;
 
     switch (_type) {
       case MessageType.Message:
-        mainAxis = MainAxisAlignment.end;
-        color = _color;
+        mainAxis = _alignment;
+        textColor = Colors.white;
         boxDecoration = BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(width: 1, color: color));
+            borderRadius: BorderRadius.circular(5), color: _color);
         break;
 
       case MessageType.Information:
         mainAxis = MainAxisAlignment.center;
-        color = Colors.black.withOpacity(0.5);
+        textColor = Colors.black.withOpacity(0.5);
         boxDecoration = null;
     }
 
@@ -47,7 +50,7 @@ class MessageText extends StatelessWidget {
             decoration: boxDecoration,
             child: Text(
               _text,
-              style: TextStyle(color: color),
+              style: TextStyle(color: textColor),
             )),
       ],
     );

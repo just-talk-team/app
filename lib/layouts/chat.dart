@@ -146,23 +146,23 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
                 String senderId = snapshot.data.docs[index].data()["user"];
-                MessageType messageType;
 
-                if (senderId == userId || senderId == friendId) {
-                  Color color = senderId == userId
-                      ? Colors.black.withOpacity(0.7)
-                      : Color(0xffff2424).withOpacity(0.7);
-
-                  messageType = MessageType.Message;
+                if (senderId == userId) {
                   return MessageText(
                       text: snapshot.data.docs[index].data()["message"],
-                      type: messageType,
-                      color: color);
+                      type: MessageType.Message,
+                      color: Colors.black.withOpacity(0.7),
+                      alignment: MainAxisAlignment.end);
+                } else if (senderId == friendId) {
+                  return MessageText(
+                      text: snapshot.data.docs[index].data()["message"],
+                      type: MessageType.Message,
+                      color: Color(0xffff2424).withOpacity(0.7),
+                      alignment: MainAxisAlignment.start);
                 } else {
-                  messageType = MessageType.Information;
                   return MessageText(
                       text: snapshot.data.docs[index].data()["message"],
-                      type: messageType);
+                      type: MessageType.Information);
                 }
               });
         });
@@ -190,7 +190,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Results(roomId: roomId, userId: userId);
+          return Results(
+              roomId: roomId,
+              userId: userId,
+              color: Theme.of(context).primaryColor);
         });
   }
 
@@ -401,12 +404,13 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         child: roomId != "" ? chatMessagesList() : Container())
                   ],
                 ))),
-                Padding(
+                Container(
+                  color: Colors.white,
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                   child: Row(
                     children: [
                       Expanded(
-                        flex: 8,
+                        flex: 10,
                         child: Container(
                           height: 50.0,
                           child: TextField(
@@ -425,10 +429,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                       Expanded(
                         flex: 2,
                         child: GestureDetector(
-                          onTap: () async {
+                          onTap: () {
                             if (_messageController.text.length > 0) {
-                              await sendMessage(
-                                  _messageController.text, userId);
+                              sendMessage(_messageController.text, userId);
                               _messageController.clear();
                               FocusScope.of(context).requestFocus(FocusNode());
                               _scrollController.animateTo(
@@ -439,7 +442,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                             }
                           },
                           child: Icon(Icons.send_rounded,
-                              size: 30, color: Color(0xffb31049)),
+                              size: 30, color: Theme.of(context).primaryColor),
                         ),
                       )
                     ],
@@ -451,7 +454,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     );
   }
 }
-
 
 class Countdown extends AnimatedWidget {
   Countdown({Key key, this.animation}) : super(key: key, listenable: animation);

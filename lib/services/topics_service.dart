@@ -41,7 +41,7 @@ class TopicsService {
         .doc(user1)
         .collection('topics_hear');
     CollectionReference user2Topics = _firebaseFirestore
-        .collection('user')
+        .collection('users')
         .doc(user2)
         .collection('topics_talk');
 
