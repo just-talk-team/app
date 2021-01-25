@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                                 arguments: {'segments': segments});
                           } else {
                             Flushbar(
-                              backgroundColor: Color(0xFFB31048),
+                              backgroundColor: Theme.of(context).primaryColor,
                               flushbarPosition: FlushbarPosition.TOP,
                               messageText: Text(
                                 'Debes de seleccionar al menos un segmento!',

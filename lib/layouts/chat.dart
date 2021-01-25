@@ -140,6 +140,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.data == null) return Container();
+
           return ListView.builder(
               controller: _scrollController,
               shrinkWrap: true,
