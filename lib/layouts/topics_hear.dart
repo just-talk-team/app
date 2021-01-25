@@ -106,7 +106,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
         // Send to chat
       }
     });
-
   }
 
   @override
@@ -117,82 +116,89 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   }
 
   void chatReady(String room) {
-    showGeneralDialog(
+    showDialog(
         barrierDismissible: false,
-        transitionDuration: const Duration(milliseconds: 200),
         context: context,
-        pageBuilder: (BuildContext context, Animation animation,
-            Animation secondAnimation) {
+        builder: (BuildContext context) {
           return WillPopScope(
             onWillPop: () async {
               return false;
             },
-            child: Center(
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
               child: Container(
-                width: MediaQuery.of(context).size.width - 100,
-                height: MediaQuery.of(context).size.height / 3,
-                child: Material(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  elevation: 20,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    border: Border.all(
-                                        width: 2,
-                                        color: Colors.black.withOpacity(0.8))),
-                                child: Countdown(
-                                  animation: StepTween(
-                                    begin: levelClock,
-                                    end: 0,
-                                  ).animate(_topicController),
-                                ),
-                              )
-                            ],
-                          )),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
-                        child: Text(
-                          'Sala de chat lista, recuerda ser tu mismo!',
-                          style:
-                              TextStyle(color: Color(0xff959595), fontSize: 15),
-                        ),
+                padding: EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+                decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          offset: Offset(0, 10),
+                          blurRadius: 10),
+                    ]),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                    width: 2,
+                                    color: Colors.black.withOpacity(0.8))),
+                            child: Countdown(
+                              animation: StepTween(
+                                begin: levelClock,
+                                end: 0,
+                              ).animate(_topicController),
+                            ),
+                          )
+                        ],
                       ),
-                      StatefulBuilder(builder: (context, setState) {
-                        if (!accept) {
-                          return GestureDetector(
-                            onTap: () {
-                              accept = true;
-                              discoveryService.activateUser(room, id);
-                              setState(() {});
-                              //_controller.stop();
-                            },
-                            child: Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'ACEPTAR',
-                                  style: TextStyle(
-                                      letterSpacing: 2,
-                                      color: Theme.of(context).accentColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                          );
-                        }
-                        return Container(child: CircularProgressIndicator());
-                      })
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                      child: Text(
+                        'Sala de chat lista, recuerda ser tu mismo!',
+                        style:
+                            TextStyle(color: Color(0xff959595), fontSize: 15),
+                      ),
+                    ),
+                    StatefulBuilder(builder: (context, setState) {
+                      if (!accept) {
+                        return GestureDetector(
+                          onTap: () {
+                            accept = true;
+                            discoveryService.activateUser(room, id);
+                            setState(() {});
+                            //_controller.stop();
+                          },
+                          child: Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Theme.of(context).accentColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      }
+                      return Container(child: CircularProgressIndicator());
+                    })
+                  ],
                 ),
               ),
             ),

@@ -11,8 +11,8 @@ class MessageText extends StatelessWidget {
       {String text, MessageType type, Color color, MainAxisAlignment alignment})
       : assert(text != null),
         assert(type != null),
-        assert(type != MessageType.Information || color != null),
-        assert(type != MessageType.Information || alignment != null),
+        assert(type == MessageType.Information || color != null),
+        assert(type == MessageType.Information || alignment != null),
         _text = text,
         _type = type,
         _color = color,
