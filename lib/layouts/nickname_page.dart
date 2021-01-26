@@ -32,68 +32,70 @@ class _NicknamePage extends State<NicknamePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          //Title
-          Container(
-            child: FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'Nickname',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                )),
-          ),
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 80),
-              child: AutoSizeText(
-                "¿Con que nombre quieres que te conozcan?",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-              )),
-          //Content
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Stack(alignment: Alignment.centerRight, children: <Widget>[
-              TextFormField(
-                key: Key("Nickname input"),
-                controller: nickController,
-                focusNode: textFieldFocusNode,
-                decoration: InputDecoration(
-                  hintText: 'Nickname',
-                  border: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 0.0),
-                  ),
-                ),
+    return SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              //Title
+              Container(
+                child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      'Nickname',
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    )),
               ),
-              IconButton(
-                key: Key("Accept nickname"),
-                icon: Icon(Icons.send),
-                onPressed: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  setState(() async {
-                    if (nickController.text.isNotEmpty &&
-                        !await widget.userService
-                            .validateNickname(nickController.text)) {
-                      return;
-                    }
-                    widget.userI.nickname = nickController.text;
-                    widget.pageController.nextPage(
-                        duration: Duration(seconds: 1),
-                        curve: Curves.easeOutCubic);
-                  });
-                },
-              )
-            ]),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+                  child: AutoSizeText(
+                    "¿Con que nombre quieres que te conozcan?",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                  )),
+              //Content
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Stack(alignment: Alignment.centerRight, children: <Widget>[
+                  TextFormField(
+                    key: Key("Nickname input"),
+                    controller: nickController,
+                    focusNode: textFieldFocusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Nickname',
+                      border: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.grey, width: 0.0),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    key: Key("Accept nickname"),
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      setState(() async {
+                        if (nickController.text.isNotEmpty &&
+                            !await widget.userService
+                                .validateNickname(nickController.text)) {
+                          return;
+                        }
+                        widget.userI.nickname = nickController.text;
+                        widget.pageController.nextPage(
+                            duration: Duration(seconds: 1),
+                            curve: Curves.easeOutCubic);
+                      });
+                    },
+                  ),
+                  
+                ]),
+              ),
+  
+
+            ],
           ),
-          SizedBox(height: 100)
-        ],
-      ),
     );
   }
 }
