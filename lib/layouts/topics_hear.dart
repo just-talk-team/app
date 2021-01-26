@@ -184,7 +184,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                             accept = true;
                             discoveryService.activateUser(room, id);
                             setState(() {});
-                            //_controller.stop();
                           },
                           child: Text(
                             'ACEPTAR',
