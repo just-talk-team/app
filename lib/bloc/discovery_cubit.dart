@@ -35,7 +35,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
   void _validateRoom(String roomId) {
     bool connected = false;
     discoveryService.connectUser(roomId, userId);
-    //Timer timer = Timer(Duration(seconds: 5), () => reset());
+    Timer timer = Timer(Duration(seconds: 5), () => reset());
     rooms =
         discoveryService.getRoom(roomId).listen((QuerySnapshot querySnapshot) {
       if (!connected) {
@@ -44,7 +44,7 @@ class DiscoveryCubit extends Cubit<DiscoveryState> {
             return;
           }
           emit(DiscoveryFound(room: roomId));
-          //timer.cancel();
+          timer.cancel();
           connected = true;
         });
       } else {

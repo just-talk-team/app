@@ -8,7 +8,7 @@ import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/confirm_dialog.dart';
-import 'package:just_talk/widgets/custom_text.dart';
+import 'package:just_talk/widgets/message_text.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/utils/enums.dart';
@@ -209,10 +209,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .doc(roomId)
         .collection("messages")
         .add(message);
-    messages.add(MessageText(
-        text: text,
-        type: MessageType.Message,
-        color: Colors.black.withOpacity(0.7)));
+   
   }
 
   void addFriend() async {
