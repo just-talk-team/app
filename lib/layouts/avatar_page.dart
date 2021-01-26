@@ -30,56 +30,58 @@ class _AvatarPage extends State<AvatarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        //Title
-        Container(
-          child: FittedBox(
-              fit: BoxFit.contain,
-              child: Text(
-                'Avatar',
-                style:
-                    TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              )),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 80),
-          child: AutoSizeText(
-            "Elige una imagen que te represente!",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 2,
+    return SingleChildScrollView(
+          child: Column(
+        children: <Widget>[
+          //Title
+          Container(
+            child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  'Avatar',
+                  style:
+                      TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                )),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 80),
+            child: AutoSizeText(
+              "Elige una imagen que te represente!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 2,
+            ),
+          ),
 
-        //Content
-        widget.userI.photo == null
-            ? SizedBox(
-                height: 100,
-                width: 100,
-                child: FloatingActionButton(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50.0),
+          //Content
+          widget.userI.photo == null
+              ? SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: FloatingActionButton(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                    ),
+                    onPressed: getImage,
+                    tooltip: 'Pick Image',
                   ),
-                  onPressed: getImage,
-                  tooltip: 'Pick Image',
-                ),
-              )
-            : GestureDetector(
-                onTap: getImage,
-                child: ClipOval(
-                  child: Image.file(
-                    widget.userI.photo,
-                    height: 200.0,
-                    width: 200.0,
+                )
+              : GestureDetector(
+                  onTap: getImage,
+                  child: ClipOval(
+                    child: Image.file(
+                      widget.userI.photo,
+                      height: 200.0,
+                      width: 200.0,
+                    ),
                   ),
-                ),
-              )
-      ],
+                )
+        ],
+      ),
     );
   }
 
