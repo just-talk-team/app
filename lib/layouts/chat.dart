@@ -29,7 +29,8 @@ class Chat extends StatefulWidget {
 }
 
 class _Chat extends State<Chat> with TickerProviderStateMixin {
-  final TextEditingController _messageController = TextEditingController();
+  TextEditingController _messageController;
+  FocusNode _messageFocusNode;
 
   String userId = "";
   String friendId = "";
@@ -108,6 +109,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
+    _messageController = TextEditingController();
+    _messageFocusNode = FocusNode();
+
     _scrollController = ScrollController();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
@@ -124,10 +128,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    super.dispose();
     if (widget._chatType == ChatType.DiscoveryChat) {
       _controller.stop();
     }
-    super.dispose();
   }
 
   Widget chatMessagesList() {
@@ -209,7 +213,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         .doc(roomId)
         .collection("messages")
         .add(message);
-   
   }
 
   void addFriend() async {
@@ -413,6 +416,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           height: 50.0,
                           child: TextField(
                             controller: _messageController,
+                            focusNode: _messageFocusNode,
                             decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderSide:

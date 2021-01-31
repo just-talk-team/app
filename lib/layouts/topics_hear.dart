@@ -87,7 +87,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
               methodName: "initCubit",
               text: "Room $roomId found");
           chatReady((discoveryState as DiscoveryFound).room);
-          _startClock();
           break;
         case DiscoveryReady:
           String roomId = (discoveryState as DiscoveryReady).room;
@@ -109,13 +108,20 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() async {
-    super.dispose();
+  void dispose() {
     _timer.cancel();
-    await discoveryCubit.close();
+    _topicController.dispose();
+
+    if (_controller != null) {
+      _controller.dispose();
+    }
+    super.dispose();
+    discoveryCubit.close();
+    return;
   }
 
   void chatReady(String room) {
+    _startClock();
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -162,7 +168,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
                               animation: StepTween(
                                 begin: levelClock,
                                 end: 0,
-                              ).animate(_topicController),
+                              ).animate(_controller),
                             ),
                           )
                         ],
