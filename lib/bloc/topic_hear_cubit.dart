@@ -10,13 +10,11 @@ class TopicHearCubit extends Cubit<TopicHearState> {
   TopicsService _topicsService;
   List<StreamSubscription<List<Tuple2<Topic, bool>>>> _streams;
   List<Topic> _topics;
-  bool flag;
 
   TopicHearCubit({TopicsService topicsService}) : super(TopicHearEmpty()) {
     _topicsService = topicsService;
     _topics = [];
     _streams = [];
-    flag = true;
   }
 
   @override
@@ -40,10 +38,7 @@ class TopicHearCubit extends Cubit<TopicHearState> {
             _topics.remove(topic.item1);
           }
         });
-        if (flag) {
-          emit(TopicHearResult(List.from(_topics)));
-          flag = false; 
-        }
+        emit(TopicHearResult(List.from(_topics)));
       }));
     }
   }

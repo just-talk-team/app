@@ -120,7 +120,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
       _controller.stop();
       _controller.dispose();
     }
-    
+
     discoveryCubit.close();
     super.dispose();
   }
@@ -274,79 +274,76 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          centerTitle: true,
-          leading: IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.keyboard_arrow_left),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Text(
-            '¿Sobre que puedo escuchar?',
-            style: TextStyle(
-                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          iconSize: 30,
+          icon: Icon(Icons.keyboard_arrow_left),
+          color: Colors.black,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          '¿Sobre que puedo escuchar?',
+          style: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      body: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(width: 2, color: Color(0xff959595))),
+            child: Countdown(
+              animation: StepTween(
+                begin: topicClock,
+                end: 0,
+              ).animate(_topicController),
+            ),
           ),
         ),
-        body: BlocBuilder<TopicHearCubit, TopicHearState>(
+        BlocBuilder<TopicHearCubit, TopicHearState>(
             cubit: topicHearCubit,
             builder: (context, TopicHearState topicHearState) {
               if (topicHearState.runtimeType == TopicHearResult) {
                 topicsToHear = getTopics(
                     (topicHearState as TopicHearResult).topics, checkList);
+                print(topicsToHear);
               }
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.center,
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border:
-                              Border.all(width: 2, color: Color(0xff959595))),
-                      child: Countdown(
-                        animation: StepTween(
-                          begin: topicClock,
-                          end: 0,
-                        ).animate(_topicController),
+              return Expanded(
+                child: AnimatedOpacity(
+                  opacity: visible ? 1.0 : 0.0,
+                  duration: Duration(milliseconds: 500),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: List<Widget>.generate(topicsToHear.length,
+                            (int index) {
+                          return TopicChip(
+                              label: topicsToHear[index].topic,
+                              callback: () => setState(() {
+                                    checkList.add(topicsToHear[index]);
+                                  }));
+                        }),
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: AnimatedOpacity(
-                      opacity: visible ? 1.0 : 0.0,
-                      duration: Duration(milliseconds: 500),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Wrap(
-                            spacing: 6.0,
-                            runSpacing: 6.0,
-                            children: List<Widget>.generate(topicsToHear.length,
-                                (int index) {
-                              return TopicChip(
-                                  label: topicsToHear[index].topic,
-                                  callback: () => setState(() {
-                                        checkList.add(topicsToHear[index]);
-                                      }));
-                            }),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               );
-            }));
+            })
+      ]),
+    );
   }
 }
 
