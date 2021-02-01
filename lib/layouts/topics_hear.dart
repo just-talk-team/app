@@ -39,6 +39,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   List<Topic> topicsToHear;
   List<Topic> checkList;
   Timer _timer;
+  Timer _topicTimer;
   String id;
   bool accept;
   bool visible;
@@ -110,7 +111,8 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer.cancel();
-
+    _topicTimer.cancel();
+  
     if (_topicController != null) {
       _topicController.stop();
       _topicController.dispose();
@@ -226,7 +228,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           visible = false;
         });
 
-        Timer(Duration(milliseconds: 500), () {
+        _topicTimer = Timer(Duration(milliseconds: 500), () {
           topicHearCubit.shuffle();
           _topicController.reset();
           _topicController.forward();
