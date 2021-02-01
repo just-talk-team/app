@@ -110,18 +110,14 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _timer.cancel();
-    _topicTimer.cancel();
-  
-    if (_topicController != null) {
-      _topicController.stop();
-      _topicController.dispose();
-    }
+    _timer?.cancel();
+    _topicTimer?.cancel();
 
-    if (_controller != null) {
-      _controller.stop();
-      _controller.dispose();
-    }
+    _topicController?.stop();
+    _topicController?.dispose();
+
+    _controller?.stop();
+    _controller?.dispose();
 
     discoveryCubit.close();
     super.dispose();

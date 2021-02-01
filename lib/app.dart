@@ -78,7 +78,7 @@ class _AppViewState extends State<AppView> {
                   break;
                 case AuthenticationStatus.unauthenticated:
                   _navigator.pushNamedAndRemoveUntil(
-                      '/login', ModalRoute.withName('/'));
+                      '/login', (Route<dynamic> route) => false);
                   break;
                 default:
                   break;
