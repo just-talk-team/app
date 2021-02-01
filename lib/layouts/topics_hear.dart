@@ -118,7 +118,6 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
 
     _controller?.stop();
     _controller?.dispose();
-
     discoveryCubit.close();
     super.dispose();
   }
