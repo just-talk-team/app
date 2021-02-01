@@ -16,8 +16,6 @@ class BadgeService {
 
   Future<void> registerBadges(
       List<bool> badgetsFlags, String roomID, String userID) async {
-    
-
     List<String> data = [];
 
     for (int i = 0; i < badgetsFlags.length; ++i) {
@@ -26,8 +24,7 @@ class BadgeService {
       }
     }
 
-    
-
+    print("Data: $data");
     if (data.length > 0) {
       await _firebaseFirestore
           .collection('discoveries')
@@ -36,7 +33,6 @@ class BadgeService {
           .doc(userID)
           .set({'badgets': FieldValue.arrayUnion(data)});
     }
-
     return;
   }
 }

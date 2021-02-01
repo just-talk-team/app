@@ -109,7 +109,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _messageController = TextEditingController();
-   
+
     _scrollController = ScrollController();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
@@ -126,11 +126,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
     if (widget._chatType == ChatType.DiscoveryChat) {
       _controller.stop();
       _controller.dispose();
     }
+    super.dispose();
   }
 
   Widget chatMessagesList() {
@@ -387,7 +387,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                 fit: BoxFit.cover,
               ),
             ),
-            margin: EdgeInsets.all(10),
+            margin: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -398,7 +398,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   children: [
                     (widget._chatType == ChatType.DiscoveryChat)
                         ? Container(
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            margin: EdgeInsets.symmetric(vertical: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -435,52 +435,56 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               ],
                             ),
                           )
-                        : Container(),
+                        : Container(margin: EdgeInsets.symmetric(vertical: 10)),
                     Expanded(
                         child: roomId != "" ? chatMessagesList() : Container())
                   ],
                 ))),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: TextField(
-                        controller: _messageController,// 
-                        decoration: InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.grey, width: 2.0),
+                Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 10,
+                        child: TextField(
+                          controller: _messageController, //
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 2.0),
+                            ),
+                            hintText: 'Escribe aqui el mensaje...',
+                            contentPadding: EdgeInsets.all(10.0),
                           ),
-                          hintText: 'Escribe aqui el mensaje...',
-                          contentPadding: EdgeInsets.all(10.0),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: GestureDetector(
-                        onTap: () {
-                          if (_messageController.text.length > 0) {
-                            FocusScopeNode currentFocus =
-                                FocusScope.of(context);
-                            if (!currentFocus.hasPrimaryFocus) {
-                              currentFocus.unfocus();
-                            }
-                            sendMessage(_messageController.text, userId);
-                            _messageController.clear();
+                      Expanded(
+                        flex: 2,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_messageController.text.length > 0) {
+                              FocusScopeNode currentFocus =
+                                  FocusScope.of(context);
+                              if (!currentFocus.hasPrimaryFocus) {
+                                currentFocus.unfocus();
+                              }
+                              sendMessage(_messageController.text, userId);
+                              _messageController.clear();
 
-                            _scrollController.animateTo(
-                              _scrollController.position.maxScrollExtent,
-                              curve: Curves.easeOut,
-                              duration: const Duration(milliseconds: 400),
-                            );
-                          }
-                        },
-                        child: Icon(Icons.send_rounded,
-                            size: 30, color: Theme.of(context).primaryColor),
-                      ),
-                    )
-                  ],
+                              _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                curve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 400),
+                              );
+                            }
+                          },
+                          child: Icon(Icons.send_rounded,
+                              size: 30, color: Theme.of(context).primaryColor),
+                        ),
+                      )
+                    ],
+                  ),
                 )
               ],
             )),
