@@ -16,6 +16,7 @@ class BadgeService {
 
   Future<void> registerBadges(
       List<bool> badgetsFlags, String roomID, String userID) async {
+    
 
     List<String> data = [];
 
@@ -24,6 +25,8 @@ class BadgeService {
         data.add(_badgets[i].item1);
       }
     }
+
+    
 
     if (data.length > 0) {
       await _firebaseFirestore

@@ -168,27 +168,26 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   //TopicsHear
                   Expanded(
-                    child: Container(
-                        child: SingleChildScrollView(
+                    child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Wrap(
-                        spacing: 6.0,
-                        runSpacing: 6.0,
-                        children: List<Widget>.generate(topicsHear.length,
-                            (int index) {
-                          return Chip(
-                            label: Text(
-                              topicsHear[index].topic,
-                            ),
-                            shape: StadiumBorder(
-                                side: BorderSide(
-                                    width: 0.5,
-                                    color: Colors.black.withOpacity(0.5))),
-                            backgroundColor: Colors.transparent,
-                          );
-                        }),
+                    spacing: 6.0,
+                    runSpacing: 6.0,
+                    children: List<Widget>.generate(topicsHear.length,
+                        (int index) {
+                      return Chip(
+                        label: Text(
+                          topicsHear[index].topic,
+                        ),
+                        shape: StadiumBorder(
+                            side: BorderSide(
+                                width: 0.5,
+                                color: Colors.black.withOpacity(0.5))),
+                        backgroundColor: Colors.transparent,
+                      );
+                    }),
                       ),
-                    )),
+                    ),
                   )
                 ],
               ),

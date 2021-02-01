@@ -51,10 +51,9 @@ class _BadgeState extends State<Badge> {
     return GestureDetector(
       onTap: () {
         if (widget._active) {
-          setState(() {
-            widget._valueChanged(selected);
-            selected = !selected;
-          });
+          selected = !selected;
+          widget._valueChanged(selected);
+          setState(() {});
         }
       },
       child: Column(

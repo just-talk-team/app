@@ -138,72 +138,73 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                             fontWeight: FontWeight.bold)),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          TextFormField(
-                            controller: segmentController,
-                            decoration: InputDecoration(
-                              hintText: 'Correo de tu organización',
-                              border: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    color: Colors.grey, width: 0.0),
-                              ),
-                            ),
+                      child: TextFormField(
+                        controller: segmentController,
+                        decoration: InputDecoration(
+                          hintText: 'Correo de tu organización',
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Colors.grey, width: 0.0),
                           ),
-                          IconButton(
+                          suffixIcon: IconButton(
                             key: Key("Add segment"),
                             icon: Icon(Icons.send),
                             onPressed: () {
-                              FocusScope.of(context).requestFocus(FocusNode());
+                              FocusScopeNode currentFocus =
+                                  FocusScope.of(context);
+                              if (!currentFocus.hasPrimaryFocus) {
+                                currentFocus.unfocus();
+                              }
                               String email = segmentController.text;
-                              if (!EmailValidator.validate(email)) {
+                              segmentController.clear();
+
+                              if (!EmailValidator.validate(email) &&
+                                  userSegments.contains(email)) {
                                 return;
                               }
+
                               setState(() {
                                 userSegments.add(email);
                                 segmentFlag = true;
                               });
                             },
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Container(
-                    height: MediaQuery.of(context).size.width / 3,
-                    width: MediaQuery.of(context).size.width,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Wrap(
-                        spacing: 6.0,
-                        runSpacing: 6.0,
-                        children: List<Widget>.generate(userSegments.length,
-                            (int index) {
-                          return Chip(
-                            label: Text(userSegments[index]),
-                            shape: StadiumBorder(
-                                side: BorderSide(
-                                    width: 0.5,
-                                    color: Colors.black.withOpacity(0.5))),
-                            deleteIconColor: Theme.of(context).primaryColor,
-                            backgroundColor: Colors.transparent,
-                            onDeleted: () {
-                              setState(() {
-                                userSegments.removeAt(index);
-                                segmentFlag = true;
-                              });
-                            },
-                          );
-                        }),
-                      ),
-                    )),
-              ),
               Container(
+                  height: MediaQuery.of(context).size.height / 3,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Wrap(
+                      spacing: 6.0,
+                      runSpacing: 6.0,
+                      children: List<Widget>.generate(userSegments.length,
+                          (int index) {
+                        return Chip(
+                          label: Text(userSegments[index]),
+                          shape: StadiumBorder(
+                              side: BorderSide(
+                                  width: 0.5,
+                                  color: Colors.black.withOpacity(0.5))),
+                          deleteIconColor: Theme.of(context).primaryColor,
+                          backgroundColor: Colors.transparent,
+                          onDeleted: () {
+                            setState(() {
+                              userSegments.removeAt(index);
+                              segmentFlag = true;
+                            });
+                          },
+                        );
+                      }),
+                    ),
+                  )),
+              Container(
+                  margin: EdgeInsets.symmetric(vertical: 20),
                   alignment: Alignment.bottomCenter,
                   child: RaisedButton(
                     key: Key('Finalizar'),
@@ -218,7 +219,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                           builder: (BuildContext context) {
                             return ConfirmDialog(
                                 color: Theme.of(context).accentColor,
-                               title: "Confirmar accion", 
+                                title: "Confirmar accion",
                                 message: "Desea eliminar su cuenta");
                           },
                           context: context);

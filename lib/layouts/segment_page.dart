@@ -59,70 +59,65 @@ class _SegmentPage extends State<SegmentPage> {
           //Content
           Padding(
             padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-            child: Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                TextFormField(
-                  key: Key("Segment input"),
-                  controller: etUsername,
-                  decoration: InputDecoration(
-                    hintText: 'Correo de tu organización',
-                    border: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 0.0),
-                    ),
-                  ),
-                  onTap: () => setState(() {}),
+            child: TextFormField(
+              key: Key("Segment input"),
+              controller: etUsername,
+              decoration: InputDecoration(
+                hintText: 'Correo de tu organización',
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey, width: 0.0),
                 ),
-                IconButton(
+                suffixIcon: IconButton(
                   key: Key("Add segment"),
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    FocusScope.of(context).requestFocus(FocusNode());
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
                     String email = etUsername.text;
+                    etUsername.clear();
                     if (!EmailValidator.validate(email)) {
                       return;
                     }
                     String domain = email.split('@')[1];
+
                     setState(() {
                       segments.add(Tuple2(email, domain));
-                      etUsername.clear();
                     });
                   },
                 ),
-              ],
+              ),
+              onTap: () => setState(() {}),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            child: Container(
-                height: MediaQuery.of(context).size.width / 3,
-                width: MediaQuery.of(context).size.width,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Wrap(
-                    spacing: 6.0,
-                    runSpacing: 6.0,
-                    children:
-                        List<Widget>.generate(segments.length, (int index) {
-                      return Chip(
-                        shape: StadiumBorder(
-                            side: BorderSide(
-                                width: 0.5,
-                                color: Colors.black.withOpacity(0.5))),
-                        backgroundColor: Colors.transparent,
-                        label: Text(segments[index].item1),
-                        deleteIconColor: Theme.of(context).primaryColor,
-                        onDeleted: () {
-                          setState(() {
-                            segments.removeAt(index);
-                          });
-                        },
-                      );
-                    }),
-                  ),
-                )),
-          ),
+          Container(
+              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              height: MediaQuery.of(context).size.height / 5,
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Wrap(
+                  spacing: 6.0,
+                  runSpacing: 6.0,
+                  children: List<Widget>.generate(segments.length, (int index) {
+                    return Chip(
+                      shape: StadiumBorder(
+                          side: BorderSide(
+                              width: 0.5,
+                              color: Colors.black.withOpacity(0.5))),
+                      backgroundColor: Colors.transparent,
+                      label: Text(segments[index].item1),
+                      deleteIconColor: Theme.of(context).primaryColor,
+                      onDeleted: () {
+                        setState(() {
+                          segments.removeAt(index);
+                        });
+                      },
+                    );
+                  }),
+                ),
+              )),
           StatefulBuilder(
             builder: (context, setStateInner) => !finished
                 ? RaisedButton.icon(

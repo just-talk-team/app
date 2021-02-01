@@ -1,3 +1,4 @@
+import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +31,6 @@ class Chat extends StatefulWidget {
 
 class _Chat extends State<Chat> with TickerProviderStateMixin {
   TextEditingController _messageController;
-  FocusNode _messageFocusNode;
 
   String userId = "";
   String friendId = "";
@@ -108,10 +108,8 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     _messageController = TextEditingController();
-    _messageFocusNode = FocusNode();
-
+   
     _scrollController = ScrollController();
     userService = RepositoryProvider.of<UserService>(context);
     userId = BlocProvider.of<AuthenticationCubit>(context).state.user.id;
@@ -131,10 +129,14 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     super.dispose();
     if (widget._chatType == ChatType.DiscoveryChat) {
       _controller.stop();
+      _controller.dispose();
     }
   }
 
   Widget chatMessagesList() {
+    bool selfFlag = true;
+    bool friendFlag = true;
+
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection(chatCol)
@@ -151,23 +153,56 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
                 String senderId = snapshot.data.docs[index].data()["user"];
+                BubbleNip nip;
 
                 if (senderId == userId) {
-                  return MessageText(
-                      text: snapshot.data.docs[index].data()["message"],
-                      type: MessageType.Message,
-                      color: Colors.black.withOpacity(0.7),
-                      alignment: MainAxisAlignment.end);
+                  if (selfFlag) {
+                    selfFlag = false;
+                    friendFlag = true;
+                    nip = BubbleNip.rightTop;
+                  }
+
+                  return Bubble(
+                    radius: Radius.circular(10.0),
+                    padding:
+                        BubbleEdges.symmetric(horizontal: 10, vertical: 10),
+                    margin: BubbleEdges.only(top: 10),
+                    alignment: Alignment.topRight,
+                    nip: nip,
+                    color: Colors.black.withOpacity(0.7),
+                    child: Text(
+                      snapshot.data.docs[index].data()["message"],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
                 } else if (senderId == friendId) {
-                  return MessageText(
-                      text: snapshot.data.docs[index].data()["message"],
-                      type: MessageType.Message,
-                      color: Color(0xffff2424).withOpacity(0.7),
-                      alignment: MainAxisAlignment.start);
+                  if (friendFlag) {
+                    friendFlag = false;
+                    selfFlag = true;
+                    nip = BubbleNip.leftTop;
+                  }
+
+                  return Bubble(
+                    radius: Radius.circular(10.0),
+                    padding:
+                        BubbleEdges.symmetric(horizontal: 10, vertical: 10),
+                    margin: BubbleEdges.only(top: 10),
+                    alignment: Alignment.topLeft,
+                    nip: BubbleNip.leftTop,
+                    color: Color(0xffff2424).withOpacity(0.7),
+                    child: Text(
+                      snapshot.data.docs[index].data()["message"],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
                 } else {
-                  return MessageText(
-                      text: snapshot.data.docs[index].data()["message"],
-                      type: MessageType.Information);
+                  return Bubble(
+                    alignment: Alignment.center,
+                    color: Colors.transparent,
+                    child: Text(snapshot.data.docs[index].data()["message"],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black)),
+                  );
                 }
               });
         });
@@ -405,50 +440,47 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         child: roomId != "" ? chatMessagesList() : Container())
                   ],
                 ))),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: Container(
-                          height: 50.0,
-                          child: TextField(
-                            controller: _messageController,
-                            focusNode: _messageFocusNode,
-                            decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 2.0),
-                              ),
-                              hintText: 'Escribe aqui el mensaje...',
-                              contentPadding: EdgeInsets.all(10.0),
-                            ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 10,
+                      child: TextField(
+                        controller: _messageController,// 
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 2.0),
                           ),
+                          hintText: 'Escribe aqui el mensaje...',
+                          contentPadding: EdgeInsets.all(10.0),
                         ),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (_messageController.text.length > 0) {
-                              sendMessage(_messageController.text, userId);
-                              _messageController.clear();
-                              FocusScope.of(context).requestFocus(FocusNode());
-                              _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
-                                curve: Curves.easeOut,
-                                duration: const Duration(milliseconds: 400),
-                              );
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (_messageController.text.length > 0) {
+                            FocusScopeNode currentFocus =
+                                FocusScope.of(context);
+                            if (!currentFocus.hasPrimaryFocus) {
+                              currentFocus.unfocus();
                             }
-                          },
-                          child: Icon(Icons.send_rounded,
-                              size: 30, color: Theme.of(context).primaryColor),
-                        ),
-                      )
-                    ],
-                  ),
+                            sendMessage(_messageController.text, userId);
+                            _messageController.clear();
+
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              curve: Curves.easeOut,
+                              duration: const Duration(milliseconds: 400),
+                            );
+                          }
+                        },
+                        child: Icon(Icons.send_rounded,
+                            size: 30, color: Theme.of(context).primaryColor),
+                      ),
+                    )
+                  ],
                 )
               ],
             )),

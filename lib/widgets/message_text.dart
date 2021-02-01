@@ -31,7 +31,7 @@ class MessageText extends StatelessWidget {
         mainAxis = _alignment;
         textColor = Colors.white;
         boxDecoration = BoxDecoration(
-            borderRadius: BorderRadius.circular(5), color: _color);
+            borderRadius: BorderRadius.circular(10), color: _color);
         break;
 
       case MessageType.Information:
@@ -45,12 +45,15 @@ class MessageText extends StatelessWidget {
       children: [
         Container(
             constraints: BoxConstraints(maxWidth: maxW),
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             margin: EdgeInsets.symmetric(vertical: 3),
             decoration: boxDecoration,
             child: Text(
               _text,
-              style: TextStyle(color: textColor),
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14
+                ),
             )),
       ],
     );
