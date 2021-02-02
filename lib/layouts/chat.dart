@@ -176,6 +176,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     ),
                   );
                 } else if (senderId == friendId) {
+
                   if (friendFlag) {
                     friendFlag = false;
                     selfFlag = true;
@@ -188,7 +189,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                         BubbleEdges.symmetric(horizontal: 10, vertical: 10),
                     margin: BubbleEdges.only(top: 10),
                     alignment: Alignment.topLeft,
-                    nip: BubbleNip.leftTop,
+                    nip: nip,
                     color: Color(0xffff2424).withOpacity(0.7),
                     child: Text(
                       snapshot.data.docs[index].data()["message"],
