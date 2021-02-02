@@ -176,7 +176,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     ),
                   );
                 } else if (senderId == friendId) {
-
+                  
                   if (friendFlag) {
                     friendFlag = false;
                     selfFlag = true;
