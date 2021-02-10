@@ -82,7 +82,7 @@ class _Register extends State<Register> {
         future: getRemote(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
           return Column(children: <Widget>[
             Expanded(
