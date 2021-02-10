@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:tuple/tuple.dart';
+import 'package:flushbar/flushbar.dart';
 
 // ignore: must_be_immutable
 class SegmentPage extends StatefulWidget {
@@ -24,14 +25,38 @@ class _SegmentPage extends State<SegmentPage> {
   TextEditingController etUsername = TextEditingController();
   bool finished;
   List<Tuple2<String, String>> segments;
-  List<String> validSegments;
+  List<String> emails;
 
   @override
   void initState() {
     super.initState();
     segments = [];
-    validSegments = [];
+    emails = [];
     finished = false;
+  }
+
+  List<String> validateEmail(String email) {
+    List<String> aux = etUsername.text.split('@');
+    if (emails.length < 2) {
+      return null;
+    }
+    
+    if (widget.validSegments.length > 0 &&
+        (!EmailValidator.validate(email) ||
+            !widget.validSegments.contains(aux[1]))) {
+      Flushbar(
+        backgroundColor: Theme.of(context).primaryColor,
+        flushbarPosition: FlushbarPosition.BOTTOM,
+        messageText: Text(
+          'Correo invalido',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        duration: Duration(seconds: 3),
+      ).show(context);
+      return null;
+    }
+    return aux;
   }
 
   @override
@@ -80,23 +105,32 @@ class _SegmentPage extends State<SegmentPage> {
                     if (!currentFocus.hasPrimaryFocus) {
                       currentFocus.unfocus();
                     }
-                    String email = etUsername.text;
-                    String domain = email.split('@')[1];
 
-                    etUsername.clear();
-
-                    if (!EmailValidator.validate(email) ||
-                        !validSegments.contains(domain)) {
+                    List<String> email = validateEmail(etUsername.text);
+                    if (email == null) {
+                      etUsername.clear();
                       return;
                     }
 
                     setState(() {
-                      segments.add(Tuple2(email, domain));
+                      segments.add(Tuple2(email[0], email[1]));
+                      emails.add(etUsername.text);
+                      etUsername.clear();
                     });
                   },
                 ),
               ),
               onTap: () => setState(() {}),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 30),
+            alignment: Alignment.centerLeft,
+            child: AutoSizeText(
+              '* Correos permitidos: ${widget.validSegments.join(', ')}',
+              style: TextStyle(
+                color: Color(0xff8a8a8a),
+              ),
             ),
           ),
 
@@ -109,17 +143,18 @@ class _SegmentPage extends State<SegmentPage> {
                 child: Wrap(
                   spacing: 6.0,
                   runSpacing: 6.0,
-                  children: List<Widget>.generate(segments.length, (int index) {
+                  children: List<Widget>.generate(emails.length, (int index) {
                     return Chip(
                       shape: StadiumBorder(
                           side: BorderSide(
                               width: 0.5,
                               color: Colors.black.withOpacity(0.5))),
                       backgroundColor: Colors.transparent,
-                      label: Text(segments[index].item1),
+                      label: Text(emails[index]),
                       deleteIconColor: Theme.of(context).primaryColor,
                       onDeleted: () {
                         setState(() {
+                          emails.removeAt(index);
                           segments.removeAt(index);
                         });
                       },
@@ -138,8 +173,6 @@ class _SegmentPage extends State<SegmentPage> {
                     padding: EdgeInsets.fromLTRB(25, 15, 25, 15),
                     textColor: Colors.white,
                     onPressed: () async {
-                      debugPrint("PASSED TO");
-
                       if (segments.length > 0 && widget.userI.validate()) {
                         setStateInner(() {
                           finished = true;
@@ -147,10 +180,8 @@ class _SegmentPage extends State<SegmentPage> {
 
                         await widget.userService
                             .registrateUser(widget.userI, segments);
-
                         await Navigator.of(context)
                             .pushReplacementNamed('/home');
-
                         setStateInner(() {
                           finished = false;
                         });

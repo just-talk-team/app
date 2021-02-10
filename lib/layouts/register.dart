@@ -60,7 +60,8 @@ class _Register extends State<Register> {
   Future<bool> getRemote() async {
     await remoteService.getRemoteData();
     validSegments = jsonDecode(remoteService.remoteConfig.getString('segments'))
-        .cast<String>();
+        .cast<String>()
+        .toList();
     return true;
   }
   //==============================================
@@ -115,7 +116,8 @@ class _Register extends State<Register> {
                     InfoPage(widget._user, controller),
                     NicknamePage(widget._user, controller, widget._userService),
                     AvatarPage(widget._user, controller),
-                    SegmentPage(widget._user, controller, widget._userService, validSegments),
+                    SegmentPage(widget._user, controller, widget._userService,
+                        validSegments),
                   ]),
             ),
           ]);

@@ -11,7 +11,7 @@ class RemoteService {
     _remoteConfig = await RemoteConfig.instance;
     final defaults = <String, dynamic>{
       'available': true,
-      'segments': jsonEncode(['upc.edu.pe'])
+      'segments': jsonEncode([])
     };
     await remoteConfig.setDefaults(defaults);
   }
