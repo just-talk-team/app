@@ -37,10 +37,10 @@ class _SegmentPage extends State<SegmentPage> {
 
   List<String> validateEmail(String email) {
     List<String> aux = etUsername.text.split('@');
-    if (emails.length < 2) {
+    if (aux.length < 2) {
       return null;
     }
-    
+
     if (widget.validSegments.length > 0 &&
         (!EmailValidator.validate(email) ||
             !widget.validSegments.contains(aux[1]))) {

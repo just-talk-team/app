@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
     remoteService = RepositoryProvider.of<RemoteService>(context);
     loading = true;
     log(BlocProvider.of<AuthenticationCubit>(context).state.user.id);
-    //getRemote();
+    getRemote();
     loading = false;
   }
 
