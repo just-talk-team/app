@@ -181,7 +181,7 @@ class UserService {
 
     await segmentCollection.get().then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((element) {
-        segments.add(element.data()['email']);
+        segments.add(element.id);
       });
     });
     return segments;
@@ -344,7 +344,7 @@ class UserService {
           .collection('discoveries')
           .orderBy('time', descending: true)
           .snapshots();
-          
+
       ;
     }
     return _firebaseFirestore

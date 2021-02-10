@@ -107,10 +107,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               style: Theme.of(context).textTheme.headline6,
                             ),
                           ),
-                          Text(describeEnum(userInfo.gender),
-                              style: Theme.of(context).textTheme.caption),
-                          Text("${userInfo.age} años",
-                              style: Theme.of(context).textTheme.caption),
+                          Text(
+                            '${describeEnum(userInfo.gender)} | ${userInfo.age} años',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
                         ],
                       )
                     ],
@@ -132,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 20),
+                    margin: EdgeInsets.symmetric(vertical: 10),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Wrap(
@@ -168,24 +171,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   //TopicsHear
                   Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Wrap(
-                    spacing: 6.0,
-                    runSpacing: 6.0,
-                    children: List<Widget>.generate(topicsHear.length,
-                        (int index) {
-                      return Chip(
-                        label: Text(
-                          topicsHear[index].topic,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Wrap(
+                          spacing: 6.0,
+                          runSpacing: 6.0,
+                          children: List<Widget>.generate(topicsHear.length,
+                              (int index) {
+                            return Chip(
+                              label: Text(
+                                topicsHear[index].topic,
+                              ),
+                              shape: StadiumBorder(
+                                  side: BorderSide(
+                                      width: 0.5,
+                                      color: Colors.black.withOpacity(0.5))),
+                              backgroundColor: Colors.transparent,
+                            );
+                          }),
                         ),
-                        shape: StadiumBorder(
-                            side: BorderSide(
-                                width: 0.5,
-                                color: Colors.black.withOpacity(0.5))),
-                        backgroundColor: Colors.transparent,
-                      );
-                    }),
                       ),
                     ),
                   )

@@ -67,22 +67,12 @@ class Results extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.add_alarm,
-                    size: 40,
-                    color: _color,
-                  ),
-                  Text(
-                    '5 min',
-                    style: TextStyle(color: _color),
-                  )
-                ],
-              ),
-            ),
+            Badge(
+                selectedColor: _color,
+                selected: false,
+                icon: Icons.add_alarm,
+                text: '+5 min',
+                valueChanged: (state) {}),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: badgetList,

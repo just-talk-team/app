@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:f_logs/f_logs.dart';
@@ -54,6 +55,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   UserService userService;
   TopicsService topicsService;
 
+  List<String> topics;
+  String topicsShow;
+
   Future<void> recoverChatInfo() async {
     roomId = widget._roomId;
 
@@ -83,6 +87,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
     //Return another user ===================================================================
     friendInfo = await userService.getUser(friendId, false, false);
+    topics = await topicsService.getChatTopics(userId, friendId);
+    topicsShow = topics.join(', ');
+
     setState(() {
       _hasData = true;
     });
@@ -108,6 +115,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    topicsShow = '';
     _messageController = TextEditingController();
 
     _scrollController = ScrollController();
@@ -176,7 +184,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                     ),
                   );
                 } else if (senderId == friendId) {
-                  
                   if (friendFlag) {
                     friendFlag = false;
                     selfFlag = true;
@@ -298,10 +305,10 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               if (_hasData) {
                 return GestureDetector(
                   onTap: () async {
-                    List<String> topics =
-                        await topicsService.getChatTopics(userId, friendId);
-                    Navigator.of(context).pushNamed('/chat_profile',
-                        arguments: {'userId': friendId, 'topics': topics});
+                    if (_hasData) {
+                      Navigator.of(context).pushNamed('/chat_profile',
+                          arguments: {'userId': friendId, 'topics': topics});
+                    }
                   },
                   child: Row(
                     children: [
@@ -323,35 +330,33 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                           backgroundImage: NetworkImage(friendInfo.photo),
                         ),
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              friendInfo.nickname,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  describeEnum(friendInfo.gender),
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                                Text(' | '),
-                                Text(
-                                  friendInfo.age.toString() + " años",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                                SizedBox(width: 10)
-                              ],
-                            ),
-                          ]),
+                      Flexible(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                friendInfo.nickname,
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                '${describeEnum(friendInfo.gender)} | ${friendInfo.age} años',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                              Text(
+                                'Preguntame sobre: $topicsShow',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                                maxLines: 1,
+                              ),
+                            ]),
+                      ),
                     ],
                   ),
                 );
@@ -444,26 +449,20 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                 Container(
                   color: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: TextField(
-                          controller: _messageController, //
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 2.0),
-                            ),
-                            hintText: 'Escribe aqui el mensaje...',
-                            contentPadding: EdgeInsets.all(10.0),
-                          ),
+                  child: TextField(
+                    textAlignVertical: TextAlignVertical.center,
+                    controller: _messageController, //
+                    decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
                         ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: GestureDetector(
-                          onTap: () {
+                        hintText: 'Escribe aqui el mensaje...',
+                        contentPadding: EdgeInsets.all(10.0),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.send_rounded,
+                              color: Theme.of(context).primaryColor),
+                          onPressed: () {
                             if (_messageController.text.length > 0) {
                               FocusScopeNode currentFocus =
                                   FocusScope.of(context);
@@ -480,11 +479,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               );
                             }
                           },
-                          child: Icon(Icons.send_rounded,
-                              size: 30, color: Theme.of(context).primaryColor),
-                        ),
-                      )
-                    ],
+                        )),
                   ),
                 )
               ],

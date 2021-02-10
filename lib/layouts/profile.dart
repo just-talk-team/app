@@ -90,10 +90,13 @@ class _Profile extends State<Profile> {
                                 style: Theme.of(context).textTheme.headline6,
                               ),
                             ),
-                            Text(describeEnum(userInfo.gender),
-                                style: Theme.of(context).textTheme.caption),
-                            Text("${userInfo.age} años",
-                                style: Theme.of(context).textTheme.caption),
+                            Text(
+                              '${describeEnum(userInfo.gender)} | ${userInfo.age} años',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
                           ],
                         )
                       ],
@@ -114,7 +117,7 @@ class _Profile extends State<Profile> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(vertical: 20),
+                      margin: EdgeInsets.symmetric(vertical: 10),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
@@ -150,37 +153,41 @@ class _Profile extends State<Profile> {
                     ),
                     //TopicsHear
                     Expanded(
-                      child: Container(
-                          child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Wrap(
-                          spacing: 6.0,
-                          runSpacing: 6.0,
-                          children: List<Widget>.generate(topicsTalk.length,
-                              (int index) {
-                            bool flag = widget._topics.length > 0 &&
-                                widget._topics
-                                    .contains(topicsTalk[index].topic);
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 6.0,
+                            runSpacing: 6.0,
+                            children: List<Widget>.generate(topicsTalk.length,
+                                (int index) {
+                              bool flag = widget._topics.length > 0 &&
+                                  widget._topics
+                                      .contains(topicsTalk[index].topic);
 
-                            return Chip(
-                              shape: !flag
-                                  ? StadiumBorder(
-                                      side: BorderSide(
-                                          width: 0.5,
-                                          color: Colors.black.withOpacity(0.5)))
-                                  : null,
-                              label: Text(
-                                topicsTalk[index].topic,
-                                style: TextStyle(
-                                    color: flag ? Colors.white : Colors.black),
-                              ),
-                              backgroundColor: flag
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.transparent,
-                            );
-                          }),
+                              return Chip(
+                                shape: !flag
+                                    ? StadiumBorder(
+                                        side: BorderSide(
+                                            width: 0.5,
+                                            color:
+                                                Colors.black.withOpacity(0.5)))
+                                    : null,
+                                label: Text(
+                                  topicsTalk[index].topic,
+                                  style: TextStyle(
+                                      color:
+                                          flag ? Colors.white : Colors.black),
+                                ),
+                                backgroundColor: flag
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.transparent,
+                              );
+                            }),
+                          ),
                         ),
-                      )),
+                      ),
                     )
                   ],
                 ),

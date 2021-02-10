@@ -12,7 +12,9 @@ class SegmentPage extends StatefulWidget {
 
   UserService userService;
   UserInfoChange userI;
-  SegmentPage(this.userI, this.pageController, this.userService);
+  List<String> validSegments;
+  SegmentPage(
+      this.userI, this.pageController, this.userService, this.validSegments);
 
   @override
   _SegmentPage createState() => _SegmentPage();
@@ -22,11 +24,13 @@ class _SegmentPage extends State<SegmentPage> {
   TextEditingController etUsername = TextEditingController();
   bool finished;
   List<Tuple2<String, String>> segments;
+  List<String> validSegments;
 
   @override
   void initState() {
     super.initState();
     segments = [];
+    validSegments = [];
     finished = false;
   }
 
@@ -57,6 +61,7 @@ class _SegmentPage extends State<SegmentPage> {
             ),
           ),
           //Content
+
           Padding(
             padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
             child: TextFormField(
@@ -76,11 +81,14 @@ class _SegmentPage extends State<SegmentPage> {
                       currentFocus.unfocus();
                     }
                     String email = etUsername.text;
+                    String domain = email.split('@')[1];
+
                     etUsername.clear();
-                    if (!EmailValidator.validate(email)) {
+
+                    if (!EmailValidator.validate(email) ||
+                        !validSegments.contains(domain)) {
                       return;
                     }
-                    String domain = email.split('@')[1];
 
                     setState(() {
                       segments.add(Tuple2(email, domain));
@@ -91,6 +99,7 @@ class _SegmentPage extends State<SegmentPage> {
               onTap: () => setState(() {}),
             ),
           ),
+
           Container(
               margin: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               height: MediaQuery.of(context).size.height / 5,
