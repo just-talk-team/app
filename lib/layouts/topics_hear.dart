@@ -111,9 +111,9 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer?.cancel();
-    _topicTimer?.cancel();
 
     _topicController?.stop();
+    _topicTimer?.cancel();
     _topicController?.dispose();
 
     _controller?.stop();

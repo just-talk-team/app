@@ -23,16 +23,12 @@ class BadgeService {
         data.add(_badgets[i].item1);
       }
     }
-
     print("Data: $data");
-    if (data.length > 0) {
-      await _firebaseFirestore
-          .collection('discoveries')
-          .doc(roomID)
-          .collection('results')
-          .doc(userID)
-          .set({'badgets': FieldValue.arrayUnion(data)});
-    }
-    return;
+    await _firebaseFirestore
+        .collection('discoveries')
+        .doc(roomID)
+        .collection('results')
+        .doc(userID)
+        .set({'badgets': FieldValue.arrayUnion(data)});
   }
 }
