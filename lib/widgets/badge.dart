@@ -75,7 +75,7 @@ class _BadgeState extends State<Badge> {
                   : Colors.black.withOpacity(0.5),
             ),
           ),
-          Text(
+          AutoSizeText(
             widget._text,
             maxLines: 2,
             textAlign: TextAlign.center,
