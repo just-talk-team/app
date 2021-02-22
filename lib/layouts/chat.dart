@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:f_logs/f_logs.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/services/chat_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/confirm_dialog.dart';
@@ -30,7 +30,8 @@ class Chat extends StatefulWidget {
   _Chat createState() => _Chat();
 }
 
-class _Chat extends State<Chat> with TickerProviderStateMixin {
+class _Chat extends State<Chat>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   TextEditingController _messageController;
 
   String userId = "";
@@ -113,8 +114,33 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    bool active = true;
+    switch (state) {
+      case AppLifecycleState.detached:
+        active = false;
+        break;
+      case AppLifecycleState.inactive:
+        active = false;
+        break;
+      case AppLifecycleState.paused:
+        active = false;
+        break;
+      case AppLifecycleState.resumed:
+        active = true;
+        break;
+      default:
+        break;
+    }
+    setUserState(userId, roomId, chatCol, active);
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    setUserState(userId, roomId, chatCol, true);
     topicsShow = '';
     _messageController = TextEditingController();
 
@@ -138,6 +164,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
       _controller.stop();
       _controller.dispose();
     }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -146,15 +173,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     bool friendFlag = true;
 
     return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection(chatCol)
-            .doc(roomId)
-            .collection("messages")
-            .orderBy("time", descending: false)
-            .snapshots(),
+        stream: chatMessages,
         builder: (context, snapshot) {
           if (snapshot.data == null) return Container();
-
           return ListView.builder(
               controller: _scrollController,
               shrinkWrap: true,
@@ -245,19 +266,6 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         });
   }
 
-  Future<void> sendMessage(text, type) async {
-    Map<String, dynamic> message = {
-      'user': userId,
-      'message': text.toString(),
-      'time': DateTime.now().millisecondsSinceEpoch
-    };
-    await FirebaseFirestore.instance
-        .collection(chatCol)
-        .doc(roomId)
-        .collection("messages")
-        .add(message);
-  }
-
   void addFriend() async {
     UserService userService = RepositoryProvider.of<UserService>(context);
     if (!_isFriend) {
@@ -312,24 +320,38 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   },
                   child: Row(
                     children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 1.5,
-                                blurRadius: 1.5,
-                                offset: Offset(0, 3))
-                          ],
-                          shape: BoxShape.circle,
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          radius: 25,
-                          backgroundImage: NetworkImage(friendInfo.photo),
-                        ),
-                      ),
+                      StreamBuilder(
+                          stream: getUserState(friendId, roomId, chatCol),
+                          builder: (context, snapshot) {
+                            bool aux = snapshot.hasData ? snapshot.data : false;
+                            return Container(
+                              margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 1.5,
+                                      blurRadius: 1.5,
+                                      offset: Offset(0, 3))
+                                ],
+                                shape: BoxShape.circle,
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.grey,
+                                radius: 25,
+                                backgroundImage: NetworkImage(friendInfo.photo),
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: aux ? Colors.green : Colors.grey,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
                       Flexible(
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,7 +491,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               if (!currentFocus.hasPrimaryFocus) {
                                 currentFocus.unfocus();
                               }
-                              sendMessage(_messageController.text, userId);
+
+                              sendMessage(_messageController.text, userId,
+                                  roomId, chatCol);
                               _messageController.clear();
 
                               _scrollController.animateTo(
