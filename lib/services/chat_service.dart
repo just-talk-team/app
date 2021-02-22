@@ -9,14 +9,14 @@ Stream<QuerySnapshot> chatMessages(String chatCollection, String roomId) {
       .snapshots();
 }
 
-Future<void> sendMessage(
+void sendMessage(
     String text, String userId, String roomId, String chatCollection) async {
   Map<String, dynamic> message = {
     'user': userId,
     'message': text.toString(),
     'time': DateTime.now().millisecondsSinceEpoch
   };
-  await FirebaseFirestore.instance
+  FirebaseFirestore.instance
       .collection(chatCollection)
       .doc(roomId)
       .collection("messages")
@@ -31,7 +31,7 @@ Stream<bool> getUserState(String userId, String roomId, String chatCollection) {
       .doc(userId)
       .snapshots()
       .map((DocumentSnapshot documentSnapshot) =>
-          documentSnapshot.data()["active"]);
+          documentSnapshot.data()["state"]);
 }
 
 Stream<bool> getMoreMinutes(
@@ -53,7 +53,7 @@ void setUserState(
       .doc(roomId)
       .collection("users")
       .doc(userId)
-      .update({'active': state});
+      .update({'state': state});
 }
 
 void setMoreMinutes(
@@ -63,5 +63,5 @@ void setMoreMinutes(
       .doc(roomId)
       .collection("users")
       .doc(userId)
-      .update({'extend': state});
+      .update({'extends': state});
 }

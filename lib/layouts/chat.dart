@@ -140,7 +140,6 @@ class _Chat extends State<Chat>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    setUserState(userId, roomId, chatCol, true);
     topicsShow = '';
     _messageController = TextEditingController();
 
@@ -155,6 +154,7 @@ class _Chat extends State<Chat>
     } else {
       chatCol = "friends";
     }
+    setUserState(userId, roomId, chatCol, true);
     recoverChatInfo();
   }
 
@@ -325,30 +325,32 @@ class _Chat extends State<Chat>
                           builder: (context, snapshot) {
                             bool aux = snapshot.hasData ? snapshot.data : false;
                             return Container(
-                              margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 1.5,
-                                      blurRadius: 1.5,
-                                      offset: Offset(0, 3))
-                                ],
-                                shape: BoxShape.circle,
-                              ),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.grey,
-                                radius: 25,
-                                backgroundImage: NetworkImage(friendInfo.photo),
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: aux ? Colors.green : Colors.grey,
-                                      shape: BoxShape.circle,
+                              width: 50,
+                              height: 50,
+                              margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Stack(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.grey,
+                                    radius: 25,
+                                    backgroundImage:
+                                        NetworkImage(friendInfo.photo),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                      height: 20,
+                                      width: 20,
+                                      decoration: BoxDecoration(
+                                          color: aux
+                                              ? Color(0x2bc544)
+                                              : Colors.black,
+                                          shape: BoxShape.circle,
+                                          border:
+                                              Border.all(color: Colors.white)),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
                             );
                           }),
