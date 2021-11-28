@@ -94,66 +94,71 @@ class _InfoPage extends State<InfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        //Title
-        Container(
-          child: Text(
-            'Mis Datos',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
-          child: AutoSizeText(
-            "Mantén conversaciones interesantes",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          //Title
+          Container(
+            child: Text(
+              'Mis Datos',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            maxLines: 2,
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+            child: AutoSizeText(
+              "Mantén conversaciones interesantes",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 2,
+            ),
+          ),
 
-        //Content
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: <Widget>[
-              MyTextFieldDatePicker(
-                key: Key('DatePicker'),
-                labelText: "Fecha de Nacimiento",
-                prefixIcon: Icon(Icons.date_range, color: Theme.of(context).primaryColor,),
-                suffixIcon: Icon(Icons.arrow_drop_down),
-                lastDate: DateTime.now().add(Duration(days: 366)),
-                firstDate: DateTime(1970),
-                initialDate: widget.userI.birthdate,
-                onDateChanged: (selectedDate) {
-                  widget.userI.birthdate = selectedDate;
-                  validate();
-                },
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Sexo',
-                  style: TextStyle(
-                      fontSize: 20, color: Colors.black.withOpacity(0.5)),
+          //Content
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              children: <Widget>[
+                MyTextFieldDatePicker(
+                  key: Key('DatePicker'),
+                  labelText: "Fecha de Nacimiento",
+                  prefixIcon: Icon(
+                    Icons.date_range,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  suffixIcon: Icon(Icons.arrow_drop_down),
+                  lastDate: DateTime.now().add(Duration(days: 366)),
+                  firstDate: DateTime(1970),
+                  initialDate: widget.userI.birthdate,
+                  onDateChanged: (selectedDate) {
+                    widget.userI.birthdate = selectedDate;
+                    validate();
+                  },
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Center(child: choiceChips()),
-            ],
+                SizedBox(
+                  height: 50,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Sexo',
+                    style: TextStyle(
+                        fontSize: 20, color: Colors.black.withOpacity(0.5)),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Center(child: choiceChips()),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

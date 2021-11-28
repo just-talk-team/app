@@ -5,9 +5,11 @@ import 'package:just_talk/widgets/badge.dart';
 
 // ignore: must_be_immutable
 class Results extends StatelessWidget {
-  Results({Key key, String roomId, String userId}) : super(key: key) {
+  Results({Key key, String roomId, String userId, Color color})
+      : super(key: key) {
     _roomId = roomId;
     _userId = userId;
+    _color = color;
 
     badgeService = BadgeService();
     flags = List.filled(badges.length, false);
@@ -23,6 +25,7 @@ class Results extends StatelessWidget {
       }
 
       badgetList.add(Badge(
+          selectedColor: _color,
           selected: false,
           icon: badges[i].item2,
           text: text,
@@ -37,60 +40,61 @@ class Results extends StatelessWidget {
   BadgeService badgeService;
   String _roomId;
   String _userId;
+  Color _color;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
       child: Container(
-        width: MediaQuery.of(context).size.width - 100,
-        height: MediaQuery.of(context).size.height/3,
-        child: Material(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.add_alarm,
-                      size: 40,
-                      color: Color(0xffff3f82),
-                    ),
-                    Text(
-                      '5 min',
-                      style: TextStyle(color: Color(0xffff3f82)),
-                    )
-                  ],
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  offset: Offset(0, 10),
+                  blurRadius: 10),
+            ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Badge(
+                selectedColor: _color,
+                selected: false,
+                icon: Icons.add_alarm,
+                text: '+5 min',
+                valueChanged: (state) {}),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: badgetList,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
+              child: GestureDetector(
+                onTap: () {
+                  badgeService.registerBadges(flags, _roomId, _userId);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/home', (Route<dynamic> route) => false);
+                },
+                child: Text(
+                  'FINALIZAR',
+                  style: TextStyle(
+                      letterSpacing: 2,
+                      color: _color,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: badgetList,
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
-                child: GestureDetector(
-                  onTap: () {
-                    badgeService.registerBadges(flags, _roomId, _userId);
-                    Navigator.of(context).popUntil((route) => (route.settings.name == '/home'));
-                  },
-                  child: Text(
-                    'FINALIZAR',
-                    style: TextStyle(
-                        letterSpacing: 2,
-                        color: Color(0xffff3f82),
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              )
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );

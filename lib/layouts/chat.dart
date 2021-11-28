@@ -1,3 +1,4 @@
+import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,10 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_talk/authentication/bloc/authentication_cubit.dart';
+import 'package:just_talk/services/chat_service.dart';
 import 'package:just_talk/services/topics_service.dart';
 import 'package:just_talk/services/user_service.dart';
 import 'package:just_talk/widgets/confirm_dialog.dart';
-import 'package:just_talk/widgets/custom_text.dart';
+import 'package:just_talk/widgets/message_text.dart';
 import 'package:just_talk/widgets/results.dart';
 import 'package:just_talk/models/user_info.dart';
 import 'package:just_talk/utils/enums.dart';
@@ -28,8 +30,9 @@ class Chat extends StatefulWidget {
   _Chat createState() => _Chat();
 }
 
-class _Chat extends State<Chat> with TickerProviderStateMixin {
-  final TextEditingController _messageController = TextEditingController();
+class _Chat extends State<Chat>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  TextEditingController _messageController;
 
   String userId = "";
   String friendId = "";
@@ -52,6 +55,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
   UserService userService;
   TopicsService topicsService;
+
+  List<String> topics;
+  String topicsShow;
 
   Future<void> recoverChatInfo() async {
     roomId = widget._roomId;
@@ -82,6 +88,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
 
     //Return another user ===================================================================
     friendInfo = await userService.getUser(friendId, false, false);
+    topics = await topicsService.getChatTopics(userId, friendId);
+    topicsShow = topics.join(', ');
+
     setState(() {
       _hasData = true;
     });
@@ -105,8 +114,34 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    bool active = true;
+    switch (state) {
+      case AppLifecycleState.detached:
+        active = false;
+        break;
+      case AppLifecycleState.inactive:
+        active = false;
+        break;
+      case AppLifecycleState.paused:
+        active = false;
+        break;
+      case AppLifecycleState.resumed:
+        active = true;
+        break;
+      default:
+        break;
+    }
+    setUserState(userId, roomId, chatCol, active);
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    topicsShow = '';
+    _messageController = TextEditingController();
 
     _scrollController = ScrollController();
     userService = RepositoryProvider.of<UserService>(context);
@@ -119,6 +154,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
     } else {
       chatCol = "friends";
     }
+    setUserState(userId, roomId, chatCol, true);
     recoverChatInfo();
   }
 
@@ -126,18 +162,18 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   void dispose() {
     if (widget._chatType == ChatType.DiscoveryChat) {
       _controller.stop();
+      _controller.dispose();
     }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   Widget chatMessagesList() {
+    bool selfFlag = true;
+    bool friendFlag = true;
+
     return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection(chatCol)
-            .doc(roomId)
-            .collection("messages")
-            .orderBy("time", descending: false)
-            .snapshots(),
+        stream: chatMessages,
         builder: (context, snapshot) {
           if (snapshot.data == null) return Container();
           return ListView.builder(
@@ -146,23 +182,56 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
                 String senderId = snapshot.data.docs[index].data()["user"];
-                MessageType messageType;
+                BubbleNip nip;
 
-                if (senderId == userId || senderId == friendId) {
-                  Color color = senderId == userId
-                      ? Colors.black.withOpacity(0.7)
-                      : Color(0xffff2424).withOpacity(0.7);
+                if (senderId == userId) {
+                  if (selfFlag) {
+                    selfFlag = false;
+                    friendFlag = true;
+                    nip = BubbleNip.rightTop;
+                  }
 
-                  messageType = MessageType.Message;
-                  return MessageText(
-                      text: snapshot.data.docs[index].data()["message"],
-                      type: messageType,
-                      color: color);
+                  return Bubble(
+                    radius: Radius.circular(10.0),
+                    padding:
+                        BubbleEdges.symmetric(horizontal: 10, vertical: 10),
+                    margin: BubbleEdges.only(top: 10),
+                    alignment: Alignment.topRight,
+                    nip: nip,
+                    color: Colors.black.withOpacity(0.7),
+                    child: Text(
+                      snapshot.data.docs[index].data()["message"],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                } else if (senderId == friendId) {
+                  if (friendFlag) {
+                    friendFlag = false;
+                    selfFlag = true;
+                    nip = BubbleNip.leftTop;
+                  }
+
+                  return Bubble(
+                    radius: Radius.circular(10.0),
+                    padding:
+                        BubbleEdges.symmetric(horizontal: 10, vertical: 10),
+                    margin: BubbleEdges.only(top: 10),
+                    alignment: Alignment.topLeft,
+                    nip: nip,
+                    color: Color(0xffff2424).withOpacity(0.7),
+                    child: Text(
+                      snapshot.data.docs[index].data()["message"],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
                 } else {
-                  messageType = MessageType.Information;
-                  return MessageText(
-                      text: snapshot.data.docs[index].data()["message"],
-                      type: messageType);
+                  return Bubble(
+                    alignment: Alignment.center,
+                    color: Colors.transparent,
+                    child: Text(snapshot.data.docs[index].data()["message"],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black)),
+                  );
                 }
               });
         });
@@ -190,25 +259,11 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
         context: context,
         pageBuilder: (BuildContext context, Animation animation,
             Animation secondAnimation) {
-          return Results(roomId: roomId, userId: userId);
+          return Results(
+              roomId: roomId,
+              userId: userId,
+              color: Theme.of(context).primaryColor);
         });
-  }
-
-  Future<void> sendMessage(text, type) async {
-    Map<String, dynamic> message = {
-      'user': userId,
-      'message': text.toString(),
-      'time': DateTime.now().millisecondsSinceEpoch
-    };
-    await FirebaseFirestore.instance
-        .collection(chatCol)
-        .doc(roomId)
-        .collection("messages")
-        .add(message);
-    messages.add(MessageText(
-        text: text,
-        type: MessageType.Message,
-        color: Colors.black.withOpacity(0.7)));
   }
 
   void addFriend() async {
@@ -258,60 +313,74 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
               if (_hasData) {
                 return GestureDetector(
                   onTap: () async {
-                    List<String> topics =
-                        await topicsService.getChatTopics(userId, friendId);
-                    Navigator.of(context).pushNamed('/chat_profile',
-                        arguments: {'userId': friendId, 'topics': topics});
+                    if (_hasData) {
+                      Navigator.of(context).pushNamed('/chat_profile',
+                          arguments: {'userId': friendId, 'topics': topics});
+                    }
                   },
                   child: Row(
                     children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 1.5,
-                                blurRadius: 1.5,
-                                offset: Offset(0, 3))
-                          ],
-                          shape: BoxShape.circle,
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          radius: 25,
-                          backgroundImage: NetworkImage(friendInfo.photo),
-                        ),
+                      StreamBuilder(
+                          stream: getUserState(friendId, roomId, chatCol),
+                          builder: (context, snapshot) {
+                            bool aux = snapshot.hasData ? snapshot.data : false;
+                            return Container(
+                              width: 50,
+                              height: 50,
+                              margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Stack(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: Colors.grey,
+                                    radius: 25,
+                                    backgroundImage:
+                                        NetworkImage(friendInfo.photo),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                      height: 20,
+                                      width: 20,
+                                      decoration: BoxDecoration(
+                                          color: aux
+                                              ? Color(0x2bc544)
+                                              : Colors.black,
+                                          shape: BoxShape.circle,
+                                          border:
+                                              Border.all(color: Colors.white)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                      Flexible(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                friendInfo.nickname,
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                '${describeEnum(friendInfo.gender)} | ${friendInfo.age} años',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                              ),
+                              Text(
+                                'Preguntame sobre: $topicsShow',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                                maxLines: 1,
+                              ),
+                            ]),
                       ),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              friendInfo.nickname,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  describeEnum(friendInfo.gender),
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                                Text(' | '),
-                                Text(
-                                  friendInfo.age.toString() + " años",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                                SizedBox(width: 10)
-                              ],
-                            ),
-                          ]),
                     ],
                   ),
                 );
@@ -348,7 +417,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                 fit: BoxFit.cover,
               ),
             ),
-            margin: EdgeInsets.all(10),
+            margin: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -359,7 +428,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                   children: [
                     (widget._chatType == ChatType.DiscoveryChat)
                         ? Container(
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            margin: EdgeInsets.symmetric(vertical: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -396,41 +465,39 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               ],
                             ),
                           )
-                        : Container(),
+                        : Container(margin: EdgeInsets.symmetric(vertical: 10)),
                     Expanded(
                         child: roomId != "" ? chatMessagesList() : Container())
                   ],
                 ))),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 8,
-                        child: Container(
-                          height: 50.0,
-                          child: TextField(
-                            controller: _messageController,
-                            decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 2.0),
-                              ),
-                              hintText: 'Escribe aqui el mensaje...',
-                              contentPadding: EdgeInsets.all(10.0),
-                            ),
-                          ),
+                Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: TextField(
+                    textAlignVertical: TextAlignVertical.center,
+                    controller: _messageController, //
+                    decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
                         ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: GestureDetector(
-                          onTap: () async {
+                        hintText: 'Escribe aqui el mensaje...',
+                        contentPadding: EdgeInsets.all(10.0),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.send_rounded,
+                              color: Theme.of(context).primaryColor),
+                          onPressed: () {
                             if (_messageController.text.length > 0) {
-                              await sendMessage(
-                                  _messageController.text, userId);
+                              FocusScopeNode currentFocus =
+                                  FocusScope.of(context);
+                              if (!currentFocus.hasPrimaryFocus) {
+                                currentFocus.unfocus();
+                              }
+
+                              sendMessage(_messageController.text, userId,
+                                  roomId, chatCol);
                               _messageController.clear();
-                              FocusScope.of(context).requestFocus(FocusNode());
+
                               _scrollController.animateTo(
                                 _scrollController.position.maxScrollExtent,
                                 curve: Curves.easeOut,
@@ -438,11 +505,7 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
                               );
                             }
                           },
-                          child: Icon(Icons.send_rounded,
-                              size: 30, color: Color(0xffb31049)),
-                        ),
-                      )
-                    ],
+                        )),
                   ),
                 )
               ],
@@ -452,10 +515,9 @@ class _Chat extends State<Chat> with TickerProviderStateMixin {
   }
 }
 
-// ignore: must_be_immutable
 class Countdown extends AnimatedWidget {
   Countdown({Key key, this.animation}) : super(key: key, listenable: animation);
-  Animation<int> animation;
+  final Animation<int> animation;
 
   @override
   build(BuildContext context) {

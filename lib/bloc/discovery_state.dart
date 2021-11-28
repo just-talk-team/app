@@ -9,10 +9,11 @@ class DiscoveryState extends Equatable {
 class DiscoveryFound extends DiscoveryState {
   DiscoveryFound({@required String room})
       : assert(room != null),
-        this.room = room;
+        this.room = room,
+        this.dateTime = DateTime.now();
 
   final String room;
-  final DateTime dateTime = DateTime.now();
+  final DateTime dateTime;
 
   @override
   List<Object> get props => [room, dateTime];

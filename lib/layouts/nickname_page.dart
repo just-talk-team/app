@@ -32,7 +32,7 @@ class _NicknamePage extends State<NicknamePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
       child: Column(
         children: <Widget>[
           //Title
@@ -58,25 +58,22 @@ class _NicknamePage extends State<NicknamePage> {
           //Content
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Stack(alignment: Alignment.centerRight, children: <Widget>[
-              TextFormField(
-                key: Key("Nickname input"),
-                controller: nickController,
-                focusNode: textFieldFocusNode,
-                decoration: InputDecoration(
-                  hintText: 'Nickname',
-                  border: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 0.0),
-                  ),
+            child: TextFormField(
+              key: Key("Nickname input"),
+              controller: nickController,
+              decoration: InputDecoration(
+                hintText: 'Nickname',
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey, width: 0.0),
                 ),
-              ),
-              IconButton(
-                key: Key("Accept nickname"),
-                icon: Icon(Icons.send),
-                onPressed: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  setState(() async {
+                suffixIcon: IconButton(
+                  key: Key("Accept nickname"),
+                  icon: Icon(Icons.send),
+                  onPressed: () async {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
                     if (nickController.text.isNotEmpty &&
                         !await widget.userService
                             .validateNickname(nickController.text)) {
@@ -86,12 +83,11 @@ class _NicknamePage extends State<NicknamePage> {
                     widget.pageController.nextPage(
                         duration: Duration(seconds: 1),
                         curve: Curves.easeOutCubic);
-                  });
-                },
-              )
-            ]),
+                  },
+                ),
+              ),
+            ),
           ),
-          SizedBox(height: 100)
         ],
       ),
     );

@@ -39,6 +39,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   List<Topic> topicsToHear;
   List<Topic> checkList;
   Timer _timer;
+  Timer _topicTimer;
   String id;
   bool accept;
   bool visible;
@@ -79,17 +80,17 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
     await discoveryCubit.init();
 
     discoveryCubit.listen((DiscoveryState discoveryState) {
-      String roomId = (discoveryState as DiscoveryReady).room;
       switch (discoveryState.runtimeType) {
         case DiscoveryFound:
+          String roomId = (discoveryState as DiscoveryFound).room;
           FLog.info(
               className: "TopicsHear",
               methodName: "initCubit",
               text: "Room $roomId found");
           chatReady((discoveryState as DiscoveryFound).room);
-          _startClock();
           break;
         case DiscoveryReady:
+          String roomId = (discoveryState as DiscoveryReady).room;
           _controller.stop();
           Navigator.of(context).pop();
           FLog.info(
@@ -108,89 +109,103 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() async {
+  void dispose() {
+    _timer?.cancel();
+
+    _topicController?.stop();
+    _topicTimer?.cancel();
+    _topicController?.dispose();
+
+    _controller?.stop();
+    _controller?.dispose();
+    discoveryCubit.close();
     super.dispose();
-    _timer.cancel();
-    await discoveryCubit.close();
   }
 
   void chatReady(String room) {
-    showGeneralDialog(
+    _startClock();
+    showDialog(
         barrierDismissible: false,
-        transitionDuration: const Duration(milliseconds: 200),
         context: context,
-        pageBuilder: (BuildContext context, Animation animation,
-            Animation secondAnimation) {
+        builder: (BuildContext context) {
           return WillPopScope(
             onWillPop: () async {
               return false;
             },
-            child: Center(
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
               child: Container(
-                width: MediaQuery.of(context).size.width - 100,
-                height: MediaQuery.of(context).size.height / 3,
-                child: Material(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  elevation: 20,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    border: Border.all(
-                                        width: 2,
-                                        color: Colors.black.withOpacity(0.8))),
-                                child: Countdown(
-                                  animation: StepTween(
-                                    begin: levelClock,
-                                    end: 0,
-                                  ).animate(_topicController),
-                                ),
-                              )
-                            ],
-                          )),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
-                        child: Text(
-                          'Sala de chat lista, recuerda ser tu mismo!',
-                          style:
-                              TextStyle(color: Color(0xff959595), fontSize: 15),
-                        ),
+                padding: EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+                decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          offset: Offset(0, 10),
+                          blurRadius: 10),
+                    ]),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                    width: 2,
+                                    color: Colors.black.withOpacity(0.8))),
+                            child: Countdown(
+                              animation: StepTween(
+                                begin: levelClock,
+                                end: 0,
+                              ).animate(_controller),
+                            ),
+                          )
+                        ],
                       ),
-                      StatefulBuilder(builder: (context, setState) {
-                        if (!accept) {
-                          return GestureDetector(
-                            onTap: () {
-                              accept = true;
-                              discoveryService.activateUser(room, id);
-                              setState(() {});
-                              //_controller.stop();
-                            },
-                            child: Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'ACEPTAR',
-                                  style: TextStyle(
-                                      letterSpacing: 2,
-                                      color: Theme.of(context).accentColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                          );
-                        }
-                        return Container(child: CircularProgressIndicator());
-                      })
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                      child: Text(
+                        'Sala de chat lista, recuerda ser tu mismo!',
+                        style:
+                            TextStyle(color: Color(0xff959595), fontSize: 15),
+                      ),
+                    ),
+                    StatefulBuilder(builder: (context, setState) {
+                      if (!accept) {
+                        return GestureDetector(
+                          onTap: () {
+                            accept = true;
+                            discoveryService.activateUser(room, id);
+                            setState(() {});
+                          },
+                          child: Text(
+                            'ACEPTAR',
+                            style: TextStyle(
+                                letterSpacing: 2,
+                                color: Theme.of(context).accentColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      }
+                      return Container(child: CircularProgressIndicator());
+                    })
+                  ],
                 ),
               ),
             ),
@@ -208,7 +223,7 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
           visible = false;
         });
 
-        Timer(Duration(milliseconds: 500), () {
+        _topicTimer = Timer(Duration(milliseconds: 500), () {
           topicHearCubit.shuffle();
           _topicController.reset();
           _topicController.forward();
@@ -256,79 +271,76 @@ class _TopicsHear extends State<TopicsHear> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          centerTitle: true,
-          leading: IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.keyboard_arrow_left),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Text(
-            '¿Sobre que puedo escuchar?',
-            style: TextStyle(
-                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          iconSize: 30,
+          icon: Icon(Icons.keyboard_arrow_left),
+          color: Colors.black,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          '¿Sobre que puedo escuchar?',
+          style: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      body: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(width: 2, color: Color(0xff959595))),
+            child: Countdown(
+              animation: StepTween(
+                begin: topicClock,
+                end: 0,
+              ).animate(_topicController),
+            ),
           ),
         ),
-        body: BlocBuilder<TopicHearCubit, TopicHearState>(
+        BlocBuilder<TopicHearCubit, TopicHearState>(
             cubit: topicHearCubit,
             builder: (context, TopicHearState topicHearState) {
               if (topicHearState.runtimeType == TopicHearResult) {
                 topicsToHear = getTopics(
                     (topicHearState as TopicHearResult).topics, checkList);
+                print(topicsToHear);
               }
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.center,
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border:
-                              Border.all(width: 2, color: Color(0xff959595))),
-                      child: Countdown(
-                        animation: StepTween(
-                          begin: topicClock,
-                          end: 0,
-                        ).animate(_topicController),
+              return Expanded(
+                child: AnimatedOpacity(
+                  opacity: visible ? 1.0 : 0.0,
+                  duration: Duration(milliseconds: 500),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: List<Widget>.generate(topicsToHear.length,
+                            (int index) {
+                          return TopicChip(
+                              label: topicsToHear[index].topic,
+                              callback: () => setState(() {
+                                    checkList.add(topicsToHear[index]);
+                                  }));
+                        }),
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: AnimatedOpacity(
-                      opacity: visible ? 1.0 : 0.0,
-                      duration: Duration(milliseconds: 500),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Wrap(
-                            spacing: 6.0,
-                            runSpacing: 6.0,
-                            children: List<Widget>.generate(topicsToHear.length,
-                                (int index) {
-                              return TopicChip(
-                                  label: topicsToHear[index].topic,
-                                  callback: () => setState(() {
-                                        checkList.add(topicsToHear[index]);
-                                      }));
-                            }),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               );
-            }));
+            })
+      ]),
+    );
   }
 }
 

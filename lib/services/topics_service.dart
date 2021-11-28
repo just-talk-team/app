@@ -21,15 +21,15 @@ class TopicsService {
       event.docChanges.forEach((DocumentChange documentChange) {
         DateTime docDate = documentChange.doc.data()['time'].toDate();
         //TODO: TEST
-        //if (DateTime.now().difference(docDate).inMinutes <= 5) {
-        Topic topic = Topic(documentChange.doc.id, docDate);
-        bool flag = false;
-        if (documentChange.type == DocumentChangeType.added ||
-            documentChange.type == DocumentChangeType.modified) {
-          flag = true;
+        if (DateTime.now().difference(docDate).inMinutes <= 5) {
+          Topic topic = Topic(documentChange.doc.id, docDate);
+          bool flag = false;
+          if (documentChange.type == DocumentChangeType.added ||
+              documentChange.type == DocumentChangeType.modified) {
+            flag = true;
+          }
+          topics.add(Tuple2(topic, flag));
         }
-        topics.add(Tuple2(topic, flag));
-        //}
       });
       return topics;
     });
@@ -41,7 +41,7 @@ class TopicsService {
         .doc(user1)
         .collection('topics_hear');
     CollectionReference user2Topics = _firebaseFirestore
-        .collection('user')
+        .collection('users')
         .doc(user2)
         .collection('topics_talk');
 

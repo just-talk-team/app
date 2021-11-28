@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
     remoteService = RepositoryProvider.of<RemoteService>(context);
     loading = true;
     log(BlocProvider.of<AuthenticationCubit>(context).state.user.id);
-    //getRemote();
+    getRemote();
     loading = false;
   }
 
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                                 arguments: {'segments': segments});
                           } else {
                             Flushbar(
-                              backgroundColor: Color(0xFFB31048),
+                              backgroundColor: Theme.of(context).primaryColor,
                               flushbarPosition: FlushbarPosition.TOP,
                               messageText: Text(
                                 'Debes de seleccionar al menos un segmento!',

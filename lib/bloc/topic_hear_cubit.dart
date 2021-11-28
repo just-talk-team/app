@@ -42,7 +42,6 @@ class TopicHearCubit extends Cubit<TopicHearState> {
         });
         if (flag) {
           emit(TopicHearResult(List.from(_topics)));
-          flag = false; 
         }
       }));
     }
@@ -50,6 +49,7 @@ class TopicHearCubit extends Cubit<TopicHearState> {
 
   void shuffle() {
     _topics.shuffle();
+    flag = false;
     emit(TopicHearResult(List.from(_topics)));
   }
 }
